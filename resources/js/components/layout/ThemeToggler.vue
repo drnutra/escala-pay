@@ -32,7 +32,7 @@ onMounted(() => {
     <button
         v-if="compact"
         type="button"
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--ep-text-3)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
         :aria-label="theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
         @click="toggleTheme"
     >

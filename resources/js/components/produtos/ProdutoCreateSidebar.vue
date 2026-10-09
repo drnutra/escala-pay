@@ -11,6 +11,7 @@ import {
     X,
     Truck,
 } from 'lucide-vue-next';
+import { ArrowLeft } from 'lucide-vue-next';
 import Button from '@/components/ui/Button.vue';
 import Toggle from '@/components/ui/Toggle.vue';
 import PluginSlotHost from '@/components/plugins/PluginSlotHost.vue';
@@ -120,122 +121,130 @@ watch(
             aria-labelledby="sidebar-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative z-[100001] flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-xl dark:bg-zinc-900 sm:w-[420px]"
+                class="ep-drawer relative z-[100001] flex h-full w-full max-w-md flex-col sm:w-[440px] sm:rounded-l-[22px]"
                 @click.stop
             >
                 <div
-                    class="flex shrink-0 items-center justify-between rounded-tl-2xl border-b border-zinc-200 px-4 py-3 dark:border-zinc-800"
+                    class="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--ep-line)] px-6 pb-4 pt-5"
                 >
-                    <h2 id="sidebar-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {{ step === 1 ? 'Novo produto' : 'Criar produto' }}
-                    </h2>
+                    <div class="min-w-0">
+                        <p class="text-[11.5px] font-medium tabular-nums text-[var(--ep-text-4)]">
+                            Etapa {{ step }} de 2
+                        </p>
+                        <h2 id="sidebar-title" class="mt-0.5 text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            {{ step === 1 ? 'Novo produto' : 'Criar produto' }}
+                        </h2>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 !h-8 !w-8 !rounded-[10px] text-[var(--ep-text-3)]"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto px-4 py-4">
+                <div class="flex-1 overflow-y-auto px-6 py-5">
                     <!-- Step 1: Tipo -->
-                    <div v-if="step === 1" class="space-y-3">
-                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div v-if="step === 1" class="space-y-4">
+                        <p class="text-[13px] text-[var(--ep-text-3)]">
                             Escolha o tipo de entrega do produto.
                         </p>
-                        <div class="grid gap-3">
+                        <div class="grid gap-2.5">
                             <button
                                 v-for="t in productTypes"
                                 :key="t.value"
                                 type="button"
                                 :disabled="!t.available"
                                 :class="[
-                                    'flex items-start gap-3 rounded-xl border p-4 text-left transition',
+                                    'group flex items-center gap-3.5 rounded-[14px] border p-3.5 text-left transition-[border-color,background-color] duration-150',
                                     t.available
-                                        ? 'border-zinc-200 bg-zinc-50 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:border-[var(--color-primary)]'
-                                        : 'cursor-not-allowed border-zinc-200 bg-zinc-100/50 opacity-70 dark:border-zinc-800 dark:bg-zinc-800/30',
+                                        ? 'border-[var(--ep-line)] bg-[var(--ep-card-2)] hover:border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] hover:bg-[var(--ep-hover)]'
+                                        : 'cursor-not-allowed border-[var(--ep-line)] bg-transparent opacity-55',
                                 ]"
                                 @click="selectType(t)"
                             >
                                 <span
-                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-zinc-700"
+                                    class="ep-kpi__icon h-10 w-10 shrink-0 rounded-[12px]"
                                 >
                                     <component
                                         :is="iconForType(t)"
-                                        class="h-5 w-5 text-zinc-600 dark:text-zinc-300"
+                                        class="h-[18px] w-[18px]"
+                                        :stroke-width="1.75"
                                     />
                                 </span>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-medium text-zinc-900 dark:text-white">
+                                        <span class="text-[13.5px] font-medium text-[var(--ep-text)]">
                                             {{ t.label }}
                                         </span>
                                         <span
                                             v-if="!t.available"
-                                            class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+                                            class="ep-chip ep-chip--warn"
                                         >
                                             Em breve
                                         </span>
                                     </div>
-                                    <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <p class="mt-0.5 text-[12.5px] leading-snug text-[var(--ep-text-3)]">
                                         {{ t.description }}
                                     </p>
                                 </div>
                                 <ChevronRight
                                     v-if="t.available"
-                                    class="h-5 w-5 shrink-0 text-zinc-400"
+                                    class="h-4 w-4 shrink-0 text-[var(--ep-text-4)] transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-[var(--ep-text-2)]"
+                                    :stroke-width="1.75"
                                 />
                             </button>
                         </div>
                     </div>
 
                     <!-- Step 2: Formulário -->
-                    <form v-else class="space-y-4" @submit.prevent="submit">
+                    <form v-else class="space-y-5" @submit.prevent="submit">
                         <div>
                             <button
                                 type="button"
-                                class="mb-2 text-sm text-[var(--color-primary)] hover:underline"
+                                class="ep-btn-ghost -ml-2 !h-8 !px-2 text-[12.5px]"
                                 @click="back"
                             >
-                                ← Voltar ao tipo
+                                <ArrowLeft class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                                Voltar ao tipo
                             </button>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Nome *
                             </label>
                             <input
                                 v-model="form.name"
                                 type="text"
                                 required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                class="ep-input"
                                 placeholder="Ex: Curso de Desenvolvimento Web"
                             />
-                            <p v-if="form.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            <p v-if="form.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
                                 {{ form.errors.name }}
                             </p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Tipo de cobrança
                             </label>
-                            <div class="mt-1.5 flex gap-2">
+                            <div class="ep-tabs flex w-full">
                                 <button
                                     v-for="bt in billingTypes"
                                     :key="bt.value"
                                     type="button"
                                     :class="[
-                                        'flex-1 rounded-lg border px-3 py-2.5 text-sm font-medium transition',
+                                        'ep-tab flex-1 justify-center',
                                         form.billing_type === bt.value
-                                            ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] dark:bg-[var(--color-primary)]/20'
-                                            : 'border-zinc-300 bg-white text-zinc-600 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                                            ? 'ep-tab--active'
+                                            : 'border border-transparent',
                                     ]"
                                     @click="form.billing_type = bt.value"
                                 >
@@ -244,81 +253,86 @@ watch(
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Descrição
                             </label>
                             <textarea
                                 v-model="form.description"
                                 rows="3"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                class="ep-input"
                                 placeholder="Breve descrição do produto"
                             />
                         </div>
                         <div v-if="form.type === 'link'">
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Link do entregável
                             </label>
                             <input
                                 v-model="form.deliverable_link"
                                 type="url"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                class="ep-input"
                                 placeholder="https://..."
                             />
-                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="ep-help">
                                 Enviado por e-mail após a compra.
                             </p>
-                            <p v-if="form.errors.deliverable_link" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            <p v-if="form.errors.deliverable_link" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
                                 {{ form.errors.deliverable_link }}
                             </p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Preço (BRL) *
                             </label>
-                            <input
-                                v-model="form.price"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                placeholder="0,00"
-                            />
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            <div class="relative">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12.5px] font-medium text-[var(--ep-text-3)]" aria-hidden="true">R$</span>
+                                <input
+                                    v-model="form.price"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                    class="ep-input pl-9 font-medium tabular-nums"
+                                    placeholder="0,00"
+                                />
+                            </div>
+                            <p class="ep-help tabular-nums">
                                 ≈ € {{ priceEur }} · $ {{ priceUsd }}
                             </p>
-                            <p v-if="form.errors.price" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            <p v-if="form.errors.price" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
                                 {{ form.errors.price }}
                             </p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Imagem
                             </label>
-                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                                Exibida em formato quadrado (1:1). Recomendado enviar imagem quadrada.
-                            </p>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                class="mt-1 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-white dark:text-zinc-400"
-                                @change="onFileChange"
-                            />
-                            <p v-if="form.image" class="mt-1 text-sm text-zinc-500">
+                            <div class="rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] p-3">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    class="block w-full cursor-pointer text-[12.5px] text-[var(--ep-text-3)] file:mr-3 file:h-8 file:cursor-pointer file:rounded-[10px] file:border file:border-solid file:border-[var(--ep-glass-border)] file:bg-[var(--ep-glass-strong)] file:px-3 file:text-[12.5px] file:font-medium file:text-[var(--ep-text)] hover:file:border-[var(--ep-line-strong)]"
+                                    @change="onFileChange"
+                                />
+                                <p class="mt-2 text-[12px] text-[var(--ep-text-4)]">
+                                    Exibida em formato quadrado (1:1). Recomendado enviar imagem quadrada.
+                                </p>
+                            </div>
+                            <p v-if="form.image" class="mt-1.5 truncate text-[12px] text-[var(--ep-text-2)]">
                                 {{ form.image.name }}
                             </p>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3">
                             <Toggle v-model="form.is_active" label="Produto ativo" />
                         </div>
-                        <div v-if="pluginFormSections?.length" class="space-y-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+                        <div v-if="pluginFormSections?.length" class="space-y-2 border-t border-[var(--ep-line)] pt-5">
                             <PluginSlotHost
                                 layout="stack"
                                 :items="pluginFormSections"
                                 :context="{ isCreate: true }"
                             />
                         </div>
-                        <div class="flex gap-2 pt-2">
+                        <div class="sticky bottom-0 -mx-6 -mb-5 flex gap-2 border-t border-[var(--ep-line)] bg-[var(--ep-drawer)] px-6 py-4 backdrop-blur-xl">
                             <Button type="submit" :disabled="form.processing">
                                 Criar produto
                             </Button>

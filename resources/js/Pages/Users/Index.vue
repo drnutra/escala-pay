@@ -4,7 +4,7 @@ import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
 import HorizontalScrollTabs from '@/components/ui/HorizontalScrollTabs.vue';
-import { UserPlus, Trash2, Shield, User, Pencil, X } from 'lucide-vue-next';
+import { UserPlus, Trash2, Shield, User, Pencil, X, Lock } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -106,109 +106,124 @@ function confirmDelete(u) {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                    Usuários
-                </h1>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+    <div class="space-y-5">
+        <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="min-w-0">
+                <h1 class="ep-page-heading">Usuários</h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
                     Conta Master e infoprodutores da plataforma.
                 </p>
             </div>
-            <Button class="inline-flex items-center gap-2" @click="openCreateModal">
-                <UserPlus class="h-4 w-4" />
+            <Button class="shrink-0" @click="openCreateModal">
+                <UserPlus class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                 Novo infoprodutor
             </Button>
-        </div>
+        </header>
 
         <!-- Abas Usuários -->
-        <HorizontalScrollTabs aria-label="Abas de usuários">
+        <HorizontalScrollTabs aria-label="Abas de usuários" nav-class="ep-tabs">
             <Link
                 v-for="t in userTabs"
                 :key="t.key"
                 :href="t.href"
-                :class="[
-                    'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                    isUsersTabActive(t.href)
-                        ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                        : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                ]"
+                :class="['ep-tab', isUsersTabActive(t.href) ? 'ep-tab--active' : '']"
                 :aria-current="isUsersTabActive(t.href) ? 'page' : undefined"
             >
-                <Shield v-if="t.key === 'usuarios'" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                <User v-else class="h-4 w-4 shrink-0" aria-hidden="true" />
+                <Shield v-if="t.key === 'usuarios'" class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                <User v-else class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
                 {{ t.label }}
             </Link>
         </HorizontalScrollTabs>
 
-        <div class="panel-table">
-            <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                <li
-                    v-for="u in users"
-                    :key="u.id"
-                    class="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 hover:bg-zinc-100/80 dark:hover:bg-zinc-700/50 transition-colors"
-                >
-                    <div class="flex min-w-0 flex-1 items-center gap-3">
-                        <span
-                            v-if="u.avatar_url"
-                            class="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-600"
-                        >
-                            <img :src="u.avatar_url" :alt="u.name" class="h-full w-full object-cover" />
-                        </span>
-                        <span
-                            v-else
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
-                            :class="u.is_master ? 'bg-amber-500 dark:bg-amber-600' : 'bg-zinc-400 dark:bg-zinc-600'"
-                        >
-                            <Shield v-if="u.is_master" class="h-5 w-5" />
-                            <User v-else class="h-5 w-5" />
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ u.name }}</span>
-                                <span
-                                    v-if="u.is_master"
-                                    class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
-                                >
-                                    Master
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="usuarios-lista">
+            <div class="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
+                <h2 id="usuarios-lista" class="ep-section-title">Contas com acesso</h2>
+                <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
+                    {{ users.length }} {{ users.length === 1 ? 'conta' : 'contas' }}
+                </span>
+            </div>
+            <div class="overflow-x-auto border-t border-[var(--ep-line)]" :class="{ hidden: !users.length }">
+                <table class="ep-table min-w-[640px]">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Papel</th>
+                            <th class="ep-num !text-right">Criado em</th>
+                            <th class="w-[104px]"><span class="sr-only">Ações</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="u in users" :key="u.id">
+                            <td>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span
+                                        v-if="u.avatar_url"
+                                        class="h-[30px] w-[30px] shrink-0 overflow-hidden rounded-full border border-[var(--ep-glass-border)] bg-[var(--ep-card-2)]"
+                                    >
+                                        <img :src="u.avatar_url" :alt="u.name" class="h-full w-full object-cover" />
+                                    </span>
+                                    <span
+                                        v-else
+                                        v-avatar="u.name" class="ep-avatar shrink-0"
+                                        :class="u.is_master ? 'ring-2 ring-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] ring-offset-0' : ''"
+                                        aria-hidden="true"
+                                    >{{ (u.name || '?').trim().split(' ').filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase() || '?' }}</span>
+                                    <div class="min-w-0">
+                                        <p class="truncate text-[13px] font-medium text-[var(--ep-text)]">{{ u.name }}</p>
+                                        <p class="truncate text-[12px] text-[var(--ep-text-3)]">{{ u.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="ep-chip" :class="u.is_master ? 'ep-chip--accent' : ''">
+                                    <Shield v-if="u.is_master" class="h-3 w-3" :stroke-width="2" aria-hidden="true" />
+                                    <User v-else class="h-3 w-3" :stroke-width="2" aria-hidden="true" />
+                                    {{ u.is_master ? 'Master' : 'Infoprodutor' }}
                                 </span>
-                            </div>
-                            <p class="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">{{ u.email }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-zinc-500 dark:text-zinc-400 tabular-nums">
-                            {{ formatDate(u.created_at) }}
-                        </span>
-                        <button
-                            type="button"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                            title="Editar usuário"
-                            @click="openEditModal(u)"
-                        >
-                            <Pencil class="h-4 w-4" />
-                        </button>
-                        <button
-                            v-if="!u.is_master"
-                            type="button"
-                            :disabled="deletingId === u.id"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 disabled:opacity-50 transition-colors"
-                            title="Excluir usuário"
-                            @click="confirmDelete(u)"
-                        >
-                            <Trash2 class="h-4 w-4" />
-                        </button>
-                    </div>
-                </li>
-            </ul>
-            <p
-                v-if="!users.length"
-                class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400"
-            >
-                Nenhum usuário cadastrado.
-            </p>
-        </div>
+                            </td>
+                            <td class="ep-num text-[12.5px] !text-[var(--ep-text-3)]">
+                                {{ formatDate(u.created_at) }}
+                            </td>
+                            <td>
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        type="button"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
+                                        title="Editar usuário"
+                                        aria-label="Editar usuário"
+                                        @click="openEditModal(u)"
+                                    >
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                    <button
+                                        v-if="!u.is_master"
+                                        type="button"
+                                        :disabled="deletingId === u.id"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
+                                        title="Excluir usuário"
+                                        aria-label="Excluir usuário"
+                                        @click="confirmDelete(u)"
+                                    >
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                    <span
+                                        v-if="u.is_master"
+                                        class="inline-flex h-8 w-8 items-center justify-center text-[var(--ep-text-4)]"
+                                        title="A conta Master não pode ser excluída"
+                                    >
+                                        <Lock class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!users.length" class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhum usuário cadastrado.</p>
+                <p class="ep-empty__text">Use “Novo infoprodutor” para dar acesso ao painel a uma nova conta.</p>
+            </div>
+        </section>
     </div>
 
     <!-- Modal: Novo usuário -->
@@ -221,78 +236,86 @@ function confirmDelete(u) {
             aria-labelledby="modal-create-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="closeCreateModal"
             />
-            <div
-                class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
-            >
-                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                    <h2 id="modal-create-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        Novo infoprodutor
-                    </h2>
+            <div class="ep-modal relative w-full max-w-md">
+                <div class="flex items-start justify-between gap-4 px-6 pt-6">
+                    <div class="min-w-0">
+                        <h2 id="modal-create-title" class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            Novo infoprodutor
+                        </h2>
+                        <p class="mt-1 text-[12.5px] text-[var(--ep-text-3)]">A conta terá acesso ao painel como infoprodutor.</p>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 -mt-1 shrink-0"
                         aria-label="Fechar"
                         @click="closeCreateModal"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
-                <form class="space-y-4 p-5" @submit.prevent="submitCreate">
+                <form class="space-y-4 px-6 pb-6 pt-5" @submit.prevent="submitCreate">
                     <div>
-                        <label for="create-name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
+                        <label for="create-name" class="ep-label">Nome</label>
                         <input
                             id="create-name"
                             v-model="createForm.name"
                             type="text"
                             required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                            autocomplete="name"
+                            class="ep-input"
                         />
-                        <p v-if="createForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ createForm.errors.name }}</p>
+                        <p v-if="createForm.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ createForm.errors.name }}</p>
                     </div>
                     <div>
-                        <label for="create-email" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail</label>
+                        <label for="create-email" class="ep-label">E-mail</label>
                         <input
                             id="create-email"
                             v-model="createForm.email"
                             type="email"
                             required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                            autocomplete="email"
+                            class="ep-input"
                         />
-                        <p v-if="createForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ createForm.errors.email }}</p>
+                        <p v-if="createForm.errors.email" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ createForm.errors.email }}</p>
                     </div>
-                    <div>
-                        <label for="create-password" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Senha</label>
-                        <input
-                            id="create-password"
-                            v-model="createForm.password"
-                            type="password"
-                            required
-                            minlength="8"
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                        <p v-if="createForm.errors.password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ createForm.errors.password }}</p>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="create-password" class="ep-label">Senha</label>
+                            <input
+                                id="create-password"
+                                v-model="createForm.password"
+                                type="password"
+                                required
+                                minlength="8"
+                                autocomplete="new-password"
+                                class="ep-input"
+                            />
+                        </div>
+                        <div>
+                            <label for="create-password_confirmation" class="ep-label">Confirmar senha</label>
+                            <input
+                                id="create-password_confirmation"
+                                v-model="createForm.password_confirmation"
+                                type="password"
+                                required
+                                minlength="8"
+                                autocomplete="new-password"
+                                class="ep-input"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <label for="create-password_confirmation" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Confirmar senha</label>
-                        <input
-                            id="create-password_confirmation"
-                            v-model="createForm.password_confirmation"
-                            type="password"
-                            required
-                            minlength="8"
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                    </div>
-                    <div class="flex gap-3 pt-2">
-                        <Button type="submit" :disabled="createForm.processing">
-                            Cadastrar
-                        </Button>
+                    <p v-if="createForm.errors.password" class="-mt-2 text-[12px] text-[var(--ep-neg)]">{{ createForm.errors.password }}</p>
+                    <p class="ep-help !mt-0">Mínimo de 8 caracteres.</p>
+                    <div class="flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                         <Button type="button" variant="outline" @click="closeCreateModal">
                             Cancelar
+                        </Button>
+                        <Button type="submit" :disabled="createForm.processing">
+                            Cadastrar
                         </Button>
                     </div>
                 </form>
@@ -310,76 +333,87 @@ function confirmDelete(u) {
             aria-labelledby="modal-edit-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="closeEditModal"
             />
-            <div
-                class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
-            >
-                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                    <h2 id="modal-edit-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        Editar usuário
-                    </h2>
+            <div class="ep-modal relative w-full max-w-md">
+                <div class="flex items-start justify-between gap-4 px-6 pt-6">
+                    <div class="min-w-0">
+                        <h2 id="modal-edit-title" class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            Editar usuário
+                        </h2>
+                        <p class="mt-1 truncate text-[12.5px] text-[var(--ep-text-3)]">{{ editUser?.email }}</p>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 -mt-1 shrink-0"
                         aria-label="Fechar"
                         @click="closeEditModal"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
-                <form class="space-y-4 p-5" @submit.prevent="submitEdit">
+                <form class="space-y-4 px-6 pb-6 pt-5" @submit.prevent="submitEdit">
                     <div>
-                        <label for="edit-name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
+                        <label for="edit-name" class="ep-label">Nome</label>
                         <input
                             id="edit-name"
                             v-model="editForm.name"
                             type="text"
                             required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                            autocomplete="name"
+                            class="ep-input"
                         />
-                        <p v-if="editForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.name }}</p>
+                        <p v-if="editForm.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ editForm.errors.name }}</p>
                     </div>
                     <div>
-                        <label for="edit-email" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail</label>
+                        <label for="edit-email" class="ep-label">E-mail</label>
                         <input
                             id="edit-email"
                             v-model="editForm.email"
                             type="email"
                             required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+                            autocomplete="email"
+                            class="ep-input"
                         />
-                        <p v-if="editForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.email }}</p>
+                        <p v-if="editForm.errors.email" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ editForm.errors.email }}</p>
                     </div>
-                    <div>
-                        <label for="edit-password" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nova senha (deixe em branco para não alterar)</label>
-                        <input
-                            id="edit-password"
-                            v-model="editForm.password"
-                            type="password"
-                            minlength="8"
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                        <p v-if="editForm.errors.password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ editForm.errors.password }}</p>
+                    <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                        <p class="ep-section-title">Alterar senha</p>
+                        <p class="ep-help !mt-0.5">Deixe em branco para não alterar.</p>
+                        <div class="mt-3 grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="edit-password" class="ep-label">Nova senha</label>
+                                <input
+                                    id="edit-password"
+                                    v-model="editForm.password"
+                                    type="password"
+                                    minlength="8"
+                                    autocomplete="new-password"
+                                    class="ep-input"
+                                />
+                            </div>
+                            <div>
+                                <label for="edit-password_confirmation" class="ep-label">Confirmar nova senha</label>
+                                <input
+                                    id="edit-password_confirmation"
+                                    v-model="editForm.password_confirmation"
+                                    type="password"
+                                    minlength="8"
+                                    autocomplete="new-password"
+                                    class="ep-input"
+                                />
+                            </div>
+                        </div>
+                        <p v-if="editForm.errors.password" class="mt-2 text-[12px] text-[var(--ep-neg)]">{{ editForm.errors.password }}</p>
                     </div>
-                    <div>
-                        <label for="edit-password_confirmation" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Confirmar nova senha</label>
-                        <input
-                            id="edit-password_confirmation"
-                            v-model="editForm.password_confirmation"
-                            type="password"
-                            minlength="8"
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                    </div>
-                    <div class="flex gap-3 pt-2">
-                        <Button type="submit" :disabled="editForm.processing">
-                            Salvar
-                        </Button>
+                    <div class="flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                         <Button type="button" variant="outline" @click="closeEditModal">
                             Cancelar
+                        </Button>
+                        <Button type="submit" :disabled="editForm.processing">
+                            Salvar
                         </Button>
                     </div>
                 </form>

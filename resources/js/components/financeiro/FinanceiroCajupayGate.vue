@@ -17,8 +17,8 @@ defineProps({
 <template>
     <div class="relative">
         <div
-            class="transition"
-            :class="connected ? '' : 'pointer-events-none select-none opacity-40 blur-[2px] grayscale-[30%]'"
+            class="transition duration-300"
+            :class="connected ? '' : 'pointer-events-none select-none opacity-35 blur-[3px] saturate-50'"
             :aria-hidden="!connected"
         >
             <slot />
@@ -26,34 +26,33 @@ defineProps({
 
         <div
             v-if="!connected"
-            class="absolute inset-0 z-10 flex items-center justify-center p-4 sm:p-8"
+            class="absolute inset-0 z-10 flex items-start justify-center rounded-[20px] p-4 pt-10 sm:p-8 sm:pt-20"
         >
             <div
-                class="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white/95 p-6 text-center shadow-xl backdrop-blur-md dark:border-zinc-700 dark:bg-zinc-900/95"
+                class="ep-modal w-full max-w-[440px] p-6 sm:p-7"
                 role="alertdialog"
                 aria-labelledby="cajupay-gate-title"
                 aria-describedby="cajupay-gate-desc"
             >
-                <div
-                    class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
-                >
-                    <Lock class="h-7 w-7" />
-                </div>
+                <span class="ep-chip ep-chip--warn">
+                    <Lock class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                    CajuPay desconectada
+                </span>
 
                 <h2
                     id="cajupay-gate-title"
-                    class="mt-4 text-lg font-semibold text-zinc-900 dark:text-white"
+                    class="mt-4 text-[19px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]"
                 >
                     Saques indisponíveis
                 </h2>
 
                 <p
                     id="cajupay-gate-desc"
-                    class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
+                    class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]"
                 >
                     <template v-if="variant === 'producer'">
                         A API de saque via PIX só funciona com a
-                        <strong class="font-medium text-zinc-800 dark:text-zinc-200">CajuPay</strong>
+                        <strong class="font-medium text-[var(--ep-text)]">CajuPay</strong>
                         conectada e ativa. Você pode consultar saldos abaixo, mas solicitar saques e
                         aprovar repasses de parceiros ficará bloqueado até a integração.
                     </template>
@@ -65,23 +64,23 @@ defineProps({
 
                 <div
                     v-if="variant === 'producer'"
-                    class="mt-5 flex flex-col items-center gap-2"
+                    class="mt-6 flex flex-col gap-3 border-t border-[var(--ep-line)] pt-5 sm:flex-row sm:items-center sm:justify-between"
                 >
-                    <Link
-                        :href="gatewaysUrl"
-                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:opacity-90 sm:w-auto"
-                    >
-                        <PlugZap class="h-4 w-4" />
-                        Configurar CajuPay
-                    </Link>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-500">
+                    <p class="text-[12px] text-[var(--ep-text-4)]">
                         Integrações → Gateways → CajuPay
                     </p>
+                    <Link
+                        :href="gatewaysUrl"
+                        class="ep-btn w-full sm:w-auto"
+                    >
+                        <PlugZap class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                        Configurar CajuPay
+                    </Link>
                 </div>
 
                 <p
                     v-else
-                    class="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400"
+                    class="mt-5 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12.5px] text-[var(--ep-text-3)]"
                 >
                     Entre em contato com o produtor do produto para habilitar os saques.
                 </p>

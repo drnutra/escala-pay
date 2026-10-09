@@ -88,115 +88,117 @@ async function reject(payout) {
 
 <template>
     <div class="space-y-4">
-        <div
-            class="flex items-start gap-3 rounded-xl border border-zinc-200/80 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/40"
-        >
-            <div
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
-            >
-                <Users class="h-5 w-5" />
-            </div>
-            <div class="min-w-0 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                <p class="font-medium text-zinc-900 dark:text-white">
-                    Saques de afiliados e co-produtores
-                </p>
-                <p class="mt-1">
-                    Aqui aparecem as solicitações de saque feitas pelos seus
-                    <strong class="font-medium text-zinc-700 dark:text-zinc-300">afiliados</strong>
-                    e
-                    <strong class="font-medium text-zinc-700 dark:text-zinc-300">co-produtores</strong>
-                    (comissões de vendas na sua conta). PIX costuma ser automático; saques de
-                    <strong class="font-medium text-zinc-700 dark:text-zinc-300">cartão</strong>
-                    e
-                    <strong class="font-medium text-zinc-700 dark:text-zinc-300">boleto</strong>
-                    ficam nesta fila até você aprovar ou rejeitar.
-                </p>
-            </div>
-        </div>
-
-        <div class="fin-metric-card flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <p class="text-sm text-zinc-500">Saques aguardando sua aprovação</p>
-                <p class="mt-1 text-2xl font-bold text-zinc-900 dark:text-white">
-                    {{ partnerPayouts.summary?.pending_count ?? 0 }}
-                    <span class="text-base font-normal text-zinc-500">
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-5" aria-labelledby="fin-parceiros-fila">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="fin-parceiros-fila" class="text-[13px] font-medium text-[var(--ep-text-2)]">Saques aguardando sua aprovação</h2>
+                    <span class="ep-kpi__icon" aria-hidden="true"><Clock class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <div class="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span class="text-[44px] font-semibold leading-none tabular-nums tracking-[-0.045em] text-[var(--ep-text)]">
+                        {{ partnerPayouts.summary?.pending_count ?? 0 }}
+                    </span>
+                    <span class="text-[15px] font-medium tabular-nums text-[var(--ep-text-3)]">
                         · {{ formatBRL(partnerPayouts.summary?.pending_amount) }}
                     </span>
-                </p>
-            </div>
-            <div class="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                <Clock class="h-5 w-5 shrink-0" />
-                <p class="text-xs max-w-sm">
+                </div>
+                <p class="mt-6 flex items-start gap-2 border-t border-[var(--ep-line)] pt-4 text-[12.5px] leading-relaxed text-[var(--ep-text-3)] lg:mt-auto">
+                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-warn)]" aria-hidden="true" />
                     Cartão e boleto exigem aprovação. Confirme que há saldo na plataforma antes de aprovar.
                 </p>
-            </div>
+            </section>
+
+            <section class="panel-card flex items-start gap-3 p-6 lg:col-span-7" aria-labelledby="fin-parceiros-sobre">
+                <span class="ep-kpi__icon shrink-0" aria-hidden="true"><Users class="h-4 w-4" :stroke-width="1.75" /></span>
+                <div class="min-w-0 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
+                    <h2 id="fin-parceiros-sobre" class="text-[13px] font-medium text-[var(--ep-text)]">
+                        Saques de afiliados e co-produtores
+                    </h2>
+                    <p class="mt-1.5">
+                        Aqui aparecem as solicitações de saque feitas pelos seus
+                        <strong class="font-medium text-[var(--ep-text-2)]">afiliados</strong>
+                        e
+                        <strong class="font-medium text-[var(--ep-text-2)]">co-produtores</strong>
+                        (comissões de vendas na sua conta). PIX costuma ser automático; saques de
+                        <strong class="font-medium text-[var(--ep-text-2)]">cartão</strong>
+                        e
+                        <strong class="font-medium text-[var(--ep-text-2)]">boleto</strong>
+                        ficam nesta fila até você aprovar ou rejeitar.
+                    </p>
+                </div>
+            </section>
         </div>
 
         <p
             v-if="msg"
-            class="rounded-lg px-4 py-2 text-sm"
-            :class="msg.includes('rejeit') ? 'bg-red-500/10 text-red-700' : 'bg-emerald-500/10 text-emerald-700'"
+            class="flex items-start gap-2 rounded-xl border px-4 py-2.5 text-[13px]"
+            :class="msg.includes('rejeit')
+                ? 'border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]'
+                : 'border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'"
+            role="status"
         >
+            <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
             {{ msg }}
         </p>
 
-        <div class="fin-panel overflow-hidden">
-            <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="fin-parceiros-lista">
+            <div class="border-b border-[var(--ep-line)] px-5 pb-4 pt-5">
+                <h2 id="fin-parceiros-lista" class="ep-section-title">
                     Solicitações de afiliados e co-produtores
                 </h2>
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                <p class="mt-1 text-[12px] text-[var(--ep-text-4)]">
                     Cada linha é um parceiro que pediu saque da comissão — o papel (afiliado ou co-produtor)
                     aparece ao lado do nome.
                 </p>
             </div>
 
-            <div v-if="partnerPayouts.items?.length" class="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <div v-if="partnerPayouts.items?.length" class="divide-y divide-[var(--ep-line)]">
                 <div
                     v-for="p in partnerPayouts.items"
                     :key="p.id"
-                    class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                    class="flex flex-col gap-4 px-5 py-4 transition-colors duration-150 hover:bg-[var(--ep-hover)] sm:flex-row sm:items-center sm:justify-between"
                 >
-                    <div class="flex items-start gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                            <component :is="walletIcons[p.wallet_bucket] || QrCode" class="h-5 w-5 text-zinc-500" />
+                    <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[var(--ep-line)] bg-[var(--ep-card-2)]">
+                            <component :is="walletIcons[p.wallet_bucket] || QrCode" class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                         </div>
-                        <div>
-                            <p class="flex flex-wrap items-center gap-2 font-medium text-zinc-900 dark:text-white">
+                        <div class="min-w-0">
+                            <p class="flex flex-wrap items-center gap-2 text-[13.5px] font-medium text-[var(--ep-text)]">
                                 {{ p.partner?.name || 'Parceiro' }}
                                 <span
-                                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                                    :class="roleBadgeClass(p.partner?.role)"
+                                    class="ep-chip"
+                                    :class="p.partner?.role === 'afiliado' || p.partner?.role === 'coprodutor' ? 'ep-chip--accent' : ''"
                                 >
                                     {{ roleLabel(p.partner?.role) }}
                                 </span>
                             </p>
-                            <p class="text-xs text-zinc-500">{{ p.partner?.email }}</p>
-                            <p class="mt-1 text-sm">
-                                <span class="font-semibold">{{ formatBRL(p.amount) }}</span>
+                            <p class="truncate text-[12px] text-[var(--ep-text-3)]">{{ p.partner?.email }}</p>
+                            <p class="mt-1.5 text-[13px] text-[var(--ep-text-3)]">
+                                <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ formatBRL(p.amount) }}</span>
                                 · {{ p.wallet_label }}
                                 · PIX {{ p.pix_key_masked }}
                             </p>
-                            <p class="text-xs text-zinc-400">{{ formatDate(p.created_at) }}</p>
+                            <p class="mt-0.5 text-[11.5px] tabular-nums text-[var(--ep-text-4)]">{{ formatDate(p.created_at) }}</p>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+                    <div class="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
                         <span
-                            class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                            class="ep-chip"
                             :class="{
-                                'bg-amber-500/15 text-amber-700 dark:text-amber-300': p.status === 'pending_approval',
-                                'bg-emerald-500/15 text-emerald-700': p.status === 'completed',
-                                'bg-red-500/15 text-red-700': p.status === 'failed' || p.status === 'cancelled',
-                                'bg-zinc-500/15 text-zinc-600': !['pending_approval','completed','failed','cancelled'].includes(p.status),
+                                'ep-chip--warn': p.status === 'pending_approval',
+                                'ep-chip--pos': p.status === 'completed',
+                                'ep-chip--neg': p.status === 'failed' || p.status === 'cancelled',
+                                'ep-chip--accent': p.status === 'processing' || p.status === 'awaiting_payout',
                             }"
                         >
+                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                             {{ statusLabels[p.status] || p.status }}
                         </span>
 
                         <p
                             v-if="p.status === 'pending_approval' && !canManage"
-                            class="text-xs text-zinc-500"
+                            class="text-[12px] text-[var(--ep-text-4)]"
                         >
                             Sem permissão para aprovar
                         </p>
@@ -207,7 +209,7 @@ async function reject(payout) {
                                 :disabled="processingId === p.id"
                                 @click="approve(p)"
                             >
-                                <CheckCircle class="mr-1 h-4 w-4" />
+                                <CheckCircle class="h-4 w-4" :stroke-width="1.75" />
                                 Aprovar
                             </Button>
                             <Button
@@ -217,41 +219,17 @@ async function reject(payout) {
                                 :disabled="processingId === p.id"
                                 @click="reject(p)"
                             >
-                                <XCircle class="mr-1 h-4 w-4" />
+                                <XCircle class="h-4 w-4" :stroke-width="1.75" />
                                 Rejeitar
                             </Button>
                         </div>
                     </div>
                 </div>
             </div>
-            <p v-else class="px-5 py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                Nenhuma solicitação de saque de afiliados ou co-produtores no momento.
-            </p>
-        </div>
+            <div v-else class="ep-empty">
+                <p class="ep-empty__title">Nenhuma solicitação de saque de afiliados ou co-produtores no momento.</p>
+                <p class="ep-empty__text">Quando um parceiro pedir saque da comissão, a solicitação aparece nesta fila.</p>
+            </div>
+        </section>
     </div>
 </template>
-
-<style scoped>
-.fin-metric-card {
-    border-radius: 1rem;
-    border: 1px solid rgb(228 228 231 / 0.8);
-    background: white;
-    padding: 1rem;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-.dark .fin-metric-card {
-    border-color: rgb(39 39 42);
-    background: rgb(24 24 27 / 0.8);
-}
-.fin-panel {
-    overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid rgb(228 228 231 / 0.8);
-    background: white;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-.dark .fin-panel {
-    border-color: rgb(39 39 42);
-    background: rgb(24 24 27 / 0.8);
-}
-</style>

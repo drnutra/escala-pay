@@ -46,7 +46,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Uma instância por request/job: o cache de taxas do calculador vale só dentro dela.
+        $this->app->scoped(\App\Services\NetAmountCalculator::class);
     }
 
     /**

@@ -253,57 +253,56 @@ const displayJson = computed(() => {
             aria-labelledby="webhook-payload-docs-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 @click="close"
             />
             <div
-                class="relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
+                class="ep-modal relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden"
             >
                 <header
-                    class="flex shrink-0 items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4 dark:border-zinc-800"
+                    class="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--ep-line)] px-6 py-4"
                 >
                     <div class="flex items-start gap-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                        >
-                            <BookOpen class="h-5 w-5" />
-                        </div>
+                        <span class="ep-kpi__icon mt-0.5 shrink-0">
+                            <BookOpen class="h-4 w-4" :stroke-width="1.75" />
+                        </span>
                         <div>
                             <h2
                                 id="webhook-payload-docs-title"
-                                class="text-lg font-semibold text-zinc-900 dark:text-white"
+                                class="text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]"
                             >
                                 Documentação de payloads
                             </h2>
-                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                            <p class="mt-0.5 text-[12.5px] text-[var(--ep-text-3)]">
                                 Exemplos reais do corpo enviado no POST — escolha o evento e copie o JSON.
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </header>
 
                 <div class="flex min-h-0 flex-1 flex-col lg:flex-row">
                     <aside
-                        class="flex w-full shrink-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:w-56 lg:border-b-0 lg:border-r"
+                        class="flex w-full shrink-0 flex-col border-b border-[var(--ep-line)] lg:w-60 lg:border-b-0 lg:border-r"
                     >
                         <div class="p-3">
                             <div class="relative">
                                 <Search
-                                    class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+                                    class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]"
+                                    :stroke-width="1.75"
                                 />
                                 <input
                                     v-model="searchQuery"
                                     type="search"
                                     placeholder="Buscar evento..."
-                                    class="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-9 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input !pl-9"
                                 />
                             </div>
                         </div>
@@ -314,11 +313,12 @@ const displayJson = computed(() => {
                                 class="mb-4"
                             >
                                 <p
-                                    class="mb-1.5 flex items-center gap-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400"
+                                    class="mb-1.5 flex items-center gap-1.5 px-2.5 text-[11.5px] font-medium text-[var(--ep-text-4)]"
                                 >
                                     <component
                                         :is="groupIcons[group.key] || BookOpen"
-                                        class="h-3 w-3"
+                                        class="h-3.5 w-3.5"
+                                        :stroke-width="1.75"
                                     />
                                     {{ group.label }}
                                 </p>
@@ -326,11 +326,11 @@ const displayJson = computed(() => {
                                     v-for="ev in group.events"
                                     :key="ev.slug"
                                     type="button"
-                                    class="mb-1 w-full rounded-xl px-3 py-2.5 text-left text-sm transition"
+                                    class="relative mb-0.5 w-full rounded-[10px] border px-3 py-2 text-left text-[13px] transition-colors duration-150"
                                     :class="
                                         selectedSlug === ev.slug
-                                            ? 'bg-emerald-50 font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200'
-                                            : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                                            ? 'border-[var(--ep-line-strong)] bg-[var(--ep-active)] font-medium text-[var(--ep-text)]'
+                                            : 'border-transparent text-[var(--ep-text-2)] hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]'
                                     "
                                     @click="selectEvent(ev.slug)"
                                 >
@@ -342,61 +342,64 @@ const displayJson = computed(() => {
 
                     <div class="flex min-h-0 min-w-0 flex-1 flex-col">
                         <div
-                            class="flex flex-wrap items-center gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800"
+                            class="flex flex-wrap items-center gap-2 border-b border-[var(--ep-line)] px-4 py-2.5"
                         >
-                            <button
-                                v-for="tab in [
-                                    { id: 'envelope', label: 'Envelope completo' },
-                                    { id: 'payload', label: 'Apenas payload' },
-                                    { id: 'curl', label: 'cURL' },
-                                ]"
-                                :key="tab.id"
-                                type="button"
-                                class="rounded-lg px-3 py-1.5 text-xs font-medium transition"
-                                :class="
-                                    jsonTab === tab.id
-                                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                                        : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
-                                "
-                                @click="jsonTab = tab.id"
-                            >
-                                {{ tab.label }}
-                            </button>
+                            <div class="ep-tabs">
+                                <button
+                                    v-for="tab in [
+                                        { id: 'envelope', label: 'Envelope completo' },
+                                        { id: 'payload', label: 'Apenas payload' },
+                                        { id: 'curl', label: 'cURL' },
+                                    ]"
+                                    :key="tab.id"
+                                    type="button"
+                                    class="ep-tab border"
+                                    :class="
+                                        jsonTab === tab.id
+                                            ? 'ep-tab--active'
+                                            : 'border-transparent'
+                                    "
+                                    @click="jsonTab = tab.id"
+                                >
+                                    {{ tab.label }}
+                                </button>
+                            </div>
                             <div class="ml-auto flex items-center gap-2">
                                 <span
                                     v-if="copyFeedback"
-                                    class="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
+                                    class="ep-chip ep-chip--pos"
                                 >
-                                    <Check class="h-3.5 w-3.5" />
+                                    <Check class="h-3.5 w-3.5" :stroke-width="2" />
                                     Copiado
                                 </span>
                                 <button
                                     type="button"
-                                    class="flex items-center gap-1 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                    class="ep-btn-secondary !h-8 !gap-1.5 !px-3 text-[12.5px]"
                                     :disabled="loading || !displayJson"
                                     @click.stop="copyDisplayJson"
                                 >
-                                    <Copy class="h-3.5 w-3.5" />
+                                    <Copy class="h-3.5 w-3.5" :stroke-width="1.75" />
                                     Copiar
                                 </button>
                             </div>
                         </div>
 
-                        <div class="relative min-h-[200px] flex-1 overflow-auto bg-zinc-950 p-4 lg:min-h-[280px]">
+                        <div class="relative min-h-[200px] flex-1 overflow-auto bg-[var(--ep-input)] p-5 lg:min-h-[280px]">
                             <Loader2
                                 v-if="loading"
-                                class="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 animate-spin text-zinc-500"
+                                class="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin text-[var(--ep-text-3)]"
+                                :stroke-width="1.75"
                             />
                             <pre
                                 v-else
                                 ref="jsonPreRef"
-                                class="font-mono text-xs leading-relaxed text-emerald-100/90"
+                                class="font-mono text-[12px] leading-relaxed text-[var(--ep-text-2)]"
                             >{{ displayJson || '// Selecione um evento' }}</pre>
                         </div>
 
                         <p
                             v-if="preview?._meta"
-                            class="border-t border-zinc-200 px-4 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
+                            class="border-t border-[var(--ep-line)] px-4 py-2.5 text-[12px] text-[var(--ep-text-4)]"
                         >
                             PII em texto claro por padrão.
                             <span v-if="preview._meta.include_customer_hashes">
@@ -406,12 +409,12 @@ const displayJson = computed(() => {
                     </div>
 
                     <aside
-                        class="w-full shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800 lg:w-52 lg:border-l lg:border-t-0"
+                        class="flex w-full shrink-0 flex-col border-t border-[var(--ep-line)] p-4 lg:w-60 lg:border-l lg:border-t-0"
                     >
-                        <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <h3 class="ep-section-title mb-3">
                             Campos úteis
                         </h3>
-                        <ul class="space-y-2">
+                        <ul class="space-y-1.5">
                             <li
                                 v-for="field in fieldGuide"
                                 :key="field.path"
@@ -419,19 +422,19 @@ const displayJson = computed(() => {
                             >
                                 <button
                                     type="button"
-                                    class="w-full rounded-lg bg-zinc-50 px-2.5 py-2 text-left text-xs transition hover:bg-emerald-50 dark:bg-zinc-800/80 dark:hover:bg-emerald-900/20"
+                                    class="w-full rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2 text-left text-[12px] transition-colors duration-150 hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]"
                                     @click.stop="copyField(field.path)"
                                 >
                                     <code
-                                        class="block truncate font-mono text-[11px] text-emerald-700 dark:text-emerald-300"
+                                        class="block truncate font-mono text-[11.5px] text-[var(--ep-accent)]"
                                     >{{ field.path }}</code>
-                                    <span class="text-zinc-500 dark:text-zinc-400">{{ field.hint }}</span>
+                                    <span class="mt-0.5 block text-[var(--ep-text-4)]">{{ field.hint }}</span>
                                 </button>
                             </li>
                         </ul>
                         <button
                             type="button"
-                            class="mt-4 w-full rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700"
+                            class="ep-btn mt-4 w-full"
                             @click="emit('send-test'); close()"
                         >
                             Enviar teste real

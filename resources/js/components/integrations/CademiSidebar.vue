@@ -183,38 +183,47 @@ function productSummary(integration) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-lg flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-lg flex-col"
             >
                 <div
-                    class="flex items-center justify-between rounded-tl-2xl bg-zinc-50/80 px-5 py-4 dark:bg-zinc-800/50"
+                    class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4"
                 >
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        Cademí
-                    </h2>
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[13px] border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] p-[3px] shadow-[var(--ep-glass-highlight),0_8px_22px_-12px_var(--ep-glow)]">
+                            <img src="/images/integrations/cademi.png" alt="" class="size-full rounded-[10px] object-cover" />
+                        </span>
+                        <div class="min-w-0">
+                            <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                                Cademí
+                            </h2>
+                            <p class="text-[12px] text-[var(--ep-text-3)]">Área de membros externa</p>
+                        </div>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex flex-1 flex-col overflow-y-auto p-5">
-                    <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+                <div class="flex flex-1 flex-col overflow-y-auto px-6 py-5">
+                    <p class="mb-5 text-[12.5px] leading-[1.55] text-[var(--ep-text-3)]">
                         Conecte sua Cademí para usar como área de membros externa e conceder acesso automaticamente após a compra.
                     </p>
 
                     <template v-if="!showingForm">
-                        <div class="mb-4 flex justify-end">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <h3 class="ep-section-title">Conexões</h3>
                             <Button variant="outline" size="sm" @click="startNew">
-                                <Plus class="mr-2 h-4 w-4" />
+                                <Plus class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 Nova integração
                             </Button>
                         </div>
@@ -223,58 +232,61 @@ function productSummary(integration) {
                             <li
                                 v-for="i in cademi_integrations"
                                 :key="i.id"
-                                class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50"
+                                class="flex items-center justify-between gap-3 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]"
                             >
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-medium text-zinc-900 dark:text-white">
+                                        <span class="truncate text-[13.5px] font-medium text-[var(--ep-text)]">
                                             {{ i.name }}
                                         </span>
                                         <span
                                             v-if="i.is_active"
-                                            class="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                                            class="ep-chip ep-chip--pos shrink-0"
                                         >
+                                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                             Ativo
                                         </span>
                                         <span
                                             v-else
-                                            class="rounded bg-zinc-200 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                                            class="ep-chip shrink-0"
                                         >
+                                            <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60" aria-hidden="true" />
                                             Inativo
                                         </span>
                                     </div>
-                                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                    <p class="mt-1 text-[12px] text-[var(--ep-text-3)]">
                                         {{ i.configured ? 'Chave configurada' : 'Chave não configurada' }} · {{ productSummary(i) }}
                                     </p>
-                                    <p v-if="i.base_url" class="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                                    <p v-if="i.base_url" class="mt-0.5 truncate font-mono text-[11.5px] text-[var(--ep-text-4)]">
                                         {{ i.base_url }}
                                     </p>
                                 </div>
-                                <div class="ml-2 flex items-center gap-1">
+                                <div class="flex shrink-0 items-center gap-0.5">
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px]"
                                         aria-label="Editar"
                                         @click="editIntegration(i)"
                                     >
-                                        <Pencil class="h-4 w-4" />
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                                         aria-label="Excluir"
                                         @click="requestDelete(i)"
                                     >
-                                        <Trash2 class="h-4 w-4" />
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                 </div>
                             </li>
                         </ul>
                         <p
                             v-else
-                            class="rounded-xl border border-dashed border-zinc-300 px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400"
+                            class="ep-empty rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] !text-[12.5px] !text-[var(--ep-text-3)]"
                         >
-                            Nenhuma integração configurada. Clique em "Nova integração" para começar.
+                            <span class="ep-empty__title block">Nenhuma integração configurada.</span>
+                            <span class="ep-empty__text block">Clique em "Nova integração" para começar.</span>
                         </p>
                     </template>
 
@@ -282,18 +294,18 @@ function productSummary(integration) {
                         <div class="mb-4 flex items-center gap-2">
                             <button
                                 type="button"
-                                class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px]"
                                 aria-label="Voltar"
                                 @click="cancelEdit"
                             >
-                                <ArrowLeft class="h-5 w-5" />
+                                <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                             </button>
-                            <span class="font-medium text-zinc-900 dark:text-white">
+                            <span class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">
                                 {{ isCreating ? 'Nova integração' : 'Editar integração' }}
                             </span>
                         </div>
 
-                        <p class="mb-4 rounded-lg bg-zinc-100 px-3 py-2 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                        <p class="mb-5 rounded-[12px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] leading-[1.55] text-[var(--ep-text-3)] [&_a]:font-medium [&_a]:text-[var(--ep-accent)] [&_strong]:font-medium [&_strong]:text-[var(--ep-text-2)]">
                             Recomendado: Postback em <span class="font-mono">{{ form.base_url || 'https://(seu-subdominio).cademi.com.br' }}/api/postback/custom</span>
                             usando o Token em ⚙️ → Configurações.
                         </p>
@@ -302,7 +314,7 @@ function productSummary(integration) {
                             <div>
                                 <label
                                     for="cademi-name"
-                                    class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                    class="ep-label"
                                 >
                                     Nome da integração
                                 </label>
@@ -311,14 +323,14 @@ function productSummary(integration) {
                                     v-model="form.name"
                                     type="text"
                                     placeholder="Ex: Cademí Principal"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+                                    class="ep-input"
                                 />
                             </div>
 
                             <div>
                                 <label
                                     for="cademi-base-url"
-                                    class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                    class="ep-label"
                                 >
                                     Base URL
                                 </label>
@@ -328,14 +340,14 @@ function productSummary(integration) {
                                     type="text"
                                     autocomplete="off"
                                     placeholder="https://seu-subdominio.cademi.com.br"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 font-mono"
+                                    class="ep-input font-mono"
                                 />
                             </div>
 
                             <div>
                                 <label
                                     for="cademi-postback-token"
-                                    class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                    class="ep-label"
                                 >
                                     Token de Postback
                                 </label>
@@ -345,16 +357,16 @@ function productSummary(integration) {
                                     type="text"
                                     autocomplete="off"
                                     :placeholder="editingIntegration ? 'Deixe em branco para manter o atual' : 'Digite o token'"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 font-mono"
+                                    class="ep-input font-mono"
                                 />
                             </div>
 
-                            <div class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                            <div class="flex items-center justify-between gap-4 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                                 <div>
-                                    <span class="block text-sm font-medium text-zinc-900 dark:text-white">
+                                    <span class="block text-[13px] font-medium text-[var(--ep-text)]">
                                         Integração ativa
                                     </span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[12px] text-[var(--ep-text-3)]">
                                         Permitir sincronização com a Cademí
                                     </span>
                                 </div>
@@ -364,14 +376,14 @@ function productSummary(integration) {
 
                         <p
                             v-if="errorMessage"
-                            class="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            class="mt-4 rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-neg)]"
                         >
                             {{ errorMessage }}
                         </p>
 
-                        <div class="mt-6 flex gap-2">
+                        <div class="mt-6 flex gap-2.5 border-t border-[var(--ep-line)] pt-5">
                             <Button class="flex-1" :disabled="saving" @click="save">
-                                <Loader2 v-if="saving" class="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
                                 Salvar
                             </Button>
                             <Button variant="outline" @click="cancelEdit">Cancelar</Button>
@@ -389,19 +401,21 @@ function productSummary(integration) {
             role="dialog"
             aria-modal="true"
         >
-            <div class="fixed inset-0 bg-zinc-900/60" @click="cancelDelete" />
-            <div class="relative max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-zinc-900">
-                <p class="text-sm text-zinc-700 dark:text-zinc-300">
+            <div class="ep-scrim fixed inset-0" @click="cancelDelete" />
+            <div class="ep-modal relative w-full max-w-sm p-6">
+                <p class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">Excluir integração?</p>
+                <p class="mt-1.5 text-[13px] leading-[1.55] text-[var(--ep-text-3)]">
                     Deseja realmente excluir esta integração Cademí?
                 </p>
-                <div class="mt-4 flex justify-end gap-2">
+                <div class="mt-6 flex justify-end gap-2.5">
                     <Button variant="outline" @click="cancelDelete">Cancelar</Button>
                     <Button
                         variant="danger"
+                        class="ep-btn-danger !h-9"
                         :disabled="deleting !== null"
                         @click="confirmRemove(cademi_integrations.find(i => i.id === confirmingDeleteId))"
                     >
-                        <Loader2 v-if="deleting === confirmingDeleteId" class="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 v-if="deleting === confirmingDeleteId" class="h-4 w-4 animate-spin" />
                         Excluir
                     </Button>
                 </div>

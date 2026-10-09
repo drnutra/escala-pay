@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import axios from 'axios';
 import Button from '@/components/ui/Button.vue';
 import Toggle from '@/components/ui/Toggle.vue';
-import { X, Plus, ArrowLeft, ArrowDownToLine } from 'lucide-vue-next';
+import { X, Plus, ArrowLeft, ArrowDownToLine, Copy } from 'lucide-vue-next';
 
 const props = defineProps({
     open: { type: Boolean, default: false },
@@ -485,130 +485,142 @@ function truncateUrl(url, max = 52) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-4xl flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-4xl flex-col"
             >
-                <div
-                    class="flex items-center justify-between gap-3 rounded-tl-2xl bg-zinc-50/80 px-5 py-4 dark:bg-zinc-800/50"
+                <header
+                    class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4"
                 >
                     <div class="flex min-w-0 items-center gap-2">
                         <button
                             v-if="currentView === 'form'"
                             type="button"
-                            class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+                            class="ep-btn-ghost ep-btn-icon -ml-2 shrink-0"
                             title="Voltar"
                             @click="cancelEdit"
                         >
-                            <ArrowLeft class="h-5 w-5" />
+                            <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                         </button>
                         <div class="min-w-0">
-                            <h2 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">
+                            <h2 class="truncate text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                                 {{ headerTitle }}
                             </h2>
                             <p
                                 v-if="currentView === 'hub'"
-                                class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400"
+                                class="mt-0.5 flex items-center gap-1.5 text-[12.5px] text-[var(--ep-text-3)]"
                             >
-                                <ArrowDownToLine class="h-3 w-3" />
+                                <ArrowDownToLine class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 Plataformas externas enviam dados para o Getfy
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
-                        class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
-                </div>
+                </header>
 
                 <div class="flex flex-1 flex-col overflow-y-auto">
                     <!-- Hub -->
                     <template v-if="currentView === 'hub'">
-                        <div class="space-y-4 p-4">
-                            <div class="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                        <div class="space-y-4 px-6 pt-5">
+                            <section class="panel-card space-y-3 p-5 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
+                                <h3 class="ep-section-title">Como funciona</h3>
                                 <p>
-                                    Diferente do <strong class="font-medium text-zinc-800 dark:text-zinc-200">Webhook de saída</strong>
+                                    Diferente do <strong class="font-medium text-[var(--ep-text)]">Webhook de saída</strong>
                                     (o Getfy envia eventos <em>para</em> uma URL externa), o
-                                    <strong class="font-medium text-zinc-800 dark:text-zinc-200">Checkout externo</strong>
+                                    <strong class="font-medium text-[var(--ep-text)]">Checkout externo</strong>
                                     recebe vendas de outras plataformas: elas fazem
-                                    <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">POST</code>
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">POST</code>
                                     <em>para</em> o Getfy em
-                                    <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">POST …/webhooks/inbound/&lt;token&gt;</code>.
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">POST …/webhooks/inbound/&lt;token&gt;</code>.
                                 </p>
                                 <p>
                                     Ao processar o webhook, o Getfy cria um pedido concluído, vincula o aluno à área de membros
                                     e envia o e-mail de acesso — o mesmo fluxo de uma venda aprovada no checkout nativo.
                                 </p>
-                                <ul class="list-inside list-disc text-xs">
-                                    <li>
-                                        Campo obrigatório no JSON:
-                                        <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">email</code>
-                                        (ou caminho configurado no mapeamento).
+                                <ul class="space-y-2 border-t border-[var(--ep-line)] pt-3 text-[12.5px]">
+                                    <li class="flex gap-2.5">
+                                        <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                                        <span>
+                                            Campo obrigatório no JSON:
+                                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">email</code>
+                                            (ou caminho configurado no mapeamento).
+                                        </span>
                                     </li>
-                                    <li>
-                                        Opcional:
-                                        <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">external_id</code>
-                                        para idempotência (mesmo valor não cria pedido duplicado).
+                                    <li class="flex gap-2.5">
+                                        <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                        <span>
+                                            Opcional:
+                                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">external_id</code>
+                                            para idempotência (mesmo valor não cria pedido duplicado).
+                                        </span>
                                     </li>
-                                    <li>
-                                        Assinatura (opcional): cabeçalho
-                                        <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">X-Webhook-Signature: sha256=&lt;hmac_hex&gt;</code>
-                                        com o corpo bruto em HMAC-SHA256.
+                                    <li class="flex gap-2.5">
+                                        <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                        <span>
+                                            Assinatura (opcional): cabeçalho
+                                            <code class="break-all rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">X-Webhook-Signature: sha256=&lt;hmac_hex&gt;</code>
+                                            com o corpo bruto em HMAC-SHA256.
+                                        </span>
                                     </li>
                                 </ul>
-                            </div>
+                            </section>
 
-                            <div v-if="loading" class="text-sm text-zinc-500 dark:text-zinc-400">
+                            <div v-if="loading" class="text-[13px] text-[var(--ep-text-3)]">
                                 Carregando…
                             </div>
 
                             <div
                                 v-if="error"
-                                class="rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                             >
                                 {{ error }}
                             </div>
                             <div
                                 v-if="ok"
-                                class="rounded-lg bg-emerald-100 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-200"
+                                class="rounded-xl border border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-pos)]"
                             >
                                 {{ ok }}
                             </div>
 
                             <div
                                 v-if="revealedUrlBanner"
-                                class="rounded-xl border border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/40"
+                                class="panel-card ep-glow-card p-5"
                             >
-                                <p class="text-sm font-medium text-emerald-900 dark:text-emerald-200">
-                                    {{
-                                        revealedUrlBanner.reason === 'regenerated'
-                                            ? 'Nova URL do endpoint'
-                                            : 'URL do endpoint criado'
-                                    }}
-                                    <span v-if="revealedUrlBanner.name" class="font-normal text-emerald-800/80 dark:text-emerald-300/80">
+                                <p class="flex flex-wrap items-center gap-2 text-[13.5px] font-medium text-[var(--ep-text)]">
+                                    <span class="ep-chip ep-chip--pos">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                        {{
+                                            revealedUrlBanner.reason === 'regenerated'
+                                                ? 'Nova URL do endpoint'
+                                                : 'URL do endpoint criado'
+                                        }}
+                                    </span>
+                                    <span v-if="revealedUrlBanner.name" class="font-normal text-[var(--ep-text-3)]">
                                         — {{ revealedUrlBanner.name }}
                                     </span>
                                 </p>
-                                <p class="mt-1 text-xs text-emerald-800/80 dark:text-emerald-300/80">
+                                <p class="mt-2 text-[12.5px] text-[var(--ep-text-3)]">
                                     Use esta URL na plataforma externa. Guarde-a em local seguro — o token aparece por completo aqui.
                                 </p>
                                 <div
-                                    class="mt-3 break-all rounded-lg border border-emerald-200 bg-white px-3 py-2 font-mono text-xs text-zinc-800 dark:border-emerald-900 dark:bg-zinc-900 dark:text-zinc-100"
+                                    class="mt-3 break-all rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] px-3.5 py-2.5 font-mono text-[12px] text-[var(--ep-text)]"
                                 >
                                     {{ revealedUrlBanner.url }}
                                 </div>
-                                <div class="mt-3 flex flex-wrap gap-2">
+                                <div class="mt-4 flex flex-wrap gap-2">
                                     <Button
                                         type="button"
                                         size="sm"
-                                        class="bg-emerald-600 hover:bg-emerald-700"
                                         @click="copyText(revealedUrlBanner.url)"
                                     >
                                         Copiar URL completa
@@ -616,7 +628,7 @@ function truncateUrl(url, max = 52) {
                                     <Button
                                         type="button"
                                         size="sm"
-                                        variant="outline"
+                                        variant="ghost"
                                         @click="revealedUrlBanner = null"
                                     >
                                         Ocultar
@@ -625,8 +637,8 @@ function truncateUrl(url, max = 52) {
                             </div>
 
                             <div class="flex flex-wrap gap-2">
-                                <Button class="bg-emerald-600 hover:bg-emerald-700" @click="startNew">
-                                    <Plus class="mr-2 h-4 w-4" />
+                                <Button @click="startNew">
+                                    <Plus class="h-4 w-4" :stroke-width="1.75" />
                                     Novo endpoint
                                 </Button>
                                 <Button variant="outline" :disabled="loading" @click="loadAll">
@@ -635,42 +647,52 @@ function truncateUrl(url, max = 52) {
                             </div>
                         </div>
 
-                        <div class="flex-1 px-4 pb-6">
-                            <h3 class="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                Meus endpoints ({{ localEndpoints.length }})
+                        <div class="flex-1 px-6 pb-6 pt-6">
+                            <h3 class="ep-section-title mb-3 flex items-center gap-2">
+                                Meus endpoints
+                                <span class="ep-chip tabular-nums">{{ localEndpoints.length }}</span>
                             </h3>
-                            <ul v-if="localEndpoints.length > 0" class="space-y-3">
+                            <ul
+                                v-if="localEndpoints.length > 0"
+                                class="panel-card ep-data divide-y divide-[var(--ep-line)] overflow-hidden"
+                            >
                                 <li
                                     v-for="row in localEndpoints"
                                     :key="row.id"
-                                    class="rounded-2xl border border-zinc-200/80 bg-zinc-50/80 shadow-sm transition-shadow hover:shadow dark:border-zinc-700/60 dark:bg-zinc-800/60"
+                                    class="transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
-                                    <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                                         <div class="min-w-0 flex-1">
                                             <div class="flex flex-wrap items-center gap-2">
-                                                <span class="font-medium text-zinc-900 dark:text-white">
+                                                <span class="text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                                                     {{ row.name }}
                                                 </span>
                                                 <span
-                                                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                                    class="ep-chip"
                                                     :class="
                                                         row.is_active
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                            ? 'ep-chip--pos'
+                                                            : 'ep-chip--warn'
                                                     "
                                                 >
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                                     {{ row.is_active ? 'Ativo' : 'Inativo' }}
                                                 </span>
                                             </div>
                                             <div
-                                                class="mt-0.5 truncate font-mono text-xs text-zinc-500 dark:text-zinc-400"
+                                                class="mt-1 truncate font-mono text-[12px] text-[var(--ep-text-3)]"
                                                 :title="row.url"
                                             >
                                                 {{ truncateUrl(row.url) }}
                                             </div>
-                                            <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                                <span>Token: {{ row.url_token_masked }}</span>
-                                                <span>
+                                            <div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--ep-text-4)]">
+                                                <span>Token: <span class="font-mono text-[var(--ep-text-3)]">{{ row.url_token_masked }}</span></span>
+                                                <span class="flex items-center gap-1.5">
+                                                    <span
+                                                        class="h-1.5 w-1.5 rounded-full"
+                                                        :class="row.signing_secret_set ? 'bg-[var(--ep-pos)]' : 'bg-[var(--ep-text-4)]'"
+                                                        aria-hidden="true"
+                                                    />
                                                     Secret:
                                                     {{ row.signing_secret_set ? 'definido' : 'não definido' }}
                                                 </span>
@@ -679,22 +701,22 @@ function truncateUrl(url, max = 52) {
                                         <div class="flex shrink-0 flex-wrap items-center gap-1">
                                             <button
                                                 type="button"
-                                                class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                class="ep-btn-ghost !h-8 !gap-1.5 !px-3 text-[12.5px]"
                                                 @click.stop="copyText(row.url)"
                                             >
-                                                <ArrowDownToLine class="h-3.5 w-3.5" />
+                                                <Copy class="h-3.5 w-3.5" :stroke-width="1.75" />
                                                 Copiar URL
                                             </button>
                                             <button
                                                 type="button"
-                                                class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                class="ep-btn-ghost !h-8 !px-3 text-[12.5px]"
                                                 @click.stop="openEdit(row)"
                                             >
                                                 Editar
                                             </button>
                                             <button
                                                 type="button"
-                                                class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/30"
+                                                class="ep-btn-ghost !h-8 !px-3 text-[12.5px] !text-[var(--ep-warn)]"
                                                 :disabled="regenerating === row.id"
                                                 @click.stop="regenerate(row.id)"
                                             >
@@ -702,7 +724,7 @@ function truncateUrl(url, max = 52) {
                                             </button>
                                             <button
                                                 type="button"
-                                                class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30"
+                                                class="ep-btn-ghost !h-8 !px-3 text-[12.5px] !text-[var(--ep-neg)]"
                                                 :disabled="deleting === row.id"
                                                 @click.stop="remove(row.id)"
                                             >
@@ -712,129 +734,138 @@ function truncateUrl(url, max = 52) {
                                     </div>
                                 </li>
                             </ul>
-                            <p
+                            <div
                                 v-else-if="!loading"
-                                class="rounded-2xl bg-zinc-50 py-8 text-center text-sm text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400"
+                                class="panel-card ep-empty"
                             >
-                                Nenhum endpoint configurado. Clique em "Novo endpoint" para criar.
-                            </p>
+                                <p class="ep-empty__title">Nenhum endpoint configurado</p>
+                                <p class="ep-empty__text">Clique em "Novo endpoint" para criar.</p>
+                            </div>
                         </div>
                     </template>
 
                     <!-- Form -->
                     <div
                         v-else-if="currentView === 'form'"
-                        class="flex flex-1 flex-col bg-zinc-50/50 p-4 dark:bg-zinc-800/30"
+                        class="flex flex-1 flex-col gap-4 px-6 py-5"
                     >
                         <div class="space-y-4">
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Nome
-                                </label>
-                                <input
-                                    v-model="form.name"
-                                    type="text"
-                                    placeholder="Ex.: Hotmart"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Produto (área de membros)
-                                </label>
-                                <select
-                                    v-model="form.product_id"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white"
-                                >
-                                    <option v-for="p in products" :key="p.id" :value="p.id">
-                                        {{ p.name }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Oferta
-                                    <span class="font-normal text-zinc-500">(opcional)</span>
-                                </label>
-                                <select
-                                    v-model="form.product_offer_id"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white"
-                                >
-                                    <option :value="null">— Nenhuma —</option>
-                                    <option v-for="o in selectedProduct?.offers || []" :key="o.id" :value="o.id">
-                                        {{ o.name }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Plano de assinatura
-                                    <span class="font-normal text-zinc-500">(opcional)</span>
-                                </label>
-                                <select
-                                    v-model="form.subscription_plan_id"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white"
-                                >
-                                    <option :value="null">— Nenhum —</option>
-                                    <option
-                                        v-for="s in selectedProduct?.subscription_plans || []"
-                                        :key="s.id"
-                                        :value="s.id"
+                            <section class="panel-card space-y-4 p-5">
+                                <h3 class="ep-section-title">Endpoint</h3>
+                                <div>
+                                    <label class="ep-label">
+                                        Nome
+                                    </label>
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        placeholder="Ex.: Hotmart"
+                                        class="ep-input"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="ep-label">
+                                        Produto (área de membros)
+                                    </label>
+                                    <select
+                                        v-model="form.product_id"
+                                        class="ep-input"
                                     >
-                                        {{ s.name }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div>
-                                <Toggle v-model="form.is_active" label="Ativo" />
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                        <option v-for="p in products" :key="p.id" :value="p.id">
+                                            {{ p.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="ep-label">
+                                            Oferta
+                                            <span class="font-normal text-[var(--ep-text-4)]">(opcional)</span>
+                                        </label>
+                                        <select
+                                            v-model="form.product_offer_id"
+                                            class="ep-input"
+                                        >
+                                            <option :value="null">— Nenhuma —</option>
+                                            <option v-for="o in selectedProduct?.offers || []" :key="o.id" :value="o.id">
+                                                {{ o.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="ep-label">
+                                            Plano de assinatura
+                                            <span class="font-normal text-[var(--ep-text-4)]">(opcional)</span>
+                                        </label>
+                                        <select
+                                            v-model="form.subscription_plan_id"
+                                            class="ep-input"
+                                        >
+                                            <option :value="null">— Nenhum —</option>
+                                            <option
+                                                v-for="s in selectedProduct?.subscription_plans || []"
+                                                :key="s.id"
+                                                :value="s.id"
+                                            >
+                                                {{ s.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="border-t border-[var(--ep-line)] pt-4">
+                                    <Toggle v-model="form.is_active" label="Ativo" />
+                                </div>
+                            </section>
+                            <section class="panel-card p-5">
+                                <h3 class="ep-section-title mb-4">Segurança</h3>
+                                <label class="ep-label">
                                     Secret para assinatura HMAC
-                                    <span class="font-normal text-zinc-500">(opcional; em branco = sem verificação)</span>
+                                    <span class="font-normal text-[var(--ep-text-4)]">(opcional; em branco = sem verificação)</span>
                                 </label>
                                 <input
                                     v-model="form.signing_secret"
                                     type="password"
                                     autocomplete="new-password"
                                     placeholder="Deixe vazio ou defina ao criar/editar"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
+                                    class="ep-input"
                                 />
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Mapeamento JSON
-                                </label>
-                                <p class="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            </section>
+                            <section class="panel-card p-5">
+                                <div class="mb-1 flex flex-wrap items-center justify-between gap-3">
+                                    <label class="ep-section-title">
+                                        Mapeamento JSON
+                                    </label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <Button type="button" size="sm" variant="outline" @click="toggleHelper">
+                                            {{ showHelper ? 'Ocultar exemplo & IA' : 'Ver exemplo & IA' }}
+                                        </Button>
+                                        <Button type="button" size="sm" variant="ghost" @click="applyExampleFieldMap">
+                                            Aplicar exemplo no campo
+                                        </Button>
+                                    </div>
+                                </div>
+                                <p class="mb-3 mt-1 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                     Para cada campo use um caminho (string) ou vários em lista (ordem de tentativa). Chaves:
                                     email, name, cpf, phone, external_id. Opcional: "_strict": true — só usa os caminhos que definir.
                                 </p>
-                                <div class="mb-2 flex flex-wrap gap-2">
-                                    <Button type="button" size="sm" variant="outline" @click="toggleHelper">
-                                        {{ showHelper ? 'Ocultar exemplo & IA' : 'Ver exemplo & IA' }}
-                                    </Button>
-                                    <Button type="button" size="sm" variant="outline" @click="applyExampleFieldMap">
-                                        Aplicar exemplo no campo
-                                    </Button>
-                                </div>
                                 <textarea
                                     v-model="form.field_map_json"
                                     rows="8"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 font-mono text-xs text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white"
+                                    class="ep-input font-mono !text-[12px]"
                                 ></textarea>
 
                                 <div
                                     v-if="showHelper"
-                                    class="mt-3 space-y-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/20"
+                                    class="mt-4 space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4"
                                 >
-                                    <div class="flex flex-wrap gap-1 border-b border-emerald-200/80 pb-2 dark:border-emerald-800/60">
+                                    <div class="ep-tabs">
                                         <button
                                             type="button"
-                                            class="rounded-t px-3 py-1.5 text-xs font-medium transition-colors"
+                                            class="ep-tab border"
                                             :class="
                                                 helperTab === 'example'
-                                                    ? 'bg-white text-emerald-900 shadow-sm dark:bg-zinc-900 dark:text-emerald-200'
-                                                    : 'text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-900/40'
+                                                    ? 'ep-tab--active'
+                                                    : 'border-transparent'
                                             "
                                             @click="helperTab = 'example'"
                                         >
@@ -842,11 +873,11 @@ function truncateUrl(url, max = 52) {
                                         </button>
                                         <button
                                             type="button"
-                                            class="rounded-t px-3 py-1.5 text-xs font-medium transition-colors"
+                                            class="ep-tab border"
                                             :class="
                                                 helperTab === 'ai'
-                                                    ? 'bg-white text-emerald-900 shadow-sm dark:bg-zinc-900 dark:text-emerald-200'
-                                                    : 'text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-900/40'
+                                                    ? 'ep-tab--active'
+                                                    : 'border-transparent'
                                             "
                                             @click="helperTab = 'ai'"
                                         >
@@ -855,37 +886,37 @@ function truncateUrl(url, max = 52) {
                                     </div>
 
                                     <div v-show="helperTab === 'example'" class="space-y-3">
-                                        <p class="text-xs text-zinc-600 dark:text-zinc-400">
+                                        <p class="text-[12.5px] text-[var(--ep-text-3)]">
                                             À esquerda: payload de exemplo típico. À direita:
-                                            <code class="rounded bg-zinc-200 px-1 dark:bg-zinc-700">field_map</code>
+                                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">field_map</code>
                                             adequado a essa estrutura.
                                         </p>
-                                        <div class="grid gap-3 md:grid-cols-2">
+                                        <div class="grid gap-4 md:grid-cols-2">
                                             <div class="min-w-0">
-                                                <div class="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                                <div class="mb-2 text-[12.5px] font-medium text-[var(--ep-text-2)]">
                                                     Payload de exemplo
                                                 </div>
                                                 <pre
-                                                    class="max-h-72 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 text-[11px] leading-relaxed dark:border-zinc-600 dark:bg-zinc-900"
+                                                    class="max-h-72 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5 font-mono text-[11.5px] leading-relaxed text-[var(--ep-text-2)]"
                                                 >{{ examplePayloadJson }}</pre>
                                                 <Button
                                                     type="button"
                                                     size="sm"
                                                     variant="outline"
-                                                    class="mt-2"
+                                                    class="mt-3"
                                                     @click="copyText(examplePayloadJson)"
                                                 >
                                                     Copiar payload
                                                 </Button>
                                             </div>
                                             <div class="min-w-0">
-                                                <div class="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                                <div class="mb-2 text-[12.5px] font-medium text-[var(--ep-text-2)]">
                                                     Configuração (field_map)
                                                 </div>
                                                 <pre
-                                                    class="max-h-72 overflow-auto rounded-lg border border-zinc-200 bg-white p-2 text-[11px] leading-relaxed dark:border-zinc-600 dark:bg-zinc-900"
+                                                    class="max-h-72 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5 font-mono text-[11.5px] leading-relaxed text-[var(--ep-text-2)]"
                                                 >{{ exampleFieldMapJson }}</pre>
-                                                <div class="mt-2 flex flex-wrap gap-2">
+                                                <div class="mt-3 flex flex-wrap gap-2">
                                                     <Button
                                                         type="button"
                                                         size="sm"
@@ -903,55 +934,59 @@ function truncateUrl(url, max = 52) {
                                     </div>
 
                                     <div v-show="helperTab === 'ai'" class="space-y-3">
-                                        <p class="text-xs text-zinc-600 dark:text-zinc-400">
+                                        <p class="text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                             Cole abaixo um JSON real da sua plataforma. O prompt é gerado automaticamente quando o JSON é válido.
-                                            Copie e cole no <strong>ChatGPT</strong> (ou outro assistente); depois cola o
-                                            <code class="rounded bg-zinc-200 px-1 dark:bg-zinc-700">field_map</code>
+                                            Copie e cole no <strong class="font-medium text-[var(--ep-text)]">ChatGPT</strong> (ou outro assistente); depois cola o
+                                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">field_map</code>
                                             devolvido no campo «Mapeamento JSON» acima.
                                         </p>
-                                        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                            Payload da sua plataforma (JSON)
-                                        </label>
-                                        <textarea
-                                            v-model="aiPayloadInput"
-                                            rows="10"
-                                            class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 font-mono text-xs dark:border-zinc-600 dark:bg-zinc-900"
-                                            placeholder='Cole aqui o corpo JSON do webhook, ex.: { "data": { "customer": { "email": "..." } } }'
-                                        ></textarea>
+                                        <div>
+                                            <label class="ep-label">
+                                                Payload da sua plataforma (JSON)
+                                            </label>
+                                            <textarea
+                                                v-model="aiPayloadInput"
+                                                rows="10"
+                                                class="ep-input font-mono !text-[12px]"
+                                                placeholder='Cole aqui o corpo JSON do webhook, ex.: { "data": { "customer": { "email": "..." } } }'
+                                            ></textarea>
+                                        </div>
                                         <div class="flex flex-wrap gap-2">
                                             <Button type="button" size="sm" @click="copyAiPrompt">Copiar prompt</Button>
                                             <Button type="button" size="sm" variant="outline" @click="openChatGpt">
                                                 Abrir ChatGPT
                                             </Button>
                                         </div>
-                                        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                            Prompt para colar no ChatGPT
-                                        </label>
-                                        <textarea
-                                            readonly
-                                            rows="14"
-                                            class="w-full cursor-text rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-[11px] leading-relaxed text-zinc-800 dark:border-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-200"
-                                            :value="aiGeneratedPrompt"
-                                        ></textarea>
+                                        <div>
+                                            <label class="ep-label">
+                                                Prompt para colar no ChatGPT
+                                            </label>
+                                            <textarea
+                                                readonly
+                                                rows="14"
+                                                class="ep-input cursor-text font-mono !text-[11.5px] !text-[var(--ep-text-2)]"
+                                                :value="aiGeneratedPrompt"
+                                            ></textarea>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
                         </div>
 
                         <div
                             v-if="error"
-                            class="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                            class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                         >
                             {{ error }}
                         </div>
                         <div
                             v-if="ok"
-                            class="mt-4 rounded-lg bg-emerald-100 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-200"
+                            class="rounded-xl border border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-pos)]"
                         >
                             {{ ok }}
                         </div>
 
-                        <div class="mt-4 flex gap-2">
+                        <div class="mt-auto flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                             <Button variant="outline" :disabled="saving" @click="cancelEdit">
                                 Cancelar
                             </Button>

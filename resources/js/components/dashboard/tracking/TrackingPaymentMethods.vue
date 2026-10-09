@@ -8,6 +8,7 @@ import {
     Wallet,
 } from 'lucide-vue-next';
 import { formatBRL } from '@/composables/useTrackingPanel';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 
 const props = defineProps({
     methods: { type: Array, default: () => [] },
@@ -90,98 +91,82 @@ function displayCount(value) {
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full flex-col">
+    <section class="panel-card flex h-full min-w-0 flex-col p-5" aria-labelledby="trk-metodos">
         <div class="flex items-start justify-between gap-3">
-            <div>
-                <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <div class="dash-metric-icon-sm">
-                        <CreditCard class="h-4 w-4" />
-                    </div>
+            <div class="min-w-0">
+                <h2 id="trk-metodos" class="flex items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                    <CreditCard class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     Métodos de pagamento
                 </h2>
-                <p v-if="summary.items.length" class="mt-1 text-xs text-zinc-500">
+                <p v-if="summary.items.length" class="mt-1 text-[12px] tabular-nums text-[var(--ep-text-4)]">
                     {{ displayCount(summary.totalQty) }} vendas · {{ displayAmount(summary.totalAmount) }}
                 </p>
             </div>
             <div
                 v-if="leader"
-                class="hidden shrink-0 rounded-xl px-2.5 py-1.5 text-right sm:block"
-                :class="leader.style.chip"
+                class="ep-chip hidden shrink-0 tabular-nums sm:inline-flex"
+                :style="{ '--mc': ({ pix: 'var(--ep-pix)', pix_auto: 'var(--ep-pix)', card: 'var(--ep-cartao)', boleto: 'var(--ep-boleto)', apple_pay: 'var(--ep-text-2)', google_pay: 'var(--ep-accent-2)' })[leader.metodo] || 'var(--ep-accent)' }"
             >
-                <p class="text-[10px] font-semibold uppercase tracking-wide opacity-80">Líder</p>
-                <p class="text-sm font-bold">{{ leader.percent }}%</p>
+                <span class="h-1.5 w-1.5 rounded-full bg-[var(--mc)]" aria-hidden="true" />
+                <span class="text-[10.5px] font-medium text-[var(--ep-text-3)]">Líder</span>
+                <span class="font-semibold text-[var(--ep-text)]">{{ leader.percent }}%</span>
             </div>
         </div>
 
         <div v-if="summary.items.length" class="mt-4 flex flex-1 flex-col gap-4">
             <div
                 v-if="leader"
-                class="relative overflow-hidden rounded-xl border border-zinc-200/60 bg-gradient-to-br from-zinc-50 to-white p-4 dark:border-zinc-700/50 dark:from-zinc-800/80 dark:to-zinc-900/40"
+                class="relative overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4 shadow-[var(--ep-glass-highlight)]"
+                :style="{ '--mc': ({ pix: 'var(--ep-pix)', pix_auto: 'var(--ep-pix)', card: 'var(--ep-cartao)', boleto: 'var(--ep-boleto)', apple_pay: 'var(--ep-text-2)', google_pay: 'var(--ep-accent-2)' })[leader.metodo] || 'var(--ep-accent)' }"
             >
                 <div
-                    class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-20 blur-2xl"
-                    :class="`bg-gradient-to-br ${leader.style.bar}`"
+                    class="pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--mc)_45%,transparent),transparent)] blur-xl"
+                    aria-hidden="true"
                 />
                 <div class="relative flex items-center gap-3">
                     <div
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1"
-                        :class="[leader.style.chip, leader.style.ring]"
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[color-mix(in_oklab,var(--mc)_35%,transparent)] bg-[color-mix(in_oklab,var(--mc)_14%,transparent)] text-[var(--mc)]"
                     >
-                        <component :is="leader.style.icon" class="h-5 w-5" aria-hidden="true" />
+                        <component :is="leader.style.icon" class="h-5 w-5" :stroke-width="1.75" aria-hidden="true" />
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ leader.label }}</p>
-                        <p class="text-xs text-zinc-500">
+                        <p class="truncate text-[13.5px] font-semibold text-[var(--ep-text)]">{{ leader.label }}</p>
+                        <p class="text-[12px] tabular-nums text-[var(--ep-text-3)]">
                             {{ displayCount(leader.quantidade) }}
                             {{ leader.quantidade === 1 ? 'venda' : 'vendas' }}
+                            · {{ leader.percent }}%
                         </p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-white">
-                            {{ displayAmount(leader.total) }}
-                        </p>
-                        <p class="text-xs font-medium text-[var(--color-primary)]">{{ leader.percent }}%</p>
+                    <div class="shrink-0 text-right">
+                        <MoneyAmount :value="Number(leader.total) || 0" :hidden="!valuesVisible" size="md" />
                     </div>
                 </div>
             </div>
 
-            <ul class="space-y-3">
+            <ul class="space-y-3.5">
                 <li
                     v-for="m in summary.items"
                     :key="m.metodo"
-                    class="rounded-xl border border-transparent px-1 py-0.5 transition-colors hover:border-zinc-200/80 hover:bg-zinc-50/80 dark:hover:border-zinc-700/50 dark:hover:bg-zinc-800/30"
+                    :style="{ '--mc': ({ pix: 'var(--ep-pix)', pix_auto: 'var(--ep-pix)', card: 'var(--ep-cartao)', boleto: 'var(--ep-boleto)', apple_pay: 'var(--ep-text-2)', google_pay: 'var(--ep-accent-2)' })[m.metodo] || 'var(--ep-accent)' }"
                 >
-                    <div class="mb-1.5 flex items-center gap-2.5">
-                        <div
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                            :class="m.style.chip"
-                        >
-                            <component :is="m.style.icon" class="h-4 w-4" aria-hidden="true" />
+                    <div class="flex items-center gap-2.5 text-[13px]">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--mc)]">
+                            <component :is="m.style.icon" class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                                    {{ m.label }}
-                                </span>
-                                <span
-                                    class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums"
-                                    :class="m.style.chip"
-                                >
-                                    {{ m.percent }}%
-                                </span>
-                            </div>
-                            <div class="mt-0.5 flex items-center justify-between gap-2 text-[11px] text-zinc-500">
-                                <span>{{ displayCount(m.quantidade) }} vendas</span>
-                                <span class="font-medium tabular-nums text-zinc-700 dark:text-zinc-300">
-                                    {{ displayAmount(m.total) }}
-                                </span>
-                            </div>
-                        </div>
+                        <span class="min-w-0 flex-1 truncate font-medium text-[var(--ep-text)]">
+                            {{ m.label }}
+                        </span>
+                        <span class="hidden shrink-0 whitespace-nowrap text-[12px] tabular-nums text-[var(--ep-text-4)] sm:inline">{{ displayCount(m.quantidade) }} vendas</span>
+                        <span class="w-11 shrink-0 text-right text-[12px] tabular-nums text-[var(--ep-text-3)]">
+                            {{ m.percent }}%
+                        </span>
+                        <span class="w-[104px] shrink-0 truncate text-right font-medium tabular-nums text-[var(--ep-text)]">
+                            {{ displayAmount(m.total) }}
+                        </span>
                     </div>
-                    <div class="h-1.5 overflow-hidden rounded-full bg-zinc-200/80 dark:bg-zinc-700/80">
+                    <div class="ml-[38px] mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--ep-active)]">
                         <div
-                            class="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out"
-                            :class="m.style.bar"
+                            class="h-full rounded-full bg-[linear-gradient(90deg,color-mix(in_oklab,var(--mc)_65%,transparent),var(--mc))] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
                             :style="{ width: `${Math.max(m.percent, m.total > 0 ? 4 : 0)}%` }"
                         />
                     </div>
@@ -189,8 +174,9 @@ function displayCount(value) {
             </ul>
         </div>
 
-        <p v-else class="mt-8 flex flex-1 items-center justify-center text-center text-sm text-zinc-500">
-            Nenhum pagamento no período
-        </p>
-    </div>
+        <div v-else class="ep-empty flex-1">
+            <p class="ep-empty__title">Nenhum pagamento no período</p>
+            <p class="ep-empty__text">A divisão entre Pix, cartão e boleto aparece após a primeira venda aprovada.</p>
+        </div>
+    </section>
 </template>

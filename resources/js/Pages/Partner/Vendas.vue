@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import { useInertiaPagination } from '@/composables/useInertiaPagination';
 import HorizontalScrollTabs from '@/components/ui/HorizontalScrollTabs.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import {
     Eye,
     EyeOff,
@@ -157,163 +158,182 @@ function commissionStatusLabel(status) {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Minhas vendas</h1>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Vendas atribuídas a você como parceiro. Dados do comprador dependem da configuração do produtor.
-            </p>
-        </div>
-
-        <div class="flex items-center justify-end">
+    <div class="space-y-5">
+        <header class="flex flex-wrap items-end justify-between gap-3">
+            <div class="min-w-0">
+                <h1 class="text-[22px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]">Minhas vendas</h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
+                    Vendas atribuídas a você como parceiro. Dados do comprador dependem da configuração do produtor.
+                </p>
+            </div>
             <button
                 type="button"
-                class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                class="ep-btn-secondary ep-btn-icon text-[var(--ep-text-3)] hover:text-[var(--ep-text)]"
                 :aria-label="valuesVisible ? 'Ocultar valores' : 'Mostrar valores'"
                 @click="valuesVisible = !valuesVisible"
             >
-                <Eye v-if="valuesVisible" class="h-5 w-5" />
-                <EyeOff v-else class="h-5 w-5" />
+                <Eye v-if="valuesVisible" class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                <EyeOff v-else class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
             </button>
+        </header>
+
+        <!-- Métricas: comissões (herói) + vendas encontradas -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-7" aria-labelledby="parceiro-vendas-comissao">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="parceiro-vendas-comissao" class="text-[13px] font-medium text-[var(--ep-text-2)]">Suas comissões (filtro)</h2>
+                    <span class="ep-kpi__icon" aria-hidden="true">
+                        <CircleDollarSign class="h-4 w-4" :stroke-width="1.75" />
+                    </span>
+                </div>
+                <MoneyAmount :value="Number(stats.comissao_total ?? 0)" :hidden="!valuesVisible" size="hero" class="mt-5 block" />
+                <p class="mt-4 text-[12.5px] text-[var(--ep-text-3)]">Soma das comissões das vendas que atendem aos filtros abaixo.</p>
+            </section>
+            <div class="panel-card ep-kpi justify-between lg:col-span-5">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Vendas encontradas</span>
+                    <span class="ep-kpi__icon" aria-hidden="true">
+                        <ShoppingCart class="h-4 w-4" :stroke-width="1.75" />
+                    </span>
+                </div>
+                <p class="ep-kpi__value !text-[28px]">{{ displayNumber(stats.vendas_encontradas ?? 0) }}</p>
+                <span class="ep-kpi__meta">pedidos atribuídos a você no filtro atual</span>
+            </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500">
-                    <ShoppingCart class="h-5 w-5" />
-                    <span class="text-sm font-medium">Vendas encontradas</span>
-                </div>
-                <p class="mt-2 text-2xl font-bold">{{ displayNumber(stats.vendas_encontradas ?? 0) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500">
-                    <CircleDollarSign class="h-5 w-5" />
-                    <span class="text-sm font-medium">Suas comissões (filtro)</span>
-                </div>
-                <p class="mt-2 text-2xl font-bold">{{ displayMoney(stats.comissao_total) }}</p>
-            </div>
-        </div>
-
-        <HorizontalScrollTabs aria-label="Filtrar vendas">
-            <button
-                v-for="opt in filterOptions"
-                :key="opt.value"
-                type="button"
-                :class="[
-                    'rounded-lg px-4 py-2 text-sm font-medium transition',
-                    status_filter === opt.value
-                        ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700'
-                        : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400',
-                ]"
-                @click="setStatusFilter(opt.value)"
-            >
-                {{ opt.label }}
-            </button>
-        </HorizontalScrollTabs>
-
-        <div class="flex flex-wrap items-end gap-3">
-            <div class="relative min-w-[200px] flex-1 max-w-xl">
-                <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                <input
-                    v-model="filterForm.q"
-                    type="text"
-                    placeholder="Buscar pedido, e-mail, produto..."
-                    class="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-10 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                    @input="onSearchInput"
-                />
+        <!-- Filtros -->
+        <div class="panel-card space-y-4 p-4">
+            <HorizontalScrollTabs aria-label="Filtrar vendas" nav-class="ep-tabs">
                 <button
-                    v-if="filterForm.q"
+                    v-for="opt in filterOptions"
+                    :key="opt.value"
                     type="button"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-400"
-                    @click="filterForm.q = ''; applyFilters()"
+                    :class="['ep-tab shrink-0', status_filter === opt.value ? 'ep-tab--active' : '']"
+                    @click="setStatusFilter(opt.value)"
                 >
-                    <X class="h-4 w-4" />
+                    {{ opt.label }}
                 </button>
+            </HorizontalScrollTabs>
+
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="relative min-w-[200px] max-w-xl flex-1">
+                    <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" />
+                    <input
+                        v-model="filterForm.q"
+                        type="text"
+                        placeholder="Buscar pedido, e-mail, produto..."
+                        class="ep-input !pl-9 !pr-9"
+                        @input="onSearchInput"
+                    />
+                    <button
+                        v-if="filterForm.q"
+                        type="button"
+                        aria-label="Limpar busca"
+                        class="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--ep-text-4)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
+                        @click="filterForm.q = ''; applyFilters()"
+                    >
+                        <X class="h-4 w-4" :stroke-width="1.75" />
+                    </button>
+                </div>
+                <select
+                    v-model="filterForm.period"
+                    class="ep-input !w-auto pr-8"
+                    aria-label="Período"
+                    @change="applyFilters"
+                >
+                    <option v-for="o in periodOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
+                </select>
+                <select
+                    v-model="filterForm.product_id"
+                    class="ep-input !w-auto max-w-[220px] pr-8"
+                    aria-label="Produto"
+                    @change="applyFilters"
+                >
+                    <option value="">Todos produtos</option>
+                    <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
+                </select>
+                <select
+                    v-model="filterForm.payment_status"
+                    class="ep-input !w-auto pr-8"
+                    aria-label="Status do pagamento"
+                    @change="applyFilters"
+                >
+                    <option v-for="o in paymentStatusOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
+                </select>
             </div>
-            <select
-                v-model="filterForm.period"
-                class="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                @change="applyFilters"
-            >
-                <option v-for="o in periodOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
-            </select>
-            <select
-                v-model="filterForm.product_id"
-                class="max-w-[200px] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                @change="applyFilters"
-            >
-                <option value="">Todos produtos</option>
-                <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
-            <select
-                v-model="filterForm.payment_status"
-                class="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                @change="applyFilters"
-            >
-                <option v-for="o in paymentStatusOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
-            </select>
+
+            <div v-if="filterForm.period === 'custom'" class="flex flex-wrap items-center gap-3 border-t border-[var(--ep-line)] pt-4">
+                <input v-model="filterForm.date_from" type="date" aria-label="Data inicial" class="ep-input !w-auto" @change="applyFilters" />
+                <span class="text-[12.5px] text-[var(--ep-text-4)]">até</span>
+                <input v-model="filterForm.date_to" type="date" aria-label="Data final" class="ep-input !w-auto" @change="applyFilters" />
+            </div>
         </div>
 
-        <div v-if="filterForm.period === 'custom'" class="flex flex-wrap gap-3">
-            <input v-model="filterForm.date_from" type="date" class="rounded-xl border px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900" @change="applyFilters" />
-            <input v-model="filterForm.date_to" type="date" class="rounded-xl border px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900" @change="applyFilters" />
-        </div>
-
-        <div class="panel-table overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                <thead class="bg-zinc-50 dark:bg-zinc-800">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Data</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Produto</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Comprador</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Valor venda</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase text-zinc-500">Sua comissão</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                    <tr v-for="v in vendasList" :key="v.id" class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                        <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600">
-                            {{ v.created_at ? new Date(v.created_at).toLocaleString('pt-BR') : '—' }}
-                        </td>
-                        <td class="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">
-                            {{ v.product_display_name ?? '—' }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="flex items-start gap-1.5">
-                                <Lock v-if="v.buyer_masked" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400" title="Dados mascarados" />
-                                <div>
-                                    <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ v.buyer_name ?? '—' }}</p>
-                                    <p class="text-xs text-zinc-500">{{ v.buyer_email ?? '—' }}</p>
-                                    <p v-if="v.buyer_phone" class="text-xs text-zinc-500">{{ v.buyer_phone }}</p>
+        <!-- Tabela -->
+        <div class="panel-card ep-data overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="ep-table min-w-[860px]">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Produto</th>
+                            <th>Comprador</th>
+                            <th>Status</th>
+                            <th class="ep-num">Valor venda</th>
+                            <th class="ep-num">Sua comissão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="v in vendasList" :key="v.id">
+                            <td class="whitespace-nowrap text-[12.5px] tabular-nums text-[var(--ep-text-3)]">
+                                {{ v.created_at ? new Date(v.created_at).toLocaleString('pt-BR') : '—' }}
+                            </td>
+                            <td class="max-w-[220px] font-medium text-[var(--ep-text)]">
+                                <span class="line-clamp-2">{{ v.product_display_name ?? '—' }}</span>
+                            </td>
+                            <td>
+                                <div class="flex items-start gap-1.5">
+                                    <Lock v-if="v.buyer_masked" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)]" :stroke-width="1.75" title="Dados mascarados" />
+                                    <div class="min-w-0">
+                                        <p class="font-medium text-[var(--ep-text)]">{{ v.buyer_name ?? '—' }}</p>
+                                        <p class="text-[12px] text-[var(--ep-text-3)]">{{ v.buyer_email ?? '—' }}</p>
+                                        <p v-if="v.buyer_phone" class="text-[12px] tabular-nums text-[var(--ep-text-3)]">{{ v.buyer_phone }}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <span :class="['inline-flex rounded-full px-2 py-0.5 text-xs font-medium', statusBadgeClass(v.status)]">
-                                {{ statusBadgeLabel(v.status) }}
-                            </span>
-                            <p class="mt-1 text-xs text-zinc-500">{{ v.gateway_label }}</p>
-                        </td>
-                        <td class="px-4 py-3 text-sm tabular-nums">{{ displayMoney(v.amount_total ?? v.amount, v.currency) }}</td>
-                        <td class="px-4 py-3">
-                            <p class="text-sm font-semibold tabular-nums text-[var(--color-primary)]">
-                                {{ displayMoney(v.commission_amount) }}
+                            </td>
+                            <td>
                                 <span
-                                    v-if="v.commission_is_estimated"
-                                    class="ml-1 text-xs font-normal text-zinc-500"
-                                    title="Valor estimado até confirmação do pagamento"
-                                >*</span>
-                            </p>
-                            <p class="text-xs text-zinc-500">
-                                {{ commissionStatusLabel(v.commission_status) }}
-                                <template v-if="v.commission_percent != null"> · {{ v.commission_percent }}%</template>
-                            </p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p v-if="!vendasList.length" class="px-4 py-12 text-center text-sm text-zinc-500">Nenhuma venda encontrada.</p>
+                                    class="ep-chip"
+                                    :class="v.status === 'completed' ? 'ep-chip--pos' : v.status === 'pending' ? 'ep-chip--warn' : v.status === 'disputed' ? 'ep-chip--neg' : ''"
+                                >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                    {{ statusBadgeLabel(v.status) }}
+                                </span>
+                                <p class="mt-1 text-[11.5px] text-[var(--ep-text-4)]">{{ v.gateway_label }}</p>
+                            </td>
+                            <td class="ep-num tabular-nums text-[var(--ep-text-2)]">{{ displayMoney(v.amount_total ?? v.amount, v.currency) }}</td>
+                            <td class="ep-num">
+                                <p class="font-semibold tabular-nums text-[var(--ep-text)]">
+                                    {{ displayMoney(v.commission_amount) }}
+                                    <span
+                                        v-if="v.commission_is_estimated"
+                                        class="ml-0.5 text-[12px] font-normal text-[var(--ep-warn)]"
+                                        title="Valor estimado até confirmação do pagamento"
+                                    >*</span>
+                                </p>
+                                <p class="text-[11.5px] text-[var(--ep-text-4)]">
+                                    {{ commissionStatusLabel(v.commission_status) }}
+                                    <template v-if="v.commission_percent != null"> · <span class="tabular-nums">{{ v.commission_percent }}%</span></template>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!vendasList.length" class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhuma venda encontrada.</p>
+                <p class="ep-empty__text">Ajuste a busca, o período ou o status para ver outras vendas atribuídas a você.</p>
+            </div>
         </div>
 
         <nav
@@ -328,10 +348,10 @@ function commissionStatusLabel(status) {
                 aria-label="Página anterior"
                 @click="visitPaginationPage(paginationPrev?.url)"
             >
-                <ChevronLeft class="h-5 w-5" aria-hidden="true" />
+                <ChevronLeft class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
             </button>
 
-            <span class="min-w-0 flex-1 text-center text-sm font-medium text-zinc-600 dark:text-zinc-400 sm:hidden">
+            <span class="min-w-0 flex-1 text-center text-[13px] font-medium tabular-nums text-[var(--ep-text-3)] sm:hidden">
                 {{ paginationSummary }}
             </span>
 
@@ -339,7 +359,7 @@ function commissionStatusLabel(status) {
                 <template v-for="(link, index) in paginationPages" :key="`page-${index}-${link.label}`">
                     <span
                         v-if="isEllipsisLink(link)"
-                        class="inline-flex min-w-9 items-center justify-center px-2 py-2 text-sm text-zinc-400 dark:text-zinc-500"
+                        class="inline-flex min-w-9 items-center justify-center px-2 py-2 text-[13px] text-[var(--ep-text-4)]"
                         aria-hidden="true"
                     >…</span>
                     <button
@@ -362,7 +382,7 @@ function commissionStatusLabel(status) {
                 aria-label="Próxima página"
                 @click="visitPaginationPage(paginationNext?.url)"
             >
-                <ChevronRight class="h-5 w-5" aria-hidden="true" />
+                <ChevronRight class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
             </button>
         </nav>
     </div>

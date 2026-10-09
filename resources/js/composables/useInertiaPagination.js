@@ -64,13 +64,13 @@ export function useInertiaPagination(paginatorSource) {
 
     function paginationLinkClass(link, { iconOnly = false } = {}) {
         return [
-            'relative inline-flex shrink-0 items-center justify-center rounded-lg text-sm font-medium transition touch-manipulation',
+            'relative inline-flex shrink-0 items-center justify-center rounded-[10px] border text-[13px] font-medium tabular-nums transition-colors duration-150 touch-manipulation',
             iconOnly ? 'h-10 w-10 sm:h-9 sm:w-9' : 'min-h-10 min-w-10 px-3 py-2 sm:min-h-9 sm:min-w-9',
             link?.active
-                ? 'z-10 bg-[var(--color-primary)] text-white'
+                ? 'ep-tab--active z-10 text-[var(--ep-text)]'
                 : link?.url
-                  ? 'text-zinc-700 hover:bg-zinc-100 active:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600'
-                  : 'cursor-not-allowed text-zinc-400 dark:text-zinc-500',
+                  ? 'border-transparent text-[var(--ep-text-3)] hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]'
+                  : 'cursor-not-allowed border-transparent text-[var(--ep-text-4)] opacity-60',
         ];
     }
 

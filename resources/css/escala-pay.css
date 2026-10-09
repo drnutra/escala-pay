@@ -1,0 +1,763 @@
+/*
+ * Escala Pay: sistema visual do painel — VIDRO.
+ *
+ * Princípio: vidro não vive sobre cinza. O canvas é azul-marinho profundo com luzes coloridas
+ * (aurora) e os painéis são lâminas translúcidas que flutuam sobre essa luz: fundo branco em
+ * baixa opacidade, borda hairline clara, brilho no topo, blur e saturação do que está atrás.
+ * No claro, a mesma ideia sobre um gradiente pastel (lavanda, céu, pêssego).
+ *
+ * Escopo: html.panel-app (painel, login, parceiro). Checkout e área de membros ficam fora.
+ * A escala zinc do Tailwind é remapeada para alphas: todas as 79 telas herdam o vidro.
+ */
+
+@layer base {
+    /* ---------- Tema claro: vidro branco sobre gradiente pastel ---------- */
+    html.panel-app {
+        --color-zinc-50: rgba(255, 255, 255, 0.62);
+        --color-zinc-100: rgba(255, 255, 255, 0.72);
+        --color-zinc-200: rgba(15, 21, 48, 0.09);
+        --color-zinc-300: rgba(15, 21, 48, 0.16);
+        --color-zinc-400: rgba(15, 21, 48, 0.42);
+        --color-zinc-500: rgba(15, 21, 48, 0.54);
+        --color-zinc-600: rgba(15, 21, 48, 0.68);
+        --color-zinc-700: rgba(15, 21, 48, 0.8);
+        --color-zinc-800: #1b2140;
+        --color-zinc-900: #0f1530;
+        --color-zinc-950: #080c22;
+
+        --ep-canvas: #eceffa;
+        --ep-aurora-1: rgba(139, 124, 255, 0.42);
+        --ep-aurora-2: rgba(107, 164, 255, 0.46);
+        --ep-aurora-3: rgba(255, 176, 128, 0.34);
+        --ep-glass: rgba(255, 255, 255, 0.74);
+        --ep-glass-strong: rgba(255, 255, 255, 0.86);
+        --ep-glass-border: rgba(255, 255, 255, 0.64);
+        --ep-glass-border-top: rgba(255, 255, 255, 1);
+        --ep-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 1);
+        --ep-glass-shadow: 0 18px 40px -18px rgba(16, 24, 40, 0.14), 0 1px 2px rgba(16, 24, 40, 0.05);
+        --ep-glass-inner: inset 0 -1px 0 rgba(30, 41, 99, 0.04);
+        --ep-data: rgba(255, 255, 255, 0.84);
+        --ep-blur: 22px;
+        --ep-surface: rgba(255, 255, 255, 0.38);
+        --ep-card: rgba(255, 255, 255, 0.58);
+        --ep-card-2: rgba(255, 255, 255, 0.4);
+        --ep-hover: rgba(255, 255, 255, 0.5);
+        --ep-active: rgba(255, 255, 255, 0.78);
+        --ep-line: rgba(15, 21, 48, 0.08);
+        --ep-line-strong: rgba(15, 21, 48, 0.16);
+        --ep-text: #102033;
+        --ep-text-2: #34465f;
+        --ep-text-3: #60708a;
+        --ep-text-4: rgba(16, 32, 51, 0.42);
+        --ep-highlight: var(--ep-glass-highlight);
+        --ep-shadow-card: var(--ep-glass-shadow);
+        --ep-shadow-surface: 0 0 0 1px rgba(255, 255, 255, 0.7);
+        --ep-shadow-pop: 0 24px 60px -16px rgba(30, 41, 99, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.9);
+
+        --ep-accent: #2f6fe4;
+        --ep-accent-2: #7b5cf0;
+        --ep-glow: rgba(47, 111, 228, 0.35);
+        --ep-pix: #0f9f78;
+        --ep-cartao: #2f6fe4;
+        --ep-boleto: #c27a12;
+        --ep-pos: #0f9f78;
+        --ep-pos-bg: rgba(15, 159, 120, 0.12);
+        --ep-neg: #d6364d;
+        --ep-neg-bg: rgba(214, 54, 77, 0.1);
+        --ep-warn: #c27a12;
+        --ep-warn-bg: rgba(194, 122, 18, 0.12);
+
+        --ep-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+        font-optical-sizing: auto;
+        font-feature-settings: 'cv01', 'ss03';
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    html.panel-app:not(.dark) {
+        --color-primary: #2f6fe4 !important;
+    }
+
+    /* ---------- Tema escuro: vidro sobre azul-marinho com aurora ---------- */
+    html.dark.panel-app {
+        /* Paleta EscalaX (grafite estilo Respond.io): fundo #101113, painel #222225, texto #cfd3d8, azul #6ba4ff. */
+        --color-zinc-50: #fcfcfc;
+        --color-zinc-100: #eef0f2;
+        --color-zinc-200: #cfd3d8;
+        --color-zinc-300: #b7bcc2;
+        --color-zinc-400: #97a0aa;
+        --color-zinc-500: #7f8894;
+        --color-zinc-600: #4e4f53;
+        --color-zinc-700: #353c45;
+        --color-zinc-800: #222225;
+        --color-zinc-900: #101113;
+        --color-zinc-950: #080a0c;
+        --color-white: #ffffff;
+
+        --ep-canvas: #080a0c;
+        --ep-aurora-1: rgba(107, 164, 255, 0.16);
+        --ep-aurora-2: rgba(107, 164, 255, 0.07);
+        --ep-aurora-3: rgba(68, 138, 255, 0.08);
+        --ep-glass: rgba(26, 27, 30, 0.74);
+        --ep-glass-strong: rgba(34, 34, 37, 0.8);
+        --ep-glass-border: rgba(182, 188, 195, 0.16);
+        --ep-glass-border-top: rgba(207, 211, 216, 0.26);
+        --ep-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        --ep-glass-shadow: 0 24px 56px -28px rgba(0, 0, 0, 0.75);
+        --ep-glass-inner: inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+        --ep-data: rgba(22, 23, 26, 0.86);
+        --ep-blur: 18px;
+        --ep-surface: rgba(16, 17, 19, 0.6);
+        --ep-card: rgba(34, 34, 37, 0.8);
+        --ep-card-2: rgba(42, 44, 47, 0.55);
+        --ep-hover: rgba(61, 68, 78, 0.45);
+        --ep-active: rgba(53, 60, 69, 0.9);
+        --ep-line: rgba(182, 188, 195, 0.12);
+        --ep-line-strong: rgba(182, 188, 195, 0.2);
+        --ep-text: #eef0f2;
+        --ep-text-2: #cfd3d8;
+        --ep-text-3: #97a0aa;
+        --ep-text-4: #777e87;
+        --ep-highlight: var(--ep-glass-highlight);
+        --ep-shadow-card: var(--ep-glass-shadow);
+        --ep-shadow-surface: 0 0 0 1px rgba(182, 188, 195, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        --ep-shadow-pop: 0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(182, 188, 195, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+        --ep-accent: #6ba4ff;
+        --ep-accent-2: #448aff;
+        --ep-glow: rgba(107, 164, 255, 0.45);
+        --ep-pix: #1fa585;
+        --ep-cartao: #4b8cf0;
+        --ep-boleto: #bf8420;
+        --ep-pos: #2ec780;
+        --ep-pos-bg: rgba(46, 199, 128, 0.13);
+        --ep-neg: #f06050;
+        --ep-neg-bg: rgba(240, 96, 80, 0.14);
+        --ep-warn: #e9b02b;
+        --ep-warn-bg: rgba(233, 176, 43, 0.14);
+
+        color-scheme: dark;
+    }
+
+    html.panel-app body {
+        background-color: var(--ep-canvas);
+        letter-spacing: -0.006em;
+    }
+
+    html.panel-app :where(h1, h2, h3) {
+        letter-spacing: -0.017em;
+    }
+
+    html.panel-app :where(table) {
+        font-variant-numeric: tabular-nums;
+    }
+
+    html.panel-app ::selection {
+        background: color-mix(in oklab, var(--ep-accent) 36%, transparent);
+    }
+
+    html.panel-app :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+        outline: 2px solid color-mix(in oklab, var(--ep-accent) 85%, transparent);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html.panel-app *,
+        html.panel-app *::before,
+        html.panel-app *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+/* Texto escuro sobre botões claros no tema escuro (dark:bg-white + dark:text-zinc-900). */
+html.dark.panel-app .dark\:text-zinc-900 {
+    color: #0d1520;
+}
+
+/* Botão de cor primária no escuro: o azul claro da marca pede texto escuro (contraste 8:1). */
+html.dark.panel-app .bg-\[var\(--color-primary\)\].text-white {
+    color: #0d1520;
+}
+
+@layer components {
+    /* ---------- Aurora: a luz atrás do vidro (components/layout/AppLayout.vue) ---------- */
+    .ep-aurora {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background:
+            radial-gradient(42% 44% at 94% -8%, var(--ep-aurora-1), transparent 66%),
+            radial-gradient(30% 46% at 104% 56%, var(--ep-aurora-2), transparent 70%),
+            radial-gradient(40% 40% at 4% 0%, var(--ep-aurora-3), transparent 68%),
+            var(--ep-canvas);
+    }
+    .ep-aurora::before {
+        /* Luz da marca atrás do conteúdo principal, para o vidro ter o que refratar. */
+        content: '';
+        position: absolute;
+        left: 34%;
+        top: 14%;
+        width: 44vw;
+        height: 44vw;
+        max-width: 760px;
+        max-height: 760px;
+        border-radius: 50%;
+        background: radial-gradient(closest-side, color-mix(in oklab, var(--ep-accent) 8%, transparent), transparent 72%);
+    }
+    .ep-aurora::after {
+        /* Grão desligado por desempenho (camada de tela inteira com blend recompunha a cada frame). */
+        display: none;
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+    }
+    html.dark.panel-app .ep-aurora::after {
+        opacity: 0.05;
+    }
+
+    /* ---------- Lâminas de vidro ---------- */
+    .ep-glass {
+        position: relative;
+        background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass));
+        border: 1px solid var(--ep-glass-border);
+        box-shadow: var(--ep-glass-highlight), var(--ep-glass-shadow);
+    }
+    .ep-glass-surface {
+        position: relative;
+        background: var(--ep-surface);
+        border: 1px solid var(--ep-glass-border);
+        box-shadow: var(--ep-glass-highlight), var(--ep-glass-shadow);
+    }
+    html.panel-app:not(.dark) .ep-glass-surface {
+        border-color: rgba(255, 255, 255, 0.75);
+    }
+    .ep-glass-side {
+        background: linear-gradient(180deg, var(--ep-glass), transparent 70%);
+        border-right: 1px solid var(--ep-line);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        backdrop-filter: blur(20px) saturate(140%);
+    }
+
+    /* Card herói: mesmo vidro dos demais, sem halo nem borda luminosa. */
+    .ep-glow-card {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    /* Chip: caixa grafite neutra; a cor do estado vive só no glifo (ver "Glifos do chip" abaixo) */
+    .ep-chip {
+        --chip-c: var(--ep-text-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.005em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        background: var(--ep-chip-bg);
+        border: 1px solid var(--ep-chip-border);
+        box-shadow: var(--ep-chip-shadow);
+        color: var(--ep-text-2);
+    }
+    .ep-chip--pos { --chip-c: var(--ep-pos); }
+    .ep-chip--neg { --chip-c: var(--ep-neg); }
+    .ep-chip--warn { --chip-c: var(--ep-warn); }
+
+    /* Avatar de iniciais: vidro tonal na matiz da pessoa (--av-h vem da diretiva v-avatar; sem ela, azul EscalaX).
+       Sombras em em para escalar de 24px a 112px. */
+    .ep-avatar {
+        --_h: var(--av-h, 259);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border: 0;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: 0.01em;
+        color: oklch(0.95 0.04 var(--_h));
+        text-shadow: 0 1px 1px oklch(0.2 0.05 var(--_h) / 0.45);
+        background:
+            radial-gradient(110% 80% at 50% -8%, oklch(1 0 0 / 0.22), oklch(1 0 0 / 0) 58%),
+            linear-gradient(165deg, oklch(0.55 0.1 var(--_h)) 0%, oklch(0.43 0.085 var(--_h)) 50%, oklch(0.32 0.065 var(--_h)) 100%);
+        box-shadow:
+            inset 0 0 0 1px oklch(0.8 0.08 var(--_h) / 0.2),
+            inset 0 1px 0 oklch(1 0 0 / 0.2),
+            inset 0 -0.22em 0.5em -0.18em oklch(0.14 0.04 var(--_h) / 0.55),
+            0 0 0 1px oklch(0 0 0 / 0.32),
+            0 0.3em 0.8em -0.35em oklch(0.55 0.12 var(--_h) / 0.45);
+    }
+    html.panel-app:not(.dark) .ep-avatar {
+        color: oklch(0.42 0.1 var(--_h));
+        text-shadow: 0 1px 0 oklch(1 0 0 / 0.55);
+        background:
+            radial-gradient(110% 80% at 50% -8%, oklch(1 0 0 / 0.9), oklch(1 0 0 / 0) 60%),
+            linear-gradient(165deg, oklch(0.95 0.035 var(--_h)) 0%, oklch(0.87 0.07 var(--_h)) 100%);
+        box-shadow:
+            inset 0 0 0 1px oklch(0.55 0.09 var(--_h) / 0.22),
+            inset 0 1px 0 oklch(1 0 0 / 0.95),
+            inset 0 -0.22em 0.5em -0.18em oklch(0.6 0.09 var(--_h) / 0.18),
+            0 0.3em 0.8em -0.35em oklch(0.45 0.1 var(--_h) / 0.4);
+    }
+
+    /* ---------- Valores monetários (components/ui/MoneyAmount.vue) ---------- */
+    .ep-money {
+        display: inline-flex;
+        align-items: baseline;
+        white-space: nowrap;
+        color: var(--ep-text);
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
+    .ep-money__sym {
+        margin-right: 0.3em;
+        font-size: 0.56em;
+        font-weight: 500;
+        letter-spacing: 0;
+        color: var(--ep-text-3);
+    }
+    .ep-money__frac {
+        color: var(--ep-text-3);
+        font-weight: 500;
+    }
+    .ep-money--hero {
+        font-size: clamp(38px, 3.4vw, 50px);
+        line-height: 1;
+        letter-spacing: -0.045em;
+        text-shadow: 0 2px 24px color-mix(in oklab, var(--ep-glow) 60%, transparent);
+    }
+    .ep-money--hero .ep-money__sym {
+        align-self: flex-start;
+        margin-top: 0.24em;
+        font-size: 0.4em;
+    }
+    .ep-money--hero .ep-money__frac {
+        font-size: 0.58em;
+        letter-spacing: -0.02em;
+    }
+    .ep-money--lg {
+        font-size: 24px;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+    }
+    .ep-money--lg .ep-money__frac {
+        font-size: 0.72em;
+    }
+    .ep-money--md {
+        font-size: 15px;
+        line-height: 1.3;
+    }
+    .ep-money--md .ep-money__sym {
+        font-size: 0.8em;
+        margin-right: 0.22em;
+    }
+
+    /* ---------- Gráficos (ApexCharts) sobre vidro ---------- */
+    .ep-chart .apexcharts-series path[fill='none'] {
+        filter: none;
+    }
+    .ep-chart .apexcharts-marker {
+        filter: none;
+    }
+    .ep-chart .apexcharts-series[seriesName*='Ontem'] path,
+    .ep-chart .apexcharts-series[seriesName*='anterior'] path {
+        filter: none;
+    }
+    .ep-chart .apexcharts-tooltip {
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    .ep-chart-tip {
+        min-width: 150px;
+        border-radius: 12px;
+        border: 1px solid var(--ep-glass-border);
+        background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass));
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        backdrop-filter: blur(18px) saturate(160%);
+        box-shadow: var(--ep-shadow-pop);
+        padding: 9px 11px;
+        font-family: inherit;
+    }
+    html.dark.panel-app .ep-chart-tip {
+        background: rgba(34, 34, 37, 0.96);
+    }
+    .ep-chart-tip__label {
+        display: block;
+        font-size: 11.5px;
+        color: var(--ep-text-3);
+    }
+    .ep-chart-tip__value {
+        display: block;
+        margin-top: 2px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ep-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .ep-chart-tip__prev {
+        display: block;
+        margin-top: 3px;
+        font-size: 11.5px;
+        color: var(--ep-text-4);
+        font-variant-numeric: tabular-nums;
+    }
+    .ep-chart .apexcharts-xaxistooltip {
+        display: none;
+    }
+    .ep-chart .apexcharts-xaxis-annotation-label {
+        font-family: inherit !important;
+    }
+}
+
+@layer components {
+    /* Sidebar como lâmina de vidro flutuante (desktop) */
+    .ep-sidebar {
+        background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass));
+        border-right: 1px solid var(--ep-glass-border);
+        box-shadow: var(--ep-glass-highlight), var(--ep-glass-inner), var(--ep-glass-shadow);
+        -webkit-backdrop-filter: blur(40px) saturate(170%);
+        backdrop-filter: blur(40px) saturate(170%);
+    }
+    @media (min-width: 1024px) {
+        .ep-sidebar {
+            border: 1px solid var(--ep-glass-border);
+            border-top-color: var(--ep-glass-border-top);
+        }
+    }
+
+    /* Barras verticais com trilho e brilho (atividade dos últimos 7 dias) */
+    .ep-bars {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        align-items: end;
+        gap: 10px;
+    }
+    .ep-bar {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+    }
+    .ep-bar__track {
+        position: relative;
+        width: 10px;
+        height: 64px;
+        border-radius: 999px;
+        background: rgba(182, 188, 195, 0.08);
+    }
+    .ep-bar__fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #9cc4ff 0%, #6ba4ff 50%, #448aff 100%);
+        transition: height 600ms var(--ep-ease-out);
+    }
+    .ep-bar--today .ep-bar__fill {
+        background: linear-gradient(180deg, #e3efff 0%, #83b2ff 35%, #6ba4ff 100%);
+    }
+    .ep-bar__label {
+        font-size: 10.5px;
+        color: var(--ep-text-4);
+        font-variant-numeric: tabular-nums;
+    }
+    .ep-bar--today .ep-bar__label {
+        color: var(--ep-text);
+        font-weight: 600;
+    }
+}
+
+@layer components {
+    /* Superfície de dados (listas e tabelas): mais opaca, sem halo nos números */
+    .ep-data {
+        background: var(--ep-data) !important;
+    }
+}
+
+/* Botão primário como vidro luminoso (todas as telas que usam a cor primária) */
+html.dark.panel-app .bg-\[var\(--color-primary\)\] {
+    background-image: linear-gradient(180deg, #8ab8ff 0%, #6ba4ff 55%, #4f8cff 100%);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 22px -8px rgba(107, 164, 255, 0.65);
+}
+html.panel-app:not(.dark) .bg-\[var\(--color-primary\)\] {
+    background-image: linear-gradient(180deg, #4f8cff 0%, #2f6fe4 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 20px -8px rgba(47, 111, 228, 0.55);
+}
+
+/* Fallbacks: navegador sem backdrop-filter ou usuário com transparência reduzida → vidro sólido */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    html.dark.panel-app { --ep-glass: rgba(30, 31, 34, 0.96); --ep-glass-strong: rgba(34, 34, 37, 0.96); --ep-surface: rgba(16, 17, 19, 0.96); }
+    html.panel-app:not(.dark) { --ep-glass: rgba(255, 255, 255, 0.92); --ep-glass-strong: rgba(255, 255, 255, 0.96); }
+}
+@media (prefers-reduced-transparency: reduce) {
+    html.dark.panel-app { --ep-glass: rgba(30, 31, 34, 0.98); --ep-glass-strong: rgba(34, 34, 37, 0.98); --ep-surface: rgba(16, 17, 19, 0.98); }
+    html.panel-app:not(.dark) { --ep-glass: rgba(255, 255, 255, 0.95); --ep-glass-strong: rgba(255, 255, 255, 0.98); }
+}
+@media (prefers-contrast: more) {
+    html.panel-app { --ep-glass-border: currentColor; }
+}
+
+/* Caixa do chip por tema */
+html.dark.panel-app {
+    --ep-chip-bg: rgba(255, 255, 255, 0.04);
+    --ep-chip-border: rgba(255, 255, 255, 0.075);
+    --ep-chip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html.panel-app:not(.dark) {
+    --ep-chip-bg: rgba(15, 18, 24, 0.04);
+    --ep-chip-border: rgba(15, 18, 24, 0.1);
+    --ep-chip-shadow: 0 1px 0 rgba(16, 24, 40, 0.03);
+}
+
+/* Glifos do chip (fora de @layer para vencer h-1.5/bg-current/shadow-* dos spans).
+   A forma diz o estado sem depender só da cor: ponto cheio = aprovado/erro, meio círculo = aguardando, anel vazio = neutro. */
+.ep-chip > .rounded-full {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-inline: 1px;
+}
+.ep-chip > .rounded-full.bg-current,
+.ep-chip:is(.ep-chip--pos, .ep-chip--neg, .ep-chip--warn):not(:has(> svg, > .rounded-full))::before {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-inline: 1px;
+    border-radius: 999px;
+    background: var(--chip-c);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--chip-c) 20%, transparent);
+}
+.ep-chip:is(.ep-chip--pos, .ep-chip--neg, .ep-chip--warn):not(:has(> svg, > .rounded-full))::before {
+    content: '';
+}
+.ep-chip--warn > .rounded-full.bg-current,
+.ep-chip--warn:not(:has(> svg, > .rounded-full))::before {
+    width: 8px;
+    height: 8px;
+    margin-inline: 0;
+    background: conic-gradient(from 180deg, var(--chip-c) 0 50%, transparent 0);
+    box-shadow: inset 0 0 0 1.5px var(--chip-c);
+}
+.ep-chip:not(.ep-chip--pos, .ep-chip--neg, .ep-chip--warn, .ep-chip--accent) > .rounded-full.bg-current,
+.ep-chip > .rounded-full[class*='--ep-text-4'] {
+    width: 8px;
+    height: 8px;
+    margin-inline: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--ep-text-4);
+}
+.ep-chip > .rounded-full[class*='--ep-pos'] {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--ep-pos) 20%, transparent);
+}
+.ep-chip:is(.ep-chip--pos, .ep-chip--neg, .ep-chip--warn, .ep-chip--accent) > svg {
+    color: var(--chip-c);
+}
+
+html.panel-app:not(.dark) .ep-bar--today .ep-bar__fill {
+    background: linear-gradient(180deg, var(--ep-accent-2), var(--ep-accent));
+}
+
+/* =====================================================================
+ * KIT DE VIDRO COMPARTILHADO — use estas classes em todas as telas.
+ * Referência viva: resources/js/components/dashboard/DashboardClassicView.vue
+ * ===================================================================== */
+@layer base {
+    html.panel-app {
+        --ep-input: rgba(255, 255, 255, 0.78);
+        --ep-input-border: rgba(16, 32, 51, 0.14);
+        --ep-thead: #f6f7fb;
+        --ep-drawer: rgba(250, 251, 255, 0.86);
+    }
+    html.dark.panel-app {
+        --ep-input: rgba(16, 17, 19, 0.72);
+        --ep-input-border: rgba(182, 188, 195, 0.2);
+        --ep-thead: #1e1f22;
+        --ep-drawer: rgba(30, 31, 34, 0.94);
+    }
+}
+
+@layer components {
+    /* Títulos de seção e textos */
+    .ep-section-title { font-size: 13px; font-weight: 500; color: var(--ep-text-2); letter-spacing: -0.006em; }
+    .ep-page-heading { font-size: 20px; font-weight: 600; letter-spacing: -0.025em; color: var(--ep-text); }
+    .ep-muted { color: var(--ep-text-3); }
+    .ep-faint { color: var(--ep-text-4); }
+
+    /* KPI: label pequeno, valor grande tabular, meta */
+    .ep-kpi { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 20px; }
+    .ep-kpi__label { font-size: 12.5px; font-weight: 500; color: var(--ep-text-3); }
+    .ep-kpi__value { font-size: 24px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em; color: var(--ep-text); font-variant-numeric: tabular-nums; }
+    .ep-kpi__meta { font-size: 12px; color: var(--ep-text-4); font-variant-numeric: tabular-nums; }
+    .ep-kpi__icon {
+        display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 10px;
+        color: var(--ep-accent); background: color-mix(in oklab, var(--ep-accent) 14%, transparent);
+        border: 1px solid color-mix(in oklab, var(--ep-accent) 26%, transparent);
+    }
+
+    /* Tabela de dados (dentro de .panel-card.ep-data) */
+    .ep-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .ep-table thead th {
+        position: sticky; top: 0; z-index: 1;
+        padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none;
+        color: var(--ep-text-3); background: var(--ep-thead); border-bottom: 1px solid var(--ep-line);
+    }
+    .ep-table tbody td { padding: 12px 16px; color: var(--ep-text); border-bottom: 1px solid var(--ep-line); vertical-align: middle; }
+    .ep-table tbody tr { transition: background-color 150ms var(--ep-ease-out); }
+    .ep-table tbody tr:hover { background: var(--ep-hover); }
+    .ep-table tbody tr:last-child td { border-bottom: 0; }
+    .ep-table .ep-num { text-align: right; white-space: nowrap; }
+
+    /* Campos */
+    .ep-input {
+        height: 38px; width: 100%; border-radius: 12px; padding: 0 12px; font-size: 13.5px; color: var(--ep-text);
+        background: var(--ep-input); border: 1px solid var(--ep-input-border);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+        transition: border-color 150ms var(--ep-ease-out), box-shadow 150ms var(--ep-ease-out);
+    }
+    .ep-input::placeholder { color: var(--ep-text-4); }
+    .ep-input:focus { outline: none; border-color: color-mix(in oklab, var(--ep-accent) 60%, transparent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ep-accent) 18%, transparent); }
+    textarea.ep-input { height: auto; min-height: 88px; padding: 10px 12px; line-height: 1.5; }
+    .ep-label { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 500; color: var(--ep-text-2); }
+    .ep-help { margin-top: 6px; font-size: 12px; color: var(--ep-text-4); }
+
+    /* Botões */
+    .ep-btn, .ep-btn-secondary, .ep-btn-ghost, .ep-btn-danger {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px;
+        border-radius: 12px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
+        transition: background-color 150ms var(--ep-ease-out), border-color 150ms var(--ep-ease-out), color 150ms var(--ep-ease-out), transform 120ms var(--ep-ease-out), box-shadow 150ms var(--ep-ease-out);
+    }
+    .ep-btn:active, .ep-btn-secondary:active, .ep-btn-ghost:active, .ep-btn-danger:active { transform: scale(0.97); }
+    .ep-btn:disabled, .ep-btn-secondary:disabled, .ep-btn-ghost:disabled, .ep-btn-danger:disabled { opacity: 0.5; pointer-events: none; }
+    .ep-btn { color: #061126; background: linear-gradient(180deg, #8ab8ff 0%, #6ba4ff 55%, #4f8cff 100%); border: 1px solid rgba(255, 255, 255, 0.35); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 22px -8px rgba(107, 164, 255, 0.65); }
+    html.panel-app:not(.dark) .ep-btn { color: #fff; background: linear-gradient(180deg, #4f8cff 0%, #2f6fe4 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 20px -8px rgba(47, 111, 228, 0.55); }
+    .ep-btn:hover { filter: brightness(1.06); }
+    .ep-btn-secondary { color: var(--ep-text); background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass)); border: 1px solid var(--ep-glass-border); border-top-color: var(--ep-glass-border-top); box-shadow: var(--ep-glass-highlight); }
+    .ep-btn-secondary:hover { border-color: var(--ep-line-strong); }
+    .ep-btn-ghost { color: var(--ep-text-2); background: transparent; border: 1px solid transparent; }
+    .ep-btn-ghost:hover { background: var(--ep-hover); color: var(--ep-text); }
+    .ep-btn-danger { color: var(--ep-neg); background: var(--ep-neg-bg); border: 1px solid color-mix(in oklab, var(--ep-neg) 35%, transparent); }
+    .ep-btn-danger:hover { background: color-mix(in oklab, var(--ep-neg) 20%, transparent); }
+    .ep-btn-icon { width: 36px; padding: 0; }
+
+    /* Abas segmentadas (como o filtro de período do Dashboard) */
+    .ep-tabs { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 12px; background: var(--ep-card-2); border: 1px solid var(--ep-line); }
+    .ep-tab { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--ep-text-3); white-space: nowrap; transition: color 150ms var(--ep-ease-out), background-color 150ms var(--ep-ease-out); }
+    .ep-tab:hover { color: var(--ep-text); }
+    .ep-tab--active { color: var(--ep-text); background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass)); border: 1px solid var(--ep-line-strong); box-shadow: var(--ep-glass-highlight), 0 1px 2px rgba(0, 0, 0, 0.15); }
+
+    /* Chip de destaque da marca (complementa ep-chip / --pos / --neg / --warn) */
+    .ep-chip--accent { color: var(--ep-accent); background: color-mix(in oklab, var(--ep-accent) 14%, transparent); border-color: color-mix(in oklab, var(--ep-accent) 34%, transparent); }
+
+    /* Estado vazio */
+    .ep-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 40px 24px; text-align: center; }
+    .ep-empty__title { font-size: 13.5px; font-weight: 500; color: var(--ep-text-2); }
+    .ep-empty__text { max-width: 340px; font-size: 12.5px; color: var(--ep-text-4); }
+
+    /* Gaveta lateral e modal (um único nível de vidro, scrim escuro atrás) */
+    .ep-scrim { background: rgba(2, 5, 20, 0.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+    html.panel-app:not(.dark) .ep-scrim { background: rgba(16, 32, 51, 0.28); }
+    .ep-drawer {
+        background: var(--ep-drawer); border-left: 1px solid var(--ep-glass-border); box-shadow: var(--ep-shadow-pop);
+        -webkit-backdrop-filter: blur(40px) saturate(170%); backdrop-filter: blur(40px) saturate(170%);
+    }
+    .ep-modal {
+        border-radius: 22px; background: var(--ep-drawer); border: 1px solid var(--ep-glass-border); border-top-color: var(--ep-glass-border-top);
+        box-shadow: var(--ep-glass-highlight), var(--ep-shadow-pop);
+        -webkit-backdrop-filter: blur(40px) saturate(170%); backdrop-filter: blur(40px) saturate(170%);
+    }
+
+    /* Separador hairline */
+    .ep-divider { height: 1px; width: 100%; background: var(--ep-line); }
+}
+
+/* =====================================================================
+ * DETALHES NÍVEL REFERÊNCIA (Aaru): trilho de ícones, anéis, sparkline,
+ * barras-cápsula com balão, atalhos em ladrilhos, status em texto.
+ * ===================================================================== */
+@layer components {
+    /* Pílula de vidro pequena (hora, filtros "Hoje ⌄") */
+    .ep-pill {
+        display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px;
+        font-size: 12px; font-weight: 500; color: var(--ep-text-2); font-variant-numeric: tabular-nums;
+        background: rgba(255, 255, 255, 0.04); border: 1px solid var(--ep-glass-border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    html.panel-app:not(.dark) .ep-pill { background: rgba(255, 255, 255, 0.7); border-color: var(--ep-line-strong); }
+
+    /* Status em texto colorido (como "Completed / In Progress / Pending") */
+    .ep-status { font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .ep-status--pos { color: var(--ep-pos); }
+    .ep-status--warn { color: var(--ep-warn); }
+    .ep-status--neg { color: var(--ep-neg); }
+    .ep-status--muted { color: var(--ep-text-4); }
+    .ep-dot { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: currentColor; }
+
+    /* Linha de eventos (data em bloco à esquerda) */
+    .ep-row { display: flex; align-items: center; gap: 12px; padding: 11px 6px; border-bottom: 1px solid var(--ep-line); }
+    .ep-row:last-child { border-bottom: 0; }
+
+    /* Anel: o SVG recebe a classe; o brilho vem do filtro drop-shadow */
+    .ep-ring-glow-blue { filter: drop-shadow(0 0 7px rgba(90, 150, 255, 0.75)); }
+    .ep-ring-glow-orange { filter: drop-shadow(0 0 8px rgba(255, 140, 50, 0.7)); }
+    .ep-spark-glow { filter: drop-shadow(0 0 4px rgba(90, 160, 255, 0.95)) drop-shadow(0 0 12px rgba(59, 130, 246, 0.6)); }
+    .ep-node { fill: #9fd0ff; filter: drop-shadow(0 0 5px rgba(120, 190, 255, 1)); }
+}
+
+@layer components {
+    /* Menu / popover de vidro */
+    .ep-menu {
+        min-width: 180px; padding: 6px; border-radius: 14px; background: var(--ep-drawer);
+        border: 1px solid var(--ep-glass-border); border-top-color: var(--ep-glass-border-top);
+        box-shadow: var(--ep-glass-highlight), var(--ep-shadow-pop);
+        -webkit-backdrop-filter: blur(40px) saturate(170%); backdrop-filter: blur(40px) saturate(170%);
+    }
+    .ep-menu__item {
+        display: flex; width: 100%; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px;
+        font-size: 13px; color: var(--ep-text-2); text-align: left; transition: background-color 150ms var(--ep-ease-out), color 150ms var(--ep-ease-out);
+    }
+    .ep-menu__item:hover { background: var(--ep-hover); color: var(--ep-text); }
+    .ep-menu__item--danger { color: var(--ep-neg); }
+    .ep-menu__item--danger:hover { background: var(--ep-neg-bg); color: var(--ep-neg); }
+
+    /* Checkbox/radio nativo no tom da marca */
+    .ep-check { width: 16px; height: 16px; accent-color: var(--ep-accent); cursor: pointer; }
+
+    /* Campo desabilitado */
+    .ep-input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Superfície rebaixada dentro de um card (sub-bloco sem novo vidro) */
+    .ep-inset { border-radius: 16px; border: 1px solid var(--ep-line); background: var(--ep-card-2); }
+
+    /* Botão compacto */
+    .ep-btn-sm { height: 30px; padding: 0 10px; border-radius: 10px; font-size: 12px; }
+}
+
+/* Página com título próprio (h1 no conteúdo): o cabeçalho não repete o título. */
+.ep-shell:has(main h1) .ep-header-title {
+    display: none;
+}

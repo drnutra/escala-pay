@@ -50,50 +50,55 @@ const subtitle = computed(() => {
 </script>
 
 <template>
-    <div class="panel-card-md relative overflow-hidden">
-        <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-transparent" aria-hidden="true" />
-        <div class="relative flex items-start justify-between gap-2">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Gasto em anúncios</p>
-                <p v-if="!editing" class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">{{ displayAmount }}</p>
-                <div v-else class="mt-2 flex items-center gap-2">
-                    <span class="text-lg text-zinc-500">R$</span>
-                    <input
-                        v-model="inputValue"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        class="w-28 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-lg font-bold dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                    />
-                </div>
-                <p class="mt-1 text-xs text-zinc-500">{{ subtitle }}</p>
-            </div>
+    <div class="panel-card ep-kpi min-w-0">
+        <div class="flex items-center justify-between gap-2">
+            <span class="ep-kpi__label truncate">Gasto em anúncios</span>
             <button
                 v-if="!editing"
                 type="button"
-                class="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/80 text-zinc-500 transition hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] dark:border-zinc-700"
+                class="ep-btn-ghost ep-btn-icon -my-1 -mr-1.5 h-8 w-8 shrink-0 text-[var(--ep-text-3)]"
                 aria-label="Editar gasto em anúncios"
+                title="Editar gasto em anúncios"
                 @click="startEdit"
             >
-                <Pencil class="h-4 w-4" />
+                <Pencil class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
             </button>
-            <div v-else class="flex gap-1">
-                <button type="button" class="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white" @click="save">
-                    <Check class="h-4 w-4" />
+            <div v-else class="-my-1 -mr-1 flex shrink-0 gap-1">
+                <button type="button" class="ep-btn ep-btn-icon h-8 w-8" aria-label="Salvar gasto" @click="save">
+                    <Check class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
                 </button>
-                <button type="button" class="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-500 dark:border-zinc-700" @click="cancelEdit">
-                    <X class="h-4 w-4" />
+                <button type="button" class="ep-btn-secondary ep-btn-icon h-8 w-8" aria-label="Cancelar edição" @click="cancelEdit">
+                    <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                 </button>
             </div>
         </div>
-        <label v-if="editing && period !== 'hoje'" class="mt-3 flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
-            <input v-model="usePeriodOverride" type="checkbox" class="rounded border-zinc-300" />
+        <p v-if="!editing" class="ep-kpi__value mt-1 truncate">{{ displayAmount }}</p>
+        <div v-else class="mt-1 flex items-center gap-2">
+            <span class="text-[13px] font-medium text-[var(--ep-text-3)]">R$</span>
+            <input
+                v-model="inputValue"
+                type="number"
+                min="0"
+                step="0.01"
+                class="ep-input h-9 min-w-0 max-w-[150px] text-[15px] font-semibold tabular-nums"
+            />
+        </div>
+        <p class="ep-kpi__meta flex items-center gap-1.5">
+            <span
+                class="h-1.5 w-1.5 shrink-0 rounded-full"
+                :class="adSpendMeta?.override ? 'bg-[var(--ep-warn)]' : 'bg-[var(--ep-accent)]'"
+                aria-hidden="true"
+            />
+            <span class="truncate">{{ subtitle }}</span>
+        </p>
+        <label v-if="editing && period !== 'hoje'" class="mt-1 flex cursor-pointer items-center gap-2 text-[12px] text-[var(--ep-text-3)]">
+            <input v-model="usePeriodOverride" type="checkbox" class="h-3.5 w-3.5 rounded border-[var(--ep-input-border)] accent-[var(--ep-accent)]" />
             Usar valor único para todo o período
         </label>
         <button
             v-if="adSpendMeta?.override && !editing"
             type="button"
-            class="mt-2 text-xs text-[var(--color-primary)] hover:underline"
+            class="self-start text-[12px] font-medium text-[var(--ep-accent)] transition-opacity duration-150 hover:opacity-80"
             @click="emit('clear-period')"
         >
             Voltar à soma diária

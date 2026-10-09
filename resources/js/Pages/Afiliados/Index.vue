@@ -46,11 +46,11 @@ function copyLink(url) {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Afiliados</h1>
-            <p class="mt-1 text-sm text-zinc-500">Gerencie afiliados de todos os produtos.</p>
-        </div>
+    <div class="space-y-5">
+        <header class="min-w-0">
+            <h1 class="ep-page-heading !text-[22px]">Afiliados</h1>
+            <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">Gerencie afiliados de todos os produtos.</p>
+        </header>
         <ProdutosTabs />
         <ProductPartnersTable
             :rows="affiliateRows"
@@ -61,7 +61,7 @@ function copyLink(url) {
                     <button
                         v-if="row.affiliate_link"
                         type="button"
-                        class="flex w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        class="flex w-full rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                         @click="copyLink(row.affiliate_link); close()"
                     >
                         Copiar link
@@ -69,7 +69,7 @@ function copyLink(url) {
                     <button
                         v-if="row.status === 'pending'"
                         type="button"
-                        class="flex w-full px-3 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
+                        class="flex w-full rounded-[10px] px-2.5 py-2 text-left text-[13px] font-medium text-[var(--ep-pos)] transition-colors duration-150 hover:bg-[var(--ep-pos-bg)]"
                         @click="approve(row.id, row.product_id); close()"
                     >
                         Aprovar
@@ -77,7 +77,7 @@ function copyLink(url) {
                     <button
                         v-if="row.status === 'pending'"
                         type="button"
-                        class="flex w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        class="flex w-full rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                         @click="reject(row.id, row.product_id); close()"
                     >
                         Rejeitar

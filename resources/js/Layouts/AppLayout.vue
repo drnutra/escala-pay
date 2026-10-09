@@ -49,22 +49,19 @@ watchEffect(() => {
         <link rel="icon" :href="faviconHref" type="image/png" sizes="32x32" />
         <link rel="shortcut icon" :href="faviconHref" type="image/png" />
     </Head>
-    <div class="min-h-screen bg-zinc-100 dark:bg-zinc-900">
+    <div class="ep-shell relative min-h-screen">
+        <div class="ep-aurora" aria-hidden="true" />
         <AppSidebar />
         <slot name="sidebar-after-nav" />
         <Backdrop />
         <div
-            class="flex min-h-screen flex-col transition-all duration-300 ease-in-out p-3 md:p-4 lg:p-6"
+            class="relative z-[1] flex min-h-screen flex-col transition-[margin] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] lg:pr-3"
             :class="[
-                isExpanded ? 'lg:ml-[260px]' : 'lg:ml-[64px]',
+                isExpanded ? 'lg:ml-[260px]' : 'lg:ml-[84px]',
             ]"
         >
-            <div class="flex w-full shrink-0 flex-col gap-2">
-                <div class="-mx-3 md:-mx-4 lg:-mx-6">
-                    <CloudBillingBanner />
-                </div>
-                <AppHeader :page-title="pageTitle" :page-title-badge="pageTitleBadge" />
-                <slot name="header-actions" />
+            <div class="shrink-0">
+                <CloudBillingBanner />
             </div>
             <FlashToast />
             <PwaInstallPrompt />
@@ -74,10 +71,10 @@ watchEffect(() => {
                 @unread-count-update="onNotificationsUnreadCountUpdate"
             />
             <MobileBottomNav />
-            <div
-                class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-zinc-800"
-            >
-                <main class="flex-1 min-w-0 overflow-y-auto px-4 pb-24 pt-4 md:px-6 md:pt-6 lg:pb-8">
+            <div class="flex min-h-0 flex-1 flex-col">
+                <AppHeader :page-title="pageTitle" :page-title-badge="pageTitleBadge" />
+                <slot name="header-actions" />
+                <main class="flex-1 min-w-0 px-4 pb-24 pt-3 md:px-6 lg:px-5 lg:pb-10">
                     <div
                         class="w-full min-w-0"
                         :class="[

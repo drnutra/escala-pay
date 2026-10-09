@@ -112,50 +112,56 @@ async function testConnection() {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="emit('close')"
             />
-            <aside class="relative flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900">
-                <div class="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
-                    <div>
-                        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">IntegraX</h2>
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">SMS — provedor de disparo</p>
+            <aside class="ep-drawer relative flex h-full w-full max-w-md flex-col">
+                <div class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[13px] border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] p-[3px] shadow-[var(--ep-glass-highlight),0_8px_22px_-12px_var(--ep-glow)]">
+                            <img src="/images/integrations/integrax.png" alt="" class="size-full rounded-[10px] object-cover" />
+                        </span>
+                        <div class="min-w-0">
+                            <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">IntegraX</h2>
+                            <p class="text-[12px] text-[var(--ep-text-3)]">SMS — provedor de disparo</p>
+                        </div>
                     </div>
-                    <button type="button" class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800" @click="emit('close')">
-                        <X class="h-5 w-5" />
+                    <button type="button" class="ep-btn-ghost ep-btn-icon shrink-0" aria-label="Fechar" @click="emit('close')">
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                    <a
-                        href="https://www.integrax.app/auth/register"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
-                    >
-                        Criar conta na IntegraX
-                        <ExternalLink class="h-4 w-4" />
-                    </a>
-
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                        Cole o token da API para habilitar envios SMS. As mensagens e eventos são configurados por produto, na aba SMS.
-                    </p>
+                <div class="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <p class="max-w-[300px] text-[12.5px] leading-[1.5] text-[var(--ep-text-3)]">
+                            Cole o token da API para habilitar envios SMS. As mensagens e eventos são configurados por produto, na aba SMS.
+                        </p>
+                        <a
+                            href="https://www.integrax.app/auth/register"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--ep-accent)] transition-opacity hover:opacity-80"
+                        >
+                            Criar conta na IntegraX
+                            <ExternalLink class="h-3.5 w-3.5" :stroke-width="1.75" />
+                        </a>
+                    </div>
 
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Token da API</label>
+                        <label class="ep-label">Token da API</label>
                         <input
                             v-model="form.api_token"
                             type="password"
                             autocomplete="off"
-                            class="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                            class="ep-input font-mono"
                             placeholder="Token do painel IntegraX"
                         />
                     </div>
 
-                    <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-800/50 dark:bg-sky-950/30">
-                        <p class="text-sm font-medium text-sky-900 dark:text-sky-100">Ativação do token</p>
-                        <p class="mt-1.5 text-sm text-sky-800 dark:text-sky-200">
+                    <div class="rounded-[14px] border border-[color-mix(in_oklab,var(--ep-accent)_28%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)] p-4">
+                        <p class="text-[13px] font-medium text-[var(--ep-text)]">Ativação do token</p>
+                        <p class="mt-1.5 text-[12.5px] leading-[1.55] text-[var(--ep-text-2)]">
                             Cada token de API gerado na IntegraX precisa ser ativado pelo suporte antes de enviar SMS.
                             Após gerar o token no painel da IntegraX, entre em contato para solicitar a ativação.
                         </p>
@@ -163,65 +169,65 @@ async function testConnection() {
                             :href="INTEGRAX_SUPPORT_WHATSAPP_URL"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1ebe5d]"
+                            class="ep-btn-secondary mt-4 w-full"
                         >
-                            <MessageCircle class="h-4 w-4 shrink-0" aria-hidden="true" />
+                            <MessageCircle class="h-4 w-4 shrink-0 text-[#25D366]" :stroke-width="1.75" aria-hidden="true" />
                             Solicitar ativação no WhatsApp
                         </a>
-                        <p class="mt-2 text-center text-xs text-sky-700 dark:text-sky-300">
+                        <p class="mt-2 text-center text-[12px] tabular-nums text-[var(--ep-text-4)]">
                             +55 11 3280-8396
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-between rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="flex items-center justify-between gap-4 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                         <div>
-                            <p class="text-sm font-medium text-zinc-900 dark:text-white">Integração ativa</p>
-                            <p class="text-xs text-zinc-500">Desative para pausar todos os envios SMS</p>
+                            <p class="text-[13px] font-medium text-[var(--ep-text)]">Integração ativa</p>
+                            <p class="text-[12px] text-[var(--ep-text-3)]">Desative para pausar todos os envios SMS</p>
                         </div>
                         <Toggle v-model="form.is_active" />
                     </div>
 
-                    <div v-if="integrax_connection.last_error" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-950/30 dark:text-amber-200">
+                    <div v-if="integrax_connection.last_error" class="rounded-[12px] border border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] bg-[var(--ep-warn-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-warn)]">
                         Último erro: {{ integrax_connection.last_error }}
                     </div>
 
-                    <div class="border-t border-zinc-200 pt-6 dark:border-zinc-700">
-                        <h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Testar envio</h3>
+                    <div class="border-t border-[var(--ep-line)] pt-5">
+                        <h3 class="ep-section-title mb-3">Testar envio</h3>
                         <div class="space-y-3">
                             <input
                                 v-model="testPhone"
                                 type="text"
-                                class="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                                class="ep-input tabular-nums"
                                 placeholder="Telefone com DDD (ex: 11999999999)"
                             />
                             <input
                                 v-model="testMessage"
                                 type="text"
                                 maxlength="160"
-                                class="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                                class="ep-input"
                                 placeholder="Mensagem de teste (máx. 160)"
                             />
-                            <p class="text-xs text-zinc-500">{{ testMessage.length }}/160 caracteres</p>
+                            <p class="ep-help !mt-1.5 text-right tabular-nums">{{ testMessage.length }}/160 caracteres</p>
                         </div>
                     </div>
 
-                    <div v-if="errorMessage" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-200">
+                    <div v-if="errorMessage" class="rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-neg)]">
                         {{ errorMessage }}
                     </div>
-                    <div v-if="successMessage" class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-200">
+                    <div v-if="successMessage" class="rounded-[12px] border border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] bg-[var(--ep-pos-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-pos)]">
                         {{ successMessage }}
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-3 border-t border-zinc-200 p-6 dark:border-zinc-700">
-                    <Button type="button" :disabled="saving" @click="save">
+                <div class="flex flex-wrap gap-2.5 border-t border-[var(--ep-line)] px-6 py-4">
+                    <Button type="button" class="flex-1" :disabled="saving" @click="save">
                         <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
                         Salvar
                     </Button>
                     <button
                         type="button"
                         :disabled="testing"
-                        class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:border-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300"
+                        class="ep-btn-secondary"
                         @click="testConnection"
                     >
                         {{ testing ? 'Enviando...' : 'Enviar teste' }}

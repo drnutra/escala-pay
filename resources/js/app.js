@@ -11,6 +11,7 @@ import { watchEffect } from 'vue';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createPinia } from 'pinia';
 import { installPluginUiBridge, resolvePluginPageComponent, getPluginUiPayloadFromDom } from './plugins/pluginUiLoader';
+import avatarHueDirective from './directives/avatarHue';
 
 // Sincroniza a meta csrf-token com o token da página atual (evita 419 em gateways e outras requisições axios)
 const CsrfSync = {
@@ -95,6 +96,7 @@ createInertiaApp({
         });
         vueApp.use(plugin);
         vueApp.use(createPinia());
+        vueApp.directive('avatar', avatarHueDirective);
         installPluginUiBridge(vueApp);
         vueApp.mount(el);
     },

@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import VendasTabs from '@/components/vendas/VendasTabs.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import { Repeat, TrendingUp, AlertTriangle, XCircle, Copy, Ban, Eye, RefreshCw, RotateCcw, X } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
@@ -201,71 +202,110 @@ function chargeCanRetry(charge) {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
         <VendasTabs />
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="panel-card-sm">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                        <Repeat class="h-5 w-5" />
+
+        <!-- MRR (herói) + contagens por status -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-5" aria-labelledby="assin-mrr">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="assin-mrr" class="text-[13px] font-medium text-[var(--ep-text-2)]" title="Receita recorrente mensal">MRR</h2>
+                    <span class="ep-chip tabular-nums">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                        {{ stats.ativas }} ativas
                     </span>
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Ativas</p>
-                        <p class="text-xl font-bold text-zinc-900 dark:text-white">{{ stats.ativas }}</p>
+                </div>
+                <MoneyAmount :value="Number(stats.mrr ?? 0)" size="hero" class="mt-5 block" />
+                <p class="mt-3 text-[12.5px] text-[var(--ep-text-3)]">Soma dos planos das assinaturas ativas.</p>
+
+                <div class="mt-6 lg:mt-auto lg:pt-6">
+                    <div
+                        class="flex h-2.5 w-full gap-[3px] overflow-hidden rounded-full bg-[var(--ep-active)]"
+                        aria-hidden="true"
+                    >
+                        <span
+                            class="h-full rounded-full bg-[var(--ep-pos)]"
+                            :style="{ width: `${(Number(stats.ativas) || 0) / ((Number(stats.ativas) || 0) + (Number(stats.past_due) || 0) + (Number(stats.canceladas) || 0) || 1) * 100}%` }"
+                        />
+                        <span
+                            class="h-full rounded-full bg-[var(--ep-warn)]"
+                            :style="{ width: `${(Number(stats.past_due) || 0) / ((Number(stats.ativas) || 0) + (Number(stats.past_due) || 0) + (Number(stats.canceladas) || 0) || 1) * 100}%` }"
+                        />
+                        <span
+                            class="h-full rounded-full bg-[var(--ep-text-4)]"
+                            :style="{ width: `${(Number(stats.canceladas) || 0) / ((Number(stats.ativas) || 0) + (Number(stats.past_due) || 0) + (Number(stats.canceladas) || 0) || 1) * 100}%` }"
+                        />
+                    </div>
+                    <div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-[var(--ep-text-3)]">
+                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />Ativas</span>
+                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[var(--ep-warn)]" aria-hidden="true" />Em atraso</span>
+                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />Canceladas</span>
                     </div>
                 </div>
-            </div>
-            <div class="panel-card-sm">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
-                        <AlertTriangle class="h-5 w-5" />
-                    </span>
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Em atraso</p>
-                        <p class="text-xl font-bold text-zinc-900 dark:text-white">{{ stats.past_due }}</p>
+            </section>
+
+            <div class="grid gap-4 sm:grid-cols-3 lg:col-span-7">
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Ativas</span>
+                        <span
+                            class="ep-kpi__icon"
+                            style="color: var(--ep-pos); background: var(--ep-pos-bg); border-color: color-mix(in oklab, var(--ep-pos) 28%, transparent); box-shadow: none"
+                            aria-hidden="true"
+                        >
+                            <Repeat class="h-4 w-4" :stroke-width="1.75" />
+                        </span>
                     </div>
+                    <p class="ep-kpi__value">{{ stats.ativas }}</p>
+                    <span class="ep-kpi__meta">renovando normalmente</span>
                 </div>
-            </div>
-            <div class="panel-card-sm">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-500/10 text-zinc-600">
-                        <XCircle class="h-5 w-5" />
-                    </span>
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Canceladas</p>
-                        <p class="text-xl font-bold text-zinc-900 dark:text-white">{{ stats.canceladas }}</p>
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Em atraso</span>
+                        <span
+                            class="ep-kpi__icon"
+                            style="color: var(--ep-warn); background: var(--ep-warn-bg); border-color: color-mix(in oklab, var(--ep-warn) 28%, transparent); box-shadow: none"
+                            aria-hidden="true"
+                        >
+                            <AlertTriangle class="h-4 w-4" :stroke-width="1.75" />
+                        </span>
                     </div>
+                    <p class="ep-kpi__value">{{ stats.past_due }}</p>
+                    <span class="ep-kpi__meta">cobrança pendente</span>
                 </div>
-            </div>
-            <div class="panel-card-sm">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-                        <TrendingUp class="h-5 w-5" />
-                    </span>
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">MRR</p>
-                        <p class="text-xl font-bold text-zinc-900 dark:text-white">{{ formatBRL(stats.mrr) }}</p>
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Canceladas</span>
+                        <span
+                            class="ep-kpi__icon"
+                            style="color: var(--ep-text-3); background: var(--ep-active); border-color: var(--ep-line-strong); box-shadow: none"
+                            aria-hidden="true"
+                        >
+                            <XCircle class="h-4 w-4" :stroke-width="1.75" />
+                        </span>
                     </div>
+                    <p class="ep-kpi__value">{{ stats.canceladas }}</p>
+                    <span class="ep-kpi__meta">encerradas</span>
                 </div>
             </div>
         </div>
 
-        <div class="panel-table">
-            <div class="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
-                <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">Assinaturas</h2>
-                <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                    Status atualizado automaticamente. Assinaturas CajuPay (PIX Automático) renovam pelo gateway; use o detalhe para cobranças, sync, retry e reembolso.
-                </p>
-                <div class="mt-4 flex flex-wrap gap-2">
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="assin-lista">
+            <div class="flex flex-col gap-4 px-5 pb-4 pt-5 lg:flex-row lg:items-end lg:justify-between">
+                <div class="min-w-0">
+                    <h2 id="assin-lista" class="text-[15px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Assinaturas</h2>
+                    <p class="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-[var(--ep-text-4)]">
+                        Status atualizado automaticamente. Assinaturas CajuPay (PIX Automático) renovam pelo gateway; use o detalhe para cobranças, sync, retry e reembolso.
+                    </p>
+                </div>
+                <div class="ep-tabs max-w-full shrink-0 self-start overflow-x-auto no-scrollbar lg:self-auto">
                     <button
                         v-for="tab in tabs"
                         :key="tab.id"
                         type="button"
                         :class="[
-                            'rounded-lg px-3 py-1.5 text-sm font-medium transition',
-                            statusFilter === tab.id
-                                ? 'bg-[var(--color-primary)] text-white'
-                                : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
+                            'ep-tab border',
+                            statusFilter === tab.id ? 'ep-tab--active' : 'border-transparent',
                         ]"
                         @click="setStatusFilter(tab.id)"
                     >
@@ -274,67 +314,79 @@ function chargeCanRetry(charge) {
                 </div>
             </div>
 
-            <div v-if="assinaturasList.length > 0" class="sm:hidden p-4">
+            <div v-if="assinaturasList.length > 0" class="border-t border-[var(--ep-line)] p-4 sm:hidden">
                 <div class="space-y-3">
                     <div
                         v-for="s in assinaturasList"
                         :key="s.id"
-                        class="panel-card-sm/60"
+                        class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4"
                     >
                         <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="break-words text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
-                                    {{ s.user?.name || '—' }}
-                                </p>
-                                <p class="mt-0.5 break-words text-xs leading-snug text-zinc-500 dark:text-zinc-400">
-                                    {{ s.user?.email || '—' }}
-                                </p>
+                            <div class="flex min-w-0 items-start gap-3">
+                                <span v-avatar="s.user?.name || s.user?.email" class="ep-avatar shrink-0" aria-hidden="true">{{ String(s.user?.name || s.user?.email || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || '?' }}</span>
+                                <div class="min-w-0">
+                                    <p class="break-words text-[13.5px] font-medium leading-snug text-[var(--ep-text)]">
+                                        {{ s.user?.name || '—' }}
+                                    </p>
+                                    <p class="mt-0.5 break-words text-[12px] leading-snug text-[var(--ep-text-4)]">
+                                        {{ s.user?.email || '—' }}
+                                    </p>
+                                </div>
                             </div>
                             <span
-                                :class="[
-                                    'inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
-                                    statusBadgeClass(displayStatus(s)),
-                                ]"
+                                class="ep-chip shrink-0"
+                                :class="{ active: 'ep-chip--pos', past_due: 'ep-chip--warn' }[displayStatus(s)] ?? ''"
                             >
+                                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                 {{ statusBadgeLabel(displayStatus(s)) }}
                             </span>
                         </div>
 
-                        <div class="mt-4 rounded-lg bg-zinc-50/60 p-3 dark:bg-zinc-900/30">
-                            <div class="space-y-2 text-sm">
-                                <p><span class="text-zinc-500">Produto:</span> {{ s.product?.name || '—' }}</p>
-                                <p><span class="text-zinc-500">Plano:</span> {{ s.plan?.name || '—' }}</p>
-                                <p><span class="text-zinc-500">Gateway:</span> {{ s.gateway_label || '—' }}</p>
-                                <p><span class="text-zinc-500">Vence em:</span> {{ s.current_period_end || '—' }}</p>
+                        <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-[var(--ep-line)] pt-3 text-[12.5px]">
+                            <div class="min-w-0">
+                                <dt class="text-[11.5px] text-[var(--ep-text-4)]">Produto</dt>
+                                <dd class="mt-0.5 truncate text-[var(--ep-text)]">{{ s.product?.name || '—' }}</dd>
                             </div>
-                        </div>
+                            <div class="min-w-0">
+                                <dt class="text-[11.5px] text-[var(--ep-text-4)]">Plano</dt>
+                                <dd class="mt-0.5 truncate text-[var(--ep-text)]">{{ s.plan?.name || '—' }}</dd>
+                            </div>
+                            <div class="min-w-0">
+                                <dt class="text-[11.5px] text-[var(--ep-text-4)]">Gateway</dt>
+                                <dd class="mt-0.5 truncate text-[var(--ep-text-2)]">{{ s.gateway_label || '—' }}</dd>
+                            </div>
+                            <div class="min-w-0">
+                                <dt class="text-[11.5px] text-[var(--ep-text-4)]">Vence em</dt>
+                                <dd class="mt-0.5 truncate tabular-nums text-[var(--ep-text-2)]">{{ s.current_period_end || '—' }}</dd>
+                            </div>
+                        </dl>
 
-                        <div class="mt-3 flex flex-wrap gap-2">
+                        <div class="mt-3 flex flex-wrap gap-1.5">
                             <button
                                 type="button"
-                                class="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:border-zinc-600 dark:text-zinc-300"
+                                class="ep-btn-secondary h-8 px-3 text-[12.5px]"
                                 @click="openDetail(s)"
                             >
-                                <Eye class="h-3.5 w-3.5" />
+                                <Eye class="h-3.5 w-3.5 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                                 Detalhe
                             </button>
                             <button
                                 v-if="displayStatus(s) !== 'cancelled'"
                                 type="button"
-                                class="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:border-zinc-600 dark:text-zinc-300"
+                                class="ep-btn-ghost h-8 px-3 text-[12.5px]"
                                 @click="copyRenewalLink(s)"
                             >
-                                <Copy class="h-3.5 w-3.5" />
+                                <Copy class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 {{ copiedId === s.id ? 'Copiado' : 'Link renovação' }}
                             </button>
                             <button
                                 v-if="displayStatus(s) !== 'cancelled'"
                                 type="button"
-                                class="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 dark:border-red-900/50 dark:text-red-400"
+                                class="ep-btn-danger h-8 px-3 text-[12.5px]"
                                 :disabled="cancellingId === s.id"
                                 @click="cancelSubscription(s, false)"
                             >
-                                <Ban class="h-3.5 w-3.5" />
+                                <Ban class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 Cancelar
                             </button>
                         </div>
@@ -342,68 +394,72 @@ function chargeCanRetry(charge) {
                 </div>
             </div>
 
-            <div v-if="assinaturasList.length > 0" class="hidden overflow-x-auto sm:block">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b border-zinc-200 bg-zinc-50/80 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
+            <div v-if="assinaturasList.length > 0" class="hidden overflow-x-auto border-t border-[var(--ep-line)] sm:block">
+                <table class="ep-table">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-3 font-medium">Cliente</th>
-                            <th class="px-4 py-3 font-medium">Produto / Plano</th>
-                            <th class="px-4 py-3 font-medium">Período</th>
-                            <th class="px-4 py-3 font-medium">Status</th>
-                            <th class="px-4 py-3 font-medium text-right">Ações</th>
+                            <th>Cliente</th>
+                            <th>Produto / Plano</th>
+                            <th>Período</th>
+                            <th>Status</th>
+                            <th class="ep-num">Ações</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                        <tr v-for="s in assinaturasList" :key="s.id" class="text-zinc-700 dark:text-zinc-300">
-                            <td class="px-4 py-3">
-                                <p class="font-medium">{{ s.user?.name || '—' }}</p>
-                                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ s.user?.email }}</p>
+                    <tbody>
+                        <tr v-for="s in assinaturasList" :key="s.id">
+                            <td>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span v-avatar="s.user?.name || s.user?.email" class="ep-avatar shrink-0" aria-hidden="true">{{ String(s.user?.name || s.user?.email || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || '?' }}</span>
+                                    <div class="min-w-0">
+                                        <p class="truncate font-medium text-[var(--ep-text)]">{{ s.user?.name || '—' }}</p>
+                                        <p class="truncate text-[12px] text-[var(--ep-text-4)]">{{ s.user?.email }}</p>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-4 py-3">
-                                <p class="font-medium">{{ s.product?.name || '—' }}</p>
-                                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ s.plan?.name }} · {{ s.plan?.interval_label || s.plan?.interval }}</p>
-                                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ s.gateway_label }}</p>
+                            <td>
+                                <p class="font-medium text-[var(--ep-text)]">{{ s.product?.name || '—' }}</p>
+                                <p class="mt-0.5 text-[12px] text-[var(--ep-text-3)]">{{ s.plan?.name }} · {{ s.plan?.interval_label || s.plan?.interval }}</p>
+                                <p class="text-[12px] text-[var(--ep-text-4)]">{{ s.gateway_label }}</p>
                             </td>
-                            <td class="px-4 py-3">
-                                <p>Vence: {{ s.current_period_end || '—' }}</p>
-                                <p v-if="s.access_until" class="text-xs text-zinc-500">Acesso até {{ s.access_until }}</p>
+                            <td class="whitespace-nowrap">
+                                <p class="tabular-nums text-[var(--ep-text-2)]">Vence: {{ s.current_period_end || '—' }}</p>
+                                <p v-if="s.access_until" class="mt-0.5 text-[12px] tabular-nums text-[var(--ep-text-4)]">Acesso até {{ s.access_until }}</p>
                             </td>
-                            <td class="px-4 py-3">
+                            <td>
                                 <span
-                                    :class="[
-                                        'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-                                        statusBadgeClass(displayStatus(s)),
-                                    ]"
+                                    class="ep-chip"
+                                    :class="{ active: 'ep-chip--pos', past_due: 'ep-chip--warn' }[displayStatus(s)] ?? ''"
                                 >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                     {{ statusBadgeLabel(displayStatus(s)) }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right">
-                                <div class="flex justify-end gap-2">
+                            <td class="ep-num">
+                                <div class="flex justify-end gap-1">
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2 py-1 text-xs font-medium hover:bg-zinc-50 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                                        class="ep-btn-secondary h-8 px-2.5 text-[12.5px]"
                                         @click="openDetail(s)"
                                     >
-                                        <Eye class="h-3.5 w-3.5" />
+                                        <Eye class="h-3.5 w-3.5 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                                         Detalhe
                                     </button>
                                     <template v-if="displayStatus(s) !== 'cancelled'">
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2 py-1 text-xs font-medium hover:bg-zinc-50 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                                            class="ep-btn-ghost h-8 px-2.5 text-[12.5px]"
                                             @click="copyRenewalLink(s)"
                                         >
-                                            <Copy class="h-3.5 w-3.5" />
+                                            <Copy class="h-3.5 w-3.5" :stroke-width="1.75" />
                                             {{ copiedId === s.id ? 'Copiado' : 'Link' }}
                                         </button>
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                            class="ep-btn-ghost h-8 px-2.5 text-[12.5px] text-[var(--ep-neg)] hover:bg-[var(--ep-neg-bg)] hover:text-[var(--ep-neg)]"
                                             :disabled="cancellingId === s.id"
                                             @click="cancelSubscription(s, false)"
                                         >
-                                            <Ban class="h-3.5 w-3.5" />
+                                            <Ban class="h-3.5 w-3.5" :stroke-width="1.75" />
                                             Cancelar
                                         </button>
                                     </template>
@@ -415,7 +471,7 @@ function chargeCanRetry(charge) {
             </div>
             <nav
                 v-if="assinaturas?.links?.length > 3"
-                class="flex items-center justify-center gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-700"
+                class="flex items-center justify-center gap-1 border-t border-[var(--ep-line)] px-4 py-3 tabular-nums"
                 aria-label="Paginação"
             >
                 <a
@@ -425,25 +481,25 @@ function chargeCanRetry(charge) {
                     :aria-current="link.active ? 'page' : undefined"
                     :aria-disabled="!link.url"
                     :class="[
-                        'relative inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition',
+                        'relative inline-flex h-9 min-w-9 items-center justify-center rounded-[10px] px-3 text-[13px] font-medium transition-colors duration-150',
                         link.active
-                            ? 'z-10 bg-[var(--color-primary)] text-white'
+                            ? 'ep-tab--active text-[var(--ep-text)]'
                             : link.url
-                              ? 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700'
-                              : 'cursor-not-allowed text-zinc-400 dark:text-zinc-500',
+                              ? 'text-[var(--ep-text-3)] hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]'
+                              : 'cursor-not-allowed text-[var(--ep-text-4)] opacity-60',
                     ]"
                     v-html="link.label"
                     @click.prevent="link.url && router.visit(link.url, { preserveState: true })"
                 />
             </nav>
-            <div v-else-if="assinaturasList.length === 0" class="p-8 text-center">
-                <Repeat class="mx-auto h-14 w-14 text-zinc-300 dark:text-zinc-600" />
-                <p class="mt-3 font-medium text-zinc-600 dark:text-zinc-400">Nenhuma assinatura encontrada</p>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-500">
+            <div v-else-if="assinaturasList.length === 0" class="ep-empty border-t border-[var(--ep-line)]">
+                <Repeat class="h-5 w-5 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                <p class="ep-empty__title">Nenhuma assinatura encontrada</p>
+                <p class="ep-empty__text">
                     Assinaturas de produtos recorrentes aparecem aqui após a primeira venda.
                 </p>
             </div>
-        </div>
+        </section>
 
         <Teleport to="body">
             <div
@@ -453,80 +509,127 @@ function chargeCanRetry(charge) {
                 role="dialog"
             >
                 <div
-                    class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                    class="ep-scrim fixed inset-0"
                     aria-hidden="true"
                     @click="closeDetail"
                 />
-                <aside class="relative z-[100001] flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900 sm:w-[420px]">
-                    <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                        <h3 class="text-base font-semibold text-zinc-900 dark:text-white">Detalhe da assinatura</h3>
-                        <button type="button" class="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800" @click="closeDetail">
-                            <X class="h-5 w-5" />
+                <aside class="ep-drawer relative z-[100001] flex h-full w-full max-w-md flex-col sm:w-[440px] sm:rounded-l-[22px]">
+                    <div class="flex items-start justify-between gap-3 px-6 pb-4 pt-6">
+                        <div class="min-w-0">
+                            <p class="text-[12px] text-[var(--ep-text-3)]">Assinatura</p>
+                            <h3 class="mt-0.5 text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Detalhe da assinatura</h3>
+                        </div>
+                        <button type="button" class="ep-btn-ghost ep-btn-icon -mr-2 shrink-0" aria-label="Fechar" @click="closeDetail">
+                            <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                         </button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-4">
-                        <p v-if="detailLoading" class="text-sm text-zinc-500">Carregando…</p>
-                        <p v-else-if="detailError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                    <div class="ep-divider" aria-hidden="true" />
+                    <div class="flex-1 overflow-y-auto px-6 py-5">
+                        <div v-if="detailLoading" class="space-y-3" aria-busy="true">
+                            <p class="text-[13px] text-[var(--ep-text-3)]">Carregando…</p>
+                            <div class="h-24 animate-pulse rounded-2xl bg-[var(--ep-active)]" aria-hidden="true" />
+                            <div class="h-40 animate-pulse rounded-2xl bg-[var(--ep-active)] opacity-70" aria-hidden="true" />
+                        </div>
+                        <p
+                            v-else-if="detailError"
+                            class="flex items-start gap-2.5 rounded-[14px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2.5 text-[13px] text-[var(--ep-text)]"
+                            role="alert"
+                        >
+                            <span class="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-neg)]" aria-hidden="true" />
                             {{ detailError }}
                         </p>
                         <template v-else-if="detail">
                             <p
                                 v-if="detail.remote_error"
-                                class="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+                                class="mb-4 rounded-[14px] border border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] bg-[var(--ep-warn-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-text-2)]"
                             >
                                 {{ detail.remote_error }}
                             </p>
-                            <div class="space-y-3 text-sm">
-                                <p><span class="text-zinc-500">Cliente:</span> {{ detail.user?.name }} ({{ detail.user?.email }})</p>
-                                <p><span class="text-zinc-500">Produto:</span> {{ detail.product?.name }}</p>
-                                <p><span class="text-zinc-500">Plano:</span> {{ detail.plan?.name }} · {{ detail.plan?.interval_label }} · {{ formatBRL(detail.plan?.price) }}</p>
-                                <p><span class="text-zinc-500">Status:</span> {{ statusBadgeLabel(detail.effective_status || detail.status) }}</p>
-                                <p><span class="text-zinc-500">Período:</span> {{ detail.current_period_start }} → {{ detail.current_period_end }}</p>
-                                <p v-if="detail.gateway_subscription_id" class="break-all">
-                                    <span class="text-zinc-500">ID gateway:</span> {{ detail.gateway_subscription_id }}
-                                </p>
-                                <p v-if="detail.remote_status"><span class="text-zinc-500">Status CajuPay:</span> {{ detail.remote_status }}</p>
-                            </div>
+
+                            <section class="panel-card ep-glow-card p-5" aria-label="Resumo da assinatura">
+                                <div class="flex items-center justify-between gap-3">
+                                    <span class="text-[12.5px] font-medium text-[var(--ep-text-3)]">Valor do plano</span>
+                                    <span
+                                        class="ep-chip"
+                                        :class="{ active: 'ep-chip--pos', past_due: 'ep-chip--warn' }[detail.effective_status || detail.status] ?? ''"
+                                    >
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                        {{ statusBadgeLabel(detail.effective_status || detail.status) }}
+                                    </span>
+                                </div>
+                                <p class="mt-3 text-[30px] font-semibold leading-none tabular-nums tracking-[-0.04em] text-[var(--ep-text)]">{{ formatBRL(detail.plan?.price) }}</p>
+                                <p class="mt-2 truncate text-[12.5px] text-[var(--ep-text-3)]">{{ detail.plan?.name }} · {{ detail.plan?.interval_label }}</p>
+                            </section>
+
+                            <dl class="mt-4 text-[13px]">
+                                <div class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">Cliente</dt>
+                                    <dd class="min-w-0 text-right text-[var(--ep-text)]">
+                                        {{ detail.user?.name }}
+                                        <span class="block break-all text-[12px] text-[var(--ep-text-4)]">({{ detail.user?.email }})</span>
+                                    </dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">Produto</dt>
+                                    <dd class="min-w-0 text-right text-[var(--ep-text)]">{{ detail.product?.name }}</dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">Plano</dt>
+                                    <dd class="min-w-0 text-right text-[var(--ep-text)]">{{ detail.plan?.name }} · {{ detail.plan?.interval_label }} · <span class="tabular-nums">{{ formatBRL(detail.plan?.price) }}</span></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">Período</dt>
+                                    <dd class="min-w-0 text-right tabular-nums text-[var(--ep-text)]">{{ detail.current_period_start }} → {{ detail.current_period_end }}</dd>
+                                </div>
+                                <div v-if="detail.gateway_subscription_id" class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5 last:border-b-0">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">ID gateway</dt>
+                                    <dd class="min-w-0 break-all text-right font-mono text-[12px] text-[var(--ep-text-2)]">{{ detail.gateway_subscription_id }}</dd>
+                                </div>
+                                <div v-if="detail.remote_status" class="flex items-start justify-between gap-4 border-b border-[var(--ep-line)] py-2.5 last:border-b-0">
+                                    <dt class="shrink-0 text-[var(--ep-text-3)]">Status CajuPay</dt>
+                                    <dd class="min-w-0 text-right text-[var(--ep-text)]">{{ detail.remote_status }}</dd>
+                                </div>
+                            </dl>
 
                             <div v-if="detail.is_cajupay" class="mt-4 flex flex-wrap gap-2">
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium dark:border-zinc-600"
+                                    class="ep-btn-secondary h-8 px-3 text-[12.5px]"
                                     :disabled="actionBusy === 'sync'"
                                     @click="syncSubscription"
                                 >
-                                    <RefreshCw class="h-3.5 w-3.5" />
+                                    <RefreshCw class="h-3.5 w-3.5 text-[var(--ep-text-3)]" :class="actionBusy === 'sync' ? 'animate-spin' : ''" :stroke-width="1.75" />
                                     Sync CajuPay
                                 </button>
                                 <button
                                     v-if="(detail.effective_status || detail.status) !== 'cancelled'"
                                     type="button"
-                                    class="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 dark:border-red-900/50 dark:text-red-400"
+                                    class="ep-btn-danger h-8 px-3 text-[12.5px]"
                                     @click="cancelSubscription(detail, false)"
                                 >
-                                    <Ban class="h-3.5 w-3.5" />
+                                    <Ban class="h-3.5 w-3.5" :stroke-width="1.75" />
                                     Cancelar
                                 </button>
                             </div>
 
-                            <div class="mt-6">
-                                <h4 class="text-sm font-semibold text-zinc-900 dark:text-white">Cobranças</h4>
-                                <ul v-if="detail.charges?.length" class="mt-2 space-y-2">
+                            <section class="mt-6" aria-label="Cobranças">
+                                <h4 class="ep-section-title">Cobranças</h4>
+                                <ul v-if="detail.charges?.length" class="mt-2 overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)]">
                                     <li
                                         v-for="c in detail.charges"
                                         :key="c.id"
-                                        class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
+                                        class="border-b border-[var(--ep-line)] px-4 py-3 last:border-b-0"
                                     >
-                                        <div class="flex items-start justify-between gap-2">
+                                        <div class="flex items-center justify-between gap-3">
                                             <div class="min-w-0">
-                                                <p class="truncate text-xs text-zinc-500">{{ c.id }}</p>
-                                                <p class="mt-1 font-medium">{{ formatCents(c.amount_cents) }} · {{ c.status || '—' }}</p>
+                                                <p class="text-[14px] font-semibold tabular-nums tracking-[-0.01em] text-[var(--ep-text)]">{{ formatCents(c.amount_cents) }} <span class="text-[12px] font-normal text-[var(--ep-text-3)]">· {{ c.status || '—' }}</span></p>
+                                                <p class="mt-0.5 truncate font-mono text-[11px] text-[var(--ep-text-4)]">{{ c.id }}</p>
                                             </div>
                                             <div v-if="detail.is_cajupay" class="flex shrink-0 gap-1">
                                                 <button
                                                     v-if="chargeCanRetry(c)"
                                                     type="button"
-                                                    class="rounded border border-zinc-200 px-2 py-1 text-[11px] dark:border-zinc-600"
+                                                    class="ep-btn-secondary h-7 rounded-[9px] px-2.5 text-[11.5px]"
                                                     :disabled="actionBusy === `retry-${c.id}`"
                                                     @click="retryCharge(c)"
                                                 >
@@ -535,19 +638,19 @@ function chargeCanRetry(charge) {
                                                 <button
                                                     v-if="chargeCanRefund(c)"
                                                     type="button"
-                                                    class="inline-flex items-center gap-1 rounded border border-red-200 px-2 py-1 text-[11px] text-red-700 dark:border-red-900/50 dark:text-red-400"
+                                                    class="ep-btn-danger h-7 gap-1 rounded-[9px] px-2.5 text-[11.5px]"
                                                     :disabled="actionBusy === `refund-${c.id}`"
                                                     @click="refundCharge(c)"
                                                 >
-                                                    <RotateCcw class="h-3 w-3" />
+                                                    <RotateCcw class="h-3 w-3" :stroke-width="1.75" />
                                                     Reembolsar
                                                 </button>
                                             </div>
                                         </div>
                                     </li>
                                 </ul>
-                                <p v-else class="mt-2 text-sm text-zinc-500">Nenhuma cobrança listada.</p>
-                            </div>
+                                <p v-else class="mt-2 rounded-2xl border border-dashed border-[var(--ep-line-strong)] px-4 py-5 text-center text-[12.5px] text-[var(--ep-text-4)]">Nenhuma cobrança listada.</p>
+                            </section>
                         </template>
                     </div>
                 </aside>

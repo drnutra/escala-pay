@@ -41,10 +41,9 @@ const selectOptions = computed(() =>
 );
 
 const triggerClass = cn(
-    'flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border-2 border-zinc-200 bg-white px-4 py-3 text-left text-sm transition',
-    'hover:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:ring-offset-0',
-    'data-[placeholder]:text-zinc-500',
-    'dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:hover:border-zinc-500 dark:data-[placeholder]:text-zinc-400'
+    'ep-input flex !h-11 cursor-pointer items-center justify-between gap-2 text-left',
+    'hover:border-[var(--ep-line-strong)]',
+    'data-[placeholder]:text-[var(--ep-text-4)]'
 );
 </script>
 
@@ -60,13 +59,13 @@ const triggerClass = cn(
         >
             <SelectValue :placeholder="placeholder" />
             <ChevronDown
-                class="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                class="h-4 w-4 shrink-0 text-[var(--ep-text-4)]"
                 aria-hidden="true"
             />
         </SelectTrigger>
         <SelectPortal to="body">
             <SelectContent
-                class="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-xl dark:border-zinc-600 dark:bg-zinc-800"
+                class="ep-modal z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden !rounded-xl py-1"
                 :side-offset="4"
                 position="popper"
                 :avoid-collisions="true"
@@ -76,10 +75,10 @@ const triggerClass = cn(
                         v-for="opt in selectOptions"
                         :key="String(opt.value)"
                         :value="opt.value"
-                        class="relative flex cursor-pointer select-none items-center rounded-lg py-2.5 pl-10 pr-4 text-sm outline-none transition data-[highlighted]:bg-[var(--color-primary)]/10 data-[highlighted]:text-[var(--color-primary)] data-[state=checked]:bg-[var(--color-primary)]/10 data-[state=checked]:text-[var(--color-primary)] dark:data-[highlighted]:bg-[var(--color-primary)]/20 dark:data-[state=checked]:bg-[var(--color-primary)]/20"
+                        class="relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-9 pr-4 text-[13px] text-[var(--ep-text-2)] outline-none transition-colors data-[highlighted]:bg-[var(--ep-hover)] data-[highlighted]:text-[var(--ep-text)] data-[state=checked]:font-medium data-[state=checked]:text-[var(--ep-text)]"
                     >
                         <SelectItemIndicator class="absolute left-3 flex h-4 w-4 items-center justify-center">
-                            <Check class="h-4 w-4 text-[var(--color-primary)]" />
+                            <Check class="h-4 w-4 text-[var(--ep-accent)]" />
                         </SelectItemIndicator>
                         <SelectItemText>{{ opt.label }}</SelectItemText>
                     </SelectItem>

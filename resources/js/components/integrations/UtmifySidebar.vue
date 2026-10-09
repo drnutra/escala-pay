@@ -209,39 +209,48 @@ function productSummary(integration) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-lg flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-lg flex-col"
             >
                 <div
-                    class="flex items-center justify-between rounded-tl-2xl bg-zinc-50/80 px-5 py-4 dark:bg-zinc-800/50"
+                    class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4"
                 >
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        UTMfy
-                    </h2>
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[13px] border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] p-[3px] shadow-[var(--ep-glass-highlight),0_8px_22px_-12px_var(--ep-glow)]">
+                            <img src="/images/integrations/utmify.jpg" alt="" class="size-full rounded-[10px] object-cover" />
+                        </span>
+                        <div class="min-w-0">
+                            <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                                UTMfy
+                            </h2>
+                            <p class="text-[12px] text-[var(--ep-text-3)]">Rastreamento de vendas e UTMs</p>
+                        </div>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex flex-1 flex-col overflow-y-auto p-5">
-                    <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+                <div class="flex flex-1 flex-col overflow-y-auto px-6 py-5">
+                    <p class="mb-5 text-[12.5px] leading-[1.55] text-[var(--ep-text-3)]">
                         Rastreie vendas e envie eventos para UTMify.
                     </p>
 
                     <!-- Lista de integrações -->
                     <template v-if="!showingForm">
-                        <div class="mb-4 flex justify-end">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <h3 class="ep-section-title">Conexões</h3>
                             <Button variant="outline" size="sm" @click="startNew">
-                                <Plus class="mr-2 h-4 w-4" />
+                                <Plus class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 Nova integração
                             </Button>
                         </div>
@@ -250,55 +259,58 @@ function productSummary(integration) {
                             <li
                                 v-for="i in utmify_integrations"
                                 :key="i.id"
-                                class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50"
+                                class="flex items-center justify-between gap-3 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]"
                             >
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-medium text-zinc-900 dark:text-white">
+                                        <span class="truncate text-[13.5px] font-medium text-[var(--ep-text)]">
                                             {{ i.name }}
                                         </span>
                                         <span
                                             v-if="i.is_active"
-                                            class="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                                            class="ep-chip ep-chip--pos shrink-0"
                                         >
+                                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                             Ativo
                                         </span>
                                         <span
                                             v-else
-                                            class="rounded bg-zinc-200 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                                            class="ep-chip shrink-0"
                                         >
+                                            <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60" aria-hidden="true" />
                                             Inativo
                                         </span>
                                     </div>
-                                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                    <p class="mt-1 text-[12px] text-[var(--ep-text-3)]">
                                         {{ i.configured ? 'Chave configurada' : 'Chave não configurada' }} · {{ productSummary(i) }}
                                     </p>
                                 </div>
-                                <div class="ml-2 flex items-center gap-1">
+                                <div class="flex shrink-0 items-center gap-0.5">
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px]"
                                         aria-label="Editar"
                                         @click="editIntegration(i)"
                                     >
-                                        <Pencil class="h-4 w-4" />
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                                         aria-label="Excluir"
                                         @click="requestDelete(i)"
                                     >
-                                        <Trash2 class="h-4 w-4" />
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                 </div>
                             </li>
                         </ul>
                         <p
                             v-else
-                            class="rounded-xl border border-dashed border-zinc-300 px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400"
+                            class="ep-empty rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] !text-[12.5px] !text-[var(--ep-text-3)]"
                         >
-                            Nenhuma integração configurada. Clique em "Nova integração" para começar.
+                            <span class="ep-empty__title block">Nenhuma integração configurada.</span>
+                            <span class="ep-empty__text block">Clique em "Nova integração" para começar.</span>
                         </p>
                     </template>
 
@@ -307,18 +319,18 @@ function productSummary(integration) {
                         <div class="mb-4 flex items-center gap-2">
                             <button
                                 type="button"
-                                class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px]"
                                 aria-label="Voltar"
                                 @click="cancelEdit"
                             >
-                                <ArrowLeft class="h-5 w-5" />
+                                <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                             </button>
-                            <span class="font-medium text-zinc-900 dark:text-white">
+                            <span class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">
                                 {{ isCreating ? 'Nova integração' : 'Editar integração' }}
                             </span>
                         </div>
 
-                        <p class="mb-4 rounded-lg bg-zinc-100 px-3 py-2 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                        <p class="mb-5 rounded-[12px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] leading-[1.55] text-[var(--ep-text-3)] [&_a]:font-medium [&_a]:text-[var(--ep-accent)] [&_strong]:font-medium [&_strong]:text-[var(--ep-text-2)]">
                             Para obter a chave de API: acesse a
                             <a
                                 href="https://utmify.com.br"
@@ -332,7 +344,7 @@ function productSummary(integration) {
                             <div>
                                 <label
                                     for="utmify-name"
-                                    class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                    class="ep-label"
                                 >
                                     Nome da integração
                                 </label>
@@ -341,14 +353,14 @@ function productSummary(integration) {
                                     v-model="form.name"
                                     type="text"
                                     placeholder="Ex: Campanha Facebook"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+                                    class="ep-input"
                                 />
                             </div>
 
                             <div>
                                 <label
                                     for="utmify-api-key"
-                                    class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                    class="ep-label"
                                 >
                                     Chave de API
                                 </label>
@@ -358,16 +370,16 @@ function productSummary(integration) {
                                     type="text"
                                     autocomplete="off"
                                     :placeholder="editingIntegration ? 'Deixe em branco para manter a atual' : 'Digite a chave'"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500 font-mono"
+                                    class="ep-input font-mono"
                                 />
                             </div>
 
-                            <div class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                            <div class="flex items-center justify-between gap-4 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                                 <div>
-                                    <span class="block text-sm font-medium text-zinc-900 dark:text-white">
+                                    <span class="block text-[13px] font-medium text-[var(--ep-text)]">
                                         Integração ativa
                                     </span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[12px] text-[var(--ep-text-3)]">
                                         Enviar eventos de vendas para a UTMfy
                                     </span>
                                 </div>
@@ -375,20 +387,20 @@ function productSummary(integration) {
                             </div>
 
                             <div class="text-left">
-                                <span class="mb-2 block text-left text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                <span class="ep-label text-left">
                                     Produtos atribuídos
                                 </span>
-                                <p class="mb-2 text-left text-xs text-zinc-500 dark:text-zinc-400">
+                                <p class="mb-2.5 text-left text-[12px] leading-[1.5] text-[var(--ep-text-4)]">
                                     Selecione os produtos para os quais esta integração enviará eventos. Deixe vazio para todos os produtos.
                                 </p>
                                 <div
                                     v-if="products.length"
-                                    class="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-3 text-left dark:border-zinc-600 dark:bg-zinc-800"
+                                    class="max-h-48 space-y-0.5 overflow-y-auto rounded-[12px] border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5 text-left"
                                 >
                                     <label
                                         v-for="p in products"
                                         :key="p.id"
-                                        class="flex cursor-pointer items-center justify-start gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                                        class="flex cursor-pointer items-center justify-start gap-2.5 rounded-[9px] px-2.5 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                     >
                                         <span class="shrink-0 w-fit">
                                             <Checkbox
@@ -396,29 +408,29 @@ function productSummary(integration) {
                                                 @update:model-value="toggleProduct(p.id)"
                                             />
                                         </span>
-                                        <span class="text-left text-sm text-zinc-900 dark:text-white">{{ p.name }}</span>
+                                        <span class="text-left text-[13px] text-[var(--ep-text)]">{{ p.name }}</span>
                                     </label>
                                 </div>
-                                <p v-else class="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                                <p v-else class="rounded-[12px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] text-[var(--ep-text-4)]">
                                     Nenhum produto cadastrado.
                                 </p>
                             </div>
 
                             <div class="text-left">
-                                <span class="mb-2 block text-left text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                <span class="ep-label text-left">
                                     Apps da API de pagamentos
                                 </span>
-                                <p class="mb-2 text-left text-xs text-zinc-500 dark:text-zinc-400">
+                                <p class="mb-2.5 text-left text-[12px] leading-[1.5] text-[var(--ep-text-4)]">
                                     Selecione as aplicações (Checkout Pro) para as quais esta integração enviará eventos. Deixe vazio para não filtrar por app.
                                 </p>
                                 <div
                                     v-if="api_applications.length"
-                                    class="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-3 text-left dark:border-zinc-600 dark:bg-zinc-800"
+                                    class="max-h-48 space-y-0.5 overflow-y-auto rounded-[12px] border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5 text-left"
                                 >
                                     <label
                                         v-for="a in api_applications"
                                         :key="a.id"
-                                        class="flex cursor-pointer items-center justify-start gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                                        class="flex cursor-pointer items-center justify-start gap-2.5 rounded-[9px] px-2.5 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                     >
                                         <span class="shrink-0 w-fit">
                                             <Checkbox
@@ -426,10 +438,10 @@ function productSummary(integration) {
                                                 @update:model-value="toggleApiApplication(a.id)"
                                             />
                                         </span>
-                                        <span class="text-left text-sm text-zinc-900 dark:text-white">{{ a.name }}</span>
+                                        <span class="text-left text-[13px] text-[var(--ep-text)]">{{ a.name }}</span>
                                     </label>
                                 </div>
-                                <p v-else class="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                                <p v-else class="rounded-[12px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] text-[var(--ep-text-4)]">
                                     Nenhuma aplicação cadastrada.
                                 </p>
                             </div>
@@ -437,12 +449,12 @@ function productSummary(integration) {
 
                         <p
                             v-if="errorMessage"
-                            class="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            class="mt-4 rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2.5 text-[12.5px] text-[var(--ep-neg)]"
                         >
                             {{ errorMessage }}
                         </p>
 
-                        <div class="mt-6 flex gap-2">
+                        <div class="mt-6 flex gap-2.5 border-t border-[var(--ep-line)] pt-5">
                             <Button
                                 class="flex-1"
                                 :disabled="saving"
@@ -450,7 +462,7 @@ function productSummary(integration) {
                             >
                                 <Loader2
                                     v-if="saving"
-                                    class="mr-2 h-4 w-4 animate-spin"
+                                    class="h-4 w-4 animate-spin"
                                 />
                                 Salvar
                             </Button>
@@ -473,27 +485,29 @@ function productSummary(integration) {
             aria-modal="true"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60"
+                class="ep-scrim fixed inset-0"
                 @click="cancelDelete"
             />
             <div
-                class="relative max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-zinc-900"
+                class="ep-modal relative w-full max-w-sm p-6"
             >
-                <p class="text-sm text-zinc-700 dark:text-zinc-300">
+                <p class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">Excluir integração?</p>
+                <p class="mt-1.5 text-[13px] leading-[1.55] text-[var(--ep-text-3)]">
                     Deseja realmente excluir esta integração UTMfy? Os eventos deixarão de ser enviados.
                 </p>
-                <div class="mt-4 flex justify-end gap-2">
+                <div class="mt-6 flex justify-end gap-2.5">
                     <Button variant="outline" @click="cancelDelete">
                         Cancelar
                     </Button>
                     <Button
                         variant="danger"
+                        class="ep-btn-danger !h-9"
                         :disabled="deleting !== null"
                         @click="confirmRemove(utmify_integrations.find(i => i.id === confirmingDeleteId))"
                     >
                         <Loader2
                             v-if="deleting === confirmingDeleteId"
-                            class="mr-2 h-4 w-4 animate-spin"
+                            class="h-4 w-4 animate-spin"
                         />
                         Excluir
                     </Button>

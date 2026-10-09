@@ -68,33 +68,34 @@ function sparkSeries(data) {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div
             v-for="card in cards"
             :key="card.key"
-            class="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-800/50"
+            class="panel-card ep-kpi relative overflow-hidden !p-4"
         >
-            <div v-if="loading" class="space-y-2 animate-pulse">
-                <div class="h-3 w-20 rounded bg-zinc-200 dark:bg-zinc-700" />
-                <div class="h-8 w-12 rounded bg-zinc-200 dark:bg-zinc-700" />
+            <div v-if="loading" class="space-y-2.5 animate-pulse" aria-hidden="true">
+                <div class="h-3 w-20 rounded-full bg-[var(--ep-active)]" />
+                <div class="h-7 w-14 rounded-lg bg-[var(--ep-active)]" />
             </div>
             <template v-else>
-                <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <p class="ep-kpi__label flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full" :style="{ background: card.color, boxShadow: `0 0 8px ${card.color}` }" aria-hidden="true" />
                     {{ card.label }}
                 </p>
-                <div class="mt-1 flex items-end justify-between gap-2">
-                    <div>
-                        <p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">
+                <div class="flex items-end justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="ep-kpi__value">
                             {{ card.value }}
                         </p>
                         <p
                             v-if="card.sub"
-                            class="text-xs font-medium text-emerald-600 dark:text-emerald-400"
+                            class="ep-chip ep-chip--pos mt-1.5 !h-5 !px-1.5 text-[11px] tabular-nums"
                         >
                             {{ card.sub }}
                         </p>
                     </div>
-                    <div class="h-10 w-24 shrink-0">
+                    <div class="h-10 w-24 shrink-0 opacity-90">
                         <VueApexCharts
                             type="area"
                             height="40"

@@ -132,7 +132,7 @@ onUnmounted(() => {
 <template>
     <!-- Banner Android: prompt de instalação fixo no mobile -->
     <Transition
-        enter-active-class="transition duration-300 ease-out"
+        enter-active-class="transition duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         enter-from-class="translate-y-full opacity-0"
         enter-to-class="translate-y-0 opacity-100"
         leave-active-class="transition duration-200 ease-in"
@@ -141,33 +141,33 @@ onUnmounted(() => {
     >
         <div
             v-if="showBanner && installPromptEvent && !isStandalone"
-            class="fixed bottom-0 left-0 right-0 z-[99999] border-t border-zinc-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl dark:border-zinc-700 dark:bg-zinc-800"
+            class="fixed bottom-0 left-0 right-0 z-[99999] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         >
-            <div class="mx-auto flex max-w-md items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                        <Smartphone class="h-6 w-6" />
+            <div class="ep-modal mx-auto flex max-w-md items-center justify-between gap-3 rounded-[20px] p-3 pl-3.5">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="ep-kpi__icon h-11 w-11 shrink-0 rounded-xl">
+                        <Smartphone class="h-5 w-5" :stroke-width="1.75" aria-hidden="true" />
                     </div>
-                    <div>
-                        <p class="font-semibold text-zinc-900 dark:text-zinc-100">Instalar {{ appName }}</p>
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Acesso rápido pela tela inicial</p>
+                    <div class="min-w-0">
+                        <p class="truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Instalar {{ appName }}</p>
+                        <p class="truncate text-[12.5px] text-[var(--ep-text-3)]">Acesso rápido pela tela inicial</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex shrink-0 items-center gap-1">
                     <button
                         type="button"
-                        class="rounded-xl bg-zinc-900 px-4 py-2.5 font-medium text-white shadow-lg transition hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                        class="ep-btn"
                         @click="install"
                     >
                         Instalar
                     </button>
                     <button
                         type="button"
-                        class="shrink-0 rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="dismiss(); showBanner = false"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
             </div>
@@ -176,7 +176,7 @@ onUnmounted(() => {
 
     <!-- Modal iOS: instruções para adicionar à tela inicial -->
     <Transition
-        enter-active-class="transition duration-300 ease-out"
+        enter-active-class="transition duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         enter-from-class="opacity-0 scale-95"
         enter-to-class="opacity-100 scale-100"
         leave-active-class="transition duration-200 ease-in"
@@ -189,32 +189,32 @@ onUnmounted(() => {
         >
             <!-- Backdrop -->
             <div
-                class="absolute inset-0 bg-black/50"
+                class="ep-scrim absolute inset-0"
                 aria-hidden="true"
                 @click="dismiss"
             />
             <!-- Card -->
             <div
-                class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-700 dark:bg-zinc-800"
+                class="ep-modal relative w-full max-w-md p-6"
             >
                 <div class="flex items-start gap-4">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                        <Share class="h-6 w-6" />
+                    <div class="ep-kpi__icon h-11 w-11 shrink-0 rounded-xl">
+                        <Share class="h-5 w-5" :stroke-width="1.75" aria-hidden="true" />
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div class="min-w-0 flex-1 pr-6">
+                        <h3 class="text-[16px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                             Adicionar à tela inicial
                         </h3>
-                        <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                            No Safari, toque no ícone <strong class="text-zinc-800 dark:text-zinc-200">Compartilhar</strong>
+                        <p class="mt-3 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
+                            No Safari, toque no ícone <strong class="font-semibold text-[var(--ep-text)]">Compartilhar</strong>
                             (quadrado com seta para cima) na barra inferior.
                         </p>
-                        <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                            Em seguida, toque em <strong class="text-zinc-800 dark:text-zinc-200">« Adicionar à Tela de Início »</strong>.
+                        <p class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
+                            Em seguida, toque em <strong class="font-semibold text-[var(--ep-text)]">« Adicionar à Tela de Início »</strong>.
                         </p>
                         <button
                             type="button"
-                            class="mt-6 w-full rounded-xl bg-zinc-900 px-4 py-3 font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                            class="ep-btn mt-6 h-11 w-full"
                             @click="dismiss"
                         >
                             Entendi
@@ -222,11 +222,11 @@ onUnmounted(() => {
                     </div>
                     <button
                         type="button"
-                        class="absolute right-4 top-4 rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon absolute right-3 top-3 h-8 w-8"
                         aria-label="Fechar"
                         @click="dismiss"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
             </div>
@@ -235,7 +235,7 @@ onUnmounted(() => {
 
     <!-- Modal: permitir notificações após instalar o PWA -->
     <Transition
-        enter-active-class="transition duration-300 ease-out"
+        enter-active-class="transition duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         enter-from-class="opacity-0 scale-95"
         enter-to-class="opacity-100 scale-100"
         leave-active-class="transition duration-200 ease-in"
@@ -247,28 +247,28 @@ onUnmounted(() => {
             class="fixed inset-0 z-[99999] flex items-center justify-center p-4"
         >
             <div
-                class="absolute inset-0 bg-black/50"
+                class="ep-scrim absolute inset-0"
                 aria-hidden="true"
                 @click="closeNotificationPrompt(false)"
             />
             <div
-                class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-700 dark:bg-zinc-800"
+                class="ep-modal relative w-full max-w-md p-6"
             >
                 <div class="flex items-start gap-4">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
-                        <Bell class="h-6 w-6" />
+                    <div class="ep-kpi__icon h-11 w-11 shrink-0 rounded-xl">
+                        <Bell class="h-5 w-5" :stroke-width="1.75" aria-hidden="true" />
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div class="min-w-0 flex-1 pr-6">
+                        <h3 class="text-[16px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                             Permitir notificações?
                         </h3>
-                        <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                        <p class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                             Receba avisos de novas vendas (PIX, boleto, cartão, Apple Pay e Google Pay) no {{ appName }}.
                         </p>
                         <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
                             <button
                                 type="button"
-                                class="rounded-xl border border-zinc-300 bg-white px-4 py-3 font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                class="ep-btn-secondary h-11 sm:h-10"
                                 :disabled="notificationPromptLoading"
                                 @click="closeNotificationPrompt(true)"
                             >
@@ -276,7 +276,7 @@ onUnmounted(() => {
                             </button>
                             <button
                                 type="button"
-                                class="rounded-xl bg-[var(--color-primary)] px-4 py-3 font-medium text-white transition hover:opacity-90 disabled:opacity-70"
+                                class="ep-btn h-11 sm:h-10"
                                 :disabled="notificationPromptLoading"
                                 @click="allowNotifications"
                             >
@@ -285,18 +285,18 @@ onUnmounted(() => {
                         </div>
                         <p
                             v-if="lastPushError && Notification.permission === 'granted' && !pushRegistered"
-                            class="mt-3 text-xs text-zinc-500 dark:text-zinc-400"
+                            class="mt-3 text-[12px] leading-relaxed text-[var(--ep-warn)]"
                         >
                             Não foi possível concluir a ativação agora. Abra o painel de notificações e tente novamente.
                         </p>
                     </div>
                     <button
                         type="button"
-                        class="absolute right-4 top-4 rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon absolute right-3 top-3 h-8 w-8"
                         aria-label="Fechar"
                         @click="closeNotificationPrompt(true)"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
             </div>

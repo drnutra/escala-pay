@@ -74,28 +74,34 @@ const cards = computed(() => {
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div
             v-for="card in cards"
             :key="card.key"
-            class="panel-card-md relative overflow-hidden transition-transform hover:scale-[1.01]"
+            class="panel-card ep-kpi min-w-0"
+            :class="card.key === 'faturamento' ? 'ep-glow-card justify-between sm:col-span-2' : ''"
             :title="card.title"
         >
-            <div class="pointer-events-none absolute inset-0 bg-gradient-to-br to-transparent opacity-80" :class="card.accent" />
-            <div class="relative flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                <div class="dash-metric-icon-sm">
-                    <component :is="card.icon" class="h-4 w-4" />
-                </div>
-                <span class="text-xs font-semibold uppercase tracking-wide">{{ card.label }}</span>
+            <div class="flex items-center justify-between gap-2">
+                <span class="ep-kpi__label truncate">{{ card.label }}</span>
+                <span class="ep-kpi__icon shrink-0" aria-hidden="true">
+                    <component :is="card.icon" class="h-4 w-4" :stroke-width="1.75" />
+                </span>
             </div>
-            <p class="relative mt-3 text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl">{{ card.value }}</p>
+            <p
+                class="ep-kpi__value mt-1 truncate"
+                :class="card.key === 'faturamento' ? 'text-[clamp(28px,2.6vw,36px)] tracking-[-0.04em] [text-shadow:0_2px_24px_color-mix(in_oklab,var(--ep-glow)_60%,transparent)]' : ''"
+            >
+                {{ card.value }}
+            </p>
+            <p class="ep-kpi__meta truncate">{{ card.title }}</p>
         </div>
         <TrackingAdSpendCard
             :amount="financial?.gasto_ads ?? 0"
             :ad-spend-meta="adSpend"
             :period="period"
             :values-visible="valuesVisible"
-            class="xl:col-span-1"
+            class="min-w-0"
             @save-daily="emit('save-daily', $event)"
             @save-period="emit('save-period', $event)"
             @clear-period="emit('clear-period')"

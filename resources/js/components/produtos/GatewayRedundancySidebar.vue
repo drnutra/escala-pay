@@ -79,79 +79,90 @@ function gatewayName(slug) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-md flex-col overflow-hidden sm:rounded-l-[22px]"
             >
                 <div
-                    class="flex items-center justify-between rounded-tl-2xl border-b border-zinc-200 px-4 py-4 dark:border-zinc-700"
+                    class="flex items-start justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-5"
                 >
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        Redundância – {{ methodLabel }}
-                    </h2>
+                    <div class="min-w-0">
+                        <p class="text-[12px] text-[var(--ep-text-3)]">Gateways de contingência</p>
+                        <h2 class="mt-0.5 truncate text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            Redundância – {{ methodLabel }}
+                        </h2>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex flex-1 flex-col overflow-y-auto p-4">
-                    <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+                <div class="flex flex-1 flex-col overflow-y-auto px-6 py-5">
+                    <p class="mb-5 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                         Se o gateway principal falhar, serão tentados os gateways abaixo, na ordem.
                     </p>
 
-                    <div class="space-y-2">
+                    <div class="flex items-center gap-3 rounded-2xl border border-[color-mix(in_oklab,var(--ep-accent)_32%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_9%,transparent)] px-4 py-3">
+                        <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                        <span class="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--ep-text)]">
+                            {{ gatewayName(primarySlug) || 'Não definido' }}
+                        </span>
+                        <span class="ep-chip ep-chip--accent shrink-0">Principal</span>
+                    </div>
+
+                    <div class="relative mt-2 space-y-2 pl-0">
                         <div
                             v-for="(slug, index) in localList"
                             :key="slug"
-                            class="flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-600 dark:bg-zinc-800/50"
+                            class="group flex items-center gap-3 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] py-2 pl-3 pr-2 transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                         >
-                            <span class="w-6 shrink-0 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                                {{ index + 1 }}.
+                            <span class="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--ep-active)] px-1.5 text-[11.5px] font-semibold tabular-nums text-[var(--ep-text-2)]">
+                                {{ index + 1 }}
                             </span>
-                            <span class="min-w-0 flex-1 truncate text-sm font-medium text-zinc-900 dark:text-white">
+                            <span class="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--ep-text)]">
                                 {{ gatewayName(slug) }}
                             </span>
                             <div class="flex shrink-0 items-center gap-0.5">
                                 <button
                                     type="button"
-                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-300 disabled:opacity-40"
+                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] disabled:!opacity-30"
                                     :disabled="index === 0"
                                     aria-label="Subir"
                                     @click="moveUp(index)"
                                 >
-                                    <ChevronUp class="h-4 w-4" />
+                                    <ChevronUp class="h-4 w-4" stroke-width="1.75" />
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-300 disabled:opacity-40"
+                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] disabled:!opacity-30"
                                     :disabled="index === localList.length - 1"
                                     aria-label="Descer"
                                     @click="moveDown(index)"
                                 >
-                                    <ChevronDown class="h-4 w-4" />
+                                    <ChevronDown class="h-4 w-4" stroke-width="1.75" />
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                                     aria-label="Remover"
                                     @click="remove(index)"
                                 >
-                                    <Trash2 class="h-4 w-4" />
+                                    <Trash2 class="h-4 w-4" stroke-width="1.75" />
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="availableToAdd.length > 0" class="mt-4">
-                        <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    <div v-if="availableToAdd.length > 0" class="mt-6">
+                        <label class="ep-label">
                             Adicionar gateway
                         </label>
                         <div class="flex flex-wrap gap-2">
@@ -159,29 +170,30 @@ function gatewayName(slug) {
                                 v-for="g in availableToAdd"
                                 :key="g.slug"
                                 type="button"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                class="ep-btn-secondary !h-8 !gap-1.5 !rounded-[10px] !px-3 !text-[12.5px] hover:!border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] hover:!text-[var(--ep-accent)]"
                                 @click="addGateway(g.slug)"
                             >
-                                <Plus class="h-4 w-4" />
+                                <Plus class="h-3.5 w-3.5" stroke-width="2" />
                                 {{ g.name }}
                             </button>
                         </div>
                     </div>
 
-                    <div v-else-if="localList.length === 0" class="mt-6 rounded-xl border border-dashed border-zinc-300 bg-zinc-50/50 p-6 text-center dark:border-zinc-600 dark:bg-zinc-800/30">
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    <div v-else-if="localList.length === 0" class="ep-empty mt-6 rounded-2xl border border-dashed border-[var(--ep-line-strong)]">
+                        <p class="ep-empty__title">Sem gateway de contingência</p>
+                        <p class="ep-empty__text">
                             Nenhum gateway de redundância configurado. Adicione gateways acima quando houver opções disponíveis.
                         </p>
                     </div>
+                </div>
 
-                    <div class="mt-6 flex flex-col gap-2">
-                        <Button @click="save">
-                            Salvar
-                        </Button>
-                        <Button variant="outline" @click="close">
-                            Cancelar
-                        </Button>
-                    </div>
+                <div class="flex items-center justify-end gap-2 border-t border-[var(--ep-line)] px-6 py-4">
+                    <Button variant="outline" @click="close">
+                        Cancelar
+                    </Button>
+                    <Button @click="save">
+                        Salvar
+                    </Button>
                 </div>
             </aside>
         </div>

@@ -84,79 +84,80 @@ async function openPdf() {
 </script>
 
 <template>
-    <div class="mx-auto w-full max-w-4xl space-y-6 px-4 py-6">
-        <div class="flex items-start justify-between gap-3">
-            <div>
-                <div class="flex items-center gap-2 text-zinc-500">
-                    <Filter class="h-4 w-4" />
-                    <span class="text-sm">Comprovação</span>
+    <div class="mx-auto w-full max-w-4xl space-y-5 px-4 py-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--ep-text-3)]">
+                    <Filter class="h-4 w-4" :stroke-width="1.75" />
+                    <span>Comprovação</span>
                     <span
-                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-200 text-[11px] text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
+                        class="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[var(--ep-line-strong)] text-[10px] text-[var(--ep-text-4)]"
                         title="Exporta um PDF com dossiês de comprovação (dados do comprador + evidências de entrega/atividade). Ideal para anexar em gateways em caso de MED/chargeback/auditoria."
                     >
                         ?
                     </span>
                 </div>
-                <h1 class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Exportar comprovações (PDF)</h1>
-                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-                    Gera um PDF com comprovações (1 página por pedido) para pedidos filtrados (máximo 200 por exportação).
+                <h1 class="ep-page-heading mt-1.5">Exportar comprovações (PDF)</h1>
+                <p class="mt-1 max-w-xl text-[13px] text-[var(--ep-text-3)]">
+                    Gera um PDF com comprovações (1 página por pedido) para pedidos filtrados (máximo 200 por exportação).
                 </p>
             </div>
 
             <button
-                class="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                class="ep-btn shrink-0"
                 :disabled="downloading"
                 @click="openPdf"
             >
-                <Download class="h-4 w-4" />
+                <Download class="h-4 w-4" :stroke-width="1.75" />
                 {{ downloading ? 'Gerando...' : 'Abrir PDF' }}
             </button>
         </div>
 
-        <div v-if="error" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
+        <div v-if="error" class="flex items-start gap-2.5 rounded-[14px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-4 py-3 text-[13px] text-[var(--ep-text)]" role="alert">
+            <span class="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-neg)]" aria-hidden="true" />
             {{ error }}
         </div>
 
-        <div class="panel-card-md grid grid-cols-1 gap-4 dark:bg-zinc-950 sm:grid-cols-2">
-            <div class="space-y-1">
-                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Data de</label>
+        <section class="panel-card grid grid-cols-1 gap-4 p-6 sm:grid-cols-2" aria-label="Filtros da exportação">
+            <div>
+                <label class="ep-label">Data de</label>
                 <input
                     :value="form.date_from"
                     type="text"
                     inputmode="numeric"
                     placeholder="dd/mm/aaaa"
-                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    class="ep-input tabular-nums"
                     @input="(e) => (form.date_from = maskDateBr(e.target.value))"
                 />
             </div>
-            <div class="space-y-1">
-                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Data até</label>
+            <div>
+                <label class="ep-label">Data até</label>
                 <input
                     :value="form.date_to"
                     type="text"
                     inputmode="numeric"
                     placeholder="dd/mm/aaaa"
-                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    class="ep-input tabular-nums"
                     @input="(e) => (form.date_to = maskDateBr(e.target.value))"
                 />
             </div>
 
-            <div class="space-y-1">
-                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Produto (opcional)</label>
+            <div>
+                <label class="ep-label">Produto <span class="font-normal text-[var(--ep-text-4)]">(opcional)</span></label>
                 <select
                     v-model="form.product_id"
-                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    class="ep-input"
                 >
                     <option value="">Todos</option>
                     <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Forma de pagamento (opcional)</label>
+            <div>
+                <label class="ep-label">Forma de pagamento <span class="font-normal text-[var(--ep-text-4)]">(opcional)</span></label>
                 <select
                     v-model="form.payment_method"
-                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    class="ep-input"
                 >
                     <option value="">Todas</option>
                     <option value="pix">PIX</option>
@@ -165,11 +166,11 @@ async function openPdf() {
                 </select>
             </div>
 
-            <div class="space-y-1 sm:col-span-2">
-                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Status</label>
+            <div class="sm:col-span-2">
+                <label class="ep-label">Status</label>
                 <select
                     v-model="form.status"
-                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    class="ep-input"
                 >
                     <option value="completed">Pago</option>
                     <option value="pending">Pendente</option>
@@ -178,8 +179,8 @@ async function openPdf() {
                     <option value="refunded">Reembolsado</option>
                     <option value="all">Todos</option>
                 </select>
+                <p class="ep-help">Período em dd/mm/aaaa. O PDF abre em uma nova aba.</p>
             </div>
-        </div>
+        </section>
     </div>
 </template>
-

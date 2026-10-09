@@ -13,18 +13,18 @@ const emit = defineEmits(['click']);
         type="button"
         :aria-label="active ? 'Painel de Tracking aberto' : 'Abrir painel de Tracking'"
         :aria-pressed="active"
-        class="relative flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-zinc-200/80 bg-zinc-100/90 text-[var(--color-primary)] transition-colors hover:border-[var(--color-primary)]/30 hover:bg-white lg:px-3.5 dark:border-zinc-700/80 dark:bg-zinc-800/50 dark:hover:bg-zinc-800"
+        class="relative flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card)] text-[var(--ep-text-2)] shadow-[var(--ep-highlight)] transition-colors duration-150 hover:border-[var(--ep-line-strong)] hover:text-[var(--ep-text)] active:scale-[0.97] lg:px-3"
         :class="[
             active ? 'border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10' : '',
-            'h-11 w-11 lg:w-auto',
+            'h-9 w-9 lg:w-auto',
         ]"
         @click="emit('click')"
     >
-        <Radar class="h-5 w-5 shrink-0" aria-hidden="true" />
-        <span class="hidden text-sm font-semibold lg:inline">Tracking</span>
+        <Radar class="h-4 w-4 shrink-0 text-[var(--color-primary)]" :stroke-width="1.75" aria-hidden="true" />
+        <span class="hidden text-[13px] font-medium lg:inline">Tracking</span>
         <span
             v-if="!active"
-            class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] lg:right-2 lg:top-2"
+            class="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[var(--color-primary)] ring-2 ring-[var(--ep-surface)]"
             aria-hidden="true"
         />
     </button>

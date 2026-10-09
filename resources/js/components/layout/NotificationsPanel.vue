@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { X, Bell, Check, ExternalLink } from 'lucide-vue-next';
+import { X, Bell, Check, ExternalLink, Loader2 } from 'lucide-vue-next';
 import axios from 'axios';
 import { router } from '@inertiajs/vue3';
 import { usePanelPushSubscribe } from '@/composables/usePanelPushSubscribe';
@@ -229,63 +229,69 @@ async function reactivateNotifications() {
                 aria-label="Notificações"
             >
                 <div
-                    class="absolute inset-0 bg-black/40"
+                    class="ep-scrim absolute inset-0"
                     aria-hidden="true"
                     @click="close"
                 />
                 <div
-                    class="relative flex w-full max-w-md flex-col bg-white shadow-2xl dark:bg-zinc-800 sm:max-w-sm"
+                    class="np-panel ep-drawer relative flex h-full w-full max-w-md flex-col sm:max-w-sm"
                     @click.stop
                 >
-                    <div class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
-                        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                            Notificações
-                        </h2>
+                    <div class="flex shrink-0 items-center justify-between gap-3 px-5 pb-3 pt-4">
+                        <div class="flex min-w-0 items-center gap-2.5">
+                            <span class="ep-kpi__icon h-8 w-8 shrink-0" aria-hidden="true">
+                                <Bell class="h-4 w-4" :stroke-width="1.75" />
+                            </span>
+                            <h2 class="truncate text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
+                                Notificações
+                            </h2>
+                        </div>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                            class="ep-btn-ghost ep-btn-icon h-8 w-8 shrink-0"
                             aria-label="Fechar"
                             @click="close"
                         >
-                            <X class="h-5 w-5" />
+                            <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                         </button>
                     </div>
 
-                    <div class="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+                    <div class="mx-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4 shadow-[var(--ep-glass-highlight)]">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <span class="text-[13px] font-medium text-[var(--ep-text)]">
                                 Notificações push
                             </span>
                             <span
                                 v-if="pushActive"
-                                class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                class="ep-chip ep-chip--pos"
                             >
-                                <Check class="h-3.5 w-3.5" />
+                                <Check class="h-3.5 w-3.5" :stroke-width="2" aria-hidden="true" />
                                 Ativo
                             </span>
                             <span
                                 v-else
-                                class="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                                class="ep-chip"
                             >
+                                <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
                                 Inativo
                             </span>
                         </div>
                         <p
                             v-if="pushEnabled && !pushActive"
-                            class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"
+                            class="mt-1.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]"
                         >
                             Receba avisos de vendas e pagamentos no navegador ou no app.
                         </p>
                         <p
                             v-if="pushSubscribed && !pushActive"
-                            class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"
+                            class="mt-1.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]"
                         >
                             Notificações já estão ativas em outro dispositivo. Para ativar neste, permita no navegador.
                         </p>
                         <button
                             v-if="canActivatePush"
                             type="button"
-                            class="mt-2 w-full rounded-lg bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+                            class="ep-btn mt-3 w-full"
                             :disabled="activatingPush"
                             @click="activateNotifications"
                         >
@@ -293,20 +299,20 @@ async function reactivateNotifications() {
                         </button>
                         <p
                             v-else-if="pushEnabled && !pushActive && notificationPermissionDenied"
-                            class="mt-2 text-xs text-zinc-500 dark:text-zinc-400"
+                            class="mt-2 text-[12px] leading-relaxed text-[var(--ep-text-3)]"
                         >
                             Notificações bloqueadas. Habilite nas configurações do navegador para receber avisos.
                         </p>
                         <p
                             v-else-if="pushEnabled && !pushActive && pushErrorLabel"
-                            class="mt-2 text-xs text-amber-700 dark:text-amber-300/90"
+                            class="mt-2 text-[12px] leading-relaxed text-[var(--ep-warn)]"
                         >
                             {{ pushErrorLabel }}
                         </p>
                         <button
                             v-if="canReactivatePush"
                             type="button"
-                            class="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                            class="ep-btn-secondary mt-3 w-full"
                             :disabled="activatingPush"
                             @click="reactivateNotifications"
                         >
@@ -314,16 +320,16 @@ async function reactivateNotifications() {
                         </button>
                         <p
                             v-else-if="!pushEnabled"
-                            class="mt-2 text-xs text-zinc-500 dark:text-zinc-400"
+                            class="mt-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]"
                         >
                             Notificações push não configuradas no servidor (chaves VAPID).
                         </p>
 
                         <div
                             v-if="pushEnabled && (pushActive || pushSubscribed)"
-                            class="mt-3 space-y-2 border-t border-zinc-200 pt-3 dark:border-zinc-600"
+                            class="mt-3 space-y-2 border-t border-[var(--ep-line)] pt-3"
                         >
-                            <p class="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            <p class="text-[12px] font-medium text-[var(--ep-text-3)]">
                                 Avisar sobre
                             </p>
                             <Toggle
@@ -347,15 +353,15 @@ async function reactivateNotifications() {
                         </div>
                     </div>
 
-                    <div class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-2 dark:border-zinc-700">
-                        <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="mt-3 flex shrink-0 items-center justify-between gap-2 border-b border-[var(--ep-line)] px-5 pb-2.5">
+                        <span class="text-[12px] tabular-nums text-[var(--ep-text-3)]">
                             {{ meta.total }} {{ meta.total === 1 ? 'notificação' : 'notificações' }}
                         </span>
-                        <div class="flex items-center gap-3">
+                        <div class="-mr-2 flex items-center gap-1">
                             <button
                                 v-if="notifications.length > 0"
                                 type="button"
-                                class="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
+                                class="ep-btn-ghost h-8 px-2.5 text-[12px] text-[var(--ep-neg)] hover:text-[var(--ep-neg)]"
                                 @click="clearAllNotifications"
                             >
                                 Limpar
@@ -363,7 +369,7 @@ async function reactivateNotifications() {
                             <button
                                 v-if="hasUnread"
                                 type="button"
-                                class="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                                class="ep-btn-ghost h-8 px-2.5 text-[12px] text-[var(--ep-accent)] hover:text-[var(--ep-accent)]"
                                 @click="markAllRead"
                             >
                                 Marcar todas como lidas
@@ -374,20 +380,24 @@ async function reactivateNotifications() {
                     <div class="min-h-0 flex-1 overflow-y-auto">
                         <div
                             v-if="loading"
-                            class="flex items-center justify-center py-12"
+                            class="ep-empty py-12"
                         >
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">Carregando...</span>
+                            <Loader2 class="h-5 w-5 animate-spin text-[var(--ep-accent)]" :stroke-width="1.75" aria-hidden="true" />
+                            <span class="ep-empty__text mt-1">Carregando...</span>
                         </div>
                         <div
                             v-else-if="notifications.length === 0"
-                            class="flex flex-col items-center justify-center py-12 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                            class="ep-empty py-14"
                         >
-                            <Bell class="mb-2 h-10 w-10 opacity-50" />
-                            Nenhuma notificação
+                            <span class="mb-1 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--ep-text-4)]" aria-hidden="true">
+                                <Bell class="h-5 w-5" :stroke-width="1.75" />
+                            </span>
+                            <p class="ep-empty__title">Nenhuma notificação</p>
+                            <p class="ep-empty__text">Avisos de vendas e pagamentos aparecem aqui.</p>
                         </div>
                         <ul
                             v-else
-                            class="divide-y divide-zinc-200 dark:divide-zinc-700"
+                            class="space-y-0.5 px-2 py-2"
                         >
                             <li
                                 v-for="n in notifications"
@@ -395,28 +405,40 @@ async function reactivateNotifications() {
                             >
                                 <button
                                     type="button"
-                                    class="flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left transition hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                                    :class="{ 'bg-zinc-50/80 dark:bg-zinc-700/30': !n.read_at }"
+                                    class="group flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)]"
+                                    :class="{ 'bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]': !n.read_at }"
                                     @click="openNotification(n)"
                                 >
-                                    <div class="flex w-full items-start justify-between gap-2">
-                                        <span class="font-medium text-zinc-900 dark:text-white">
-                                            {{ n.title }}
+                                    <span
+                                        class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
+                                        :class="n.read_at ? 'bg-transparent' : 'bg-[var(--ep-accent)]'"
+                                        aria-hidden="true"
+                                    />
+                                    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                                        <div class="flex w-full items-start justify-between gap-2">
+                                            <span
+                                                class="min-w-0 text-[13px] text-[var(--ep-text)]"
+                                                :class="n.read_at ? 'font-medium' : 'font-semibold'"
+                                            >
+                                                {{ n.title }}
+                                            </span>
+                                            <ExternalLink
+                                                v-if="n.url"
+                                                class="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)] transition-colors duration-150 group-hover:text-[var(--ep-text-2)]"
+                                                :stroke-width="1.75"
+                                                aria-hidden="true"
+                                            />
+                                        </div>
+                                        <p
+                                            v-if="n.body"
+                                            class="line-clamp-2 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]"
+                                        >
+                                            {{ n.body }}
+                                        </p>
+                                        <span class="mt-0.5 text-[11.5px] tabular-nums text-[var(--ep-text-4)]">
+                                            {{ formatDate(n.created_at) }}
                                         </span>
-                                        <ExternalLink
-                                            v-if="n.url"
-                                            class="h-4 w-4 shrink-0 text-zinc-400"
-                                        />
                                     </div>
-                                    <p
-                                        v-if="n.body"
-                                        class="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400"
-                                    >
-                                        {{ n.body }}
-                                    </p>
-                                    <span class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-                                        {{ formatDate(n.created_at) }}
-                                    </span>
                                 </button>
                             </li>
                         </ul>
@@ -426,3 +448,15 @@ async function reactivateNotifications() {
         </Transition>
     </Teleport>
 </template>
+
+<style scoped>
+@keyframes np-slide-in {
+    from {
+        transform: translateX(24px);
+        opacity: 0.6;
+    }
+}
+.np-panel {
+    animation: np-slide-in 280ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+</style>

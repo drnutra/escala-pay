@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import VueApexCharts from 'vue3-apexcharts';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import {
     CircleDollarSign,
     ShoppingCart,
@@ -17,6 +18,7 @@ import {
     Download,
     BarChart3,
 } from 'lucide-vue-next';
+import { ChevronDown } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -155,12 +157,19 @@ const chartSeriesReceita = computed(() => [
     },
 ]);
 
+const brlCompactRel = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1 });
+/** Com 1–2 dias não existe "curva": mostra colunas em vez de um ponto solto. */
+const chartReceitaType = computed(() => (chartReceitaData.value.length <= 2 ? 'bar' : 'area'));
+
 const chartOptionsReceita = computed(() => ({
-    chart: { type: 'area', toolbar: { show: false }, zoom: { enabled: false }, fontFamily: 'inherit' },
-    colors: ['var(--color-primary)'],
+    chart: { type: chartReceitaType.value, toolbar: { show: false }, zoom: { enabled: false }, fontFamily: 'inherit', background: 'transparent', animations: { enabled: false } },
+    colors: [isDarkMode.value ? '#6ba4ff' : '#2f6fe4'],
     dataLabels: { enabled: false },
-    stroke: { curve: 'smooth', width: 2 },
-    fill: { type: 'gradient', gradient: { shadeIntensity: 0.2, opacityFrom: 0.4, opacityTo: 0.05 } },
+    stroke: { curve: 'monotoneCubic', width: chartReceitaType.value === 'bar' ? 0 : 2.25 },
+    plotOptions: { bar: { columnWidth: '18%', borderRadius: 6, borderRadiusApplication: 'end' } },
+    fill: chartReceitaType.value === 'bar'
+        ? { type: 'gradient', gradient: { type: 'vertical', shadeIntensity: 0, gradientToColors: [isDarkMode.value ? '#2b5fd9' : '#4f8cff'], opacityFrom: 1, opacityTo: 0.85, stops: [0, 100] } }
+        : { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: isDarkMode.value ? 0.42 : 0.3, opacityTo: 0, stops: [0, 95] } },
     xaxis: {
         categories: chartReceitaData.value.map((d) => {
             const [y, m, day] = (d.data || '').split('-');
@@ -168,8 +177,8 @@ const chartOptionsReceita = computed(() => ({
         }),
         labels: { style: { colors: '#71717a' } },
     },
-    yaxis: { labels: { style: { colors: '#71717a' }, formatter: (v) => formatBRL(v) } },
-    grid: { borderColor: 'var(--chart-grid, #e4e4e7)', strokeDashArray: 4, xaxis: { lines: { show: false } } },
+    yaxis: { min: 0, tickAmount: 4, forceNiceScale: true, labels: { style: { colors: '#71717a' }, formatter: (v) => (valuesVisible.value ? brlCompactRel.format(v ?? 0) : '') } },
+    grid: { borderColor: isDarkMode.value ? 'rgba(255,255,255,0.07)' : 'rgba(15,21,48,0.08)', strokeDashArray: 3, xaxis: { lines: { show: false } } },
     tooltip: {
         theme: isDarkMode.value ? 'dark' : 'light',
         y: { formatter: (v) => (valuesVisible.value ? formatBRL(v) : '••••••') },
@@ -217,16 +226,17 @@ const chartOptionsFormas = computed(() => ({
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
+        <!-- Período + ações -->
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <nav class="flex flex-wrap items-center gap-1" aria-label="Período">
+            <nav class="ep-tabs max-w-full overflow-x-auto no-scrollbar" aria-label="Período">
                 <button
                     v-for="opt in periodOptions"
                     :key="opt.value"
                     type="button"
                     :aria-current="period === opt.value ? 'true' : undefined"
-                    class="rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-                    :class="period === opt.value ? 'bg-[var(--color-primary)] text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200'"
+                    class="ep-tab"
+                    :class="period === opt.value ? 'ep-tab--active' : ''"
                     @click="setPeriod(opt.value)"
                 >
                     {{ opt.label }}
@@ -235,62 +245,62 @@ const chartOptionsFormas = computed(() => ({
             <div class="flex flex-wrap items-center gap-2">
                 <button
                     type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    class="ep-btn-secondary"
                     :disabled="!meta_export_products.length"
                     @click="openModalCompradores"
                 >
-                    <Download class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Download class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     CSV clientes existentes
                 </button>
                 <button
                     type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    class="ep-btn-secondary"
                     :disabled="!meta_export_products.length"
                     @click="openModalAbandonos"
                 >
-                    <Download class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Download class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     CSV clientes engajados
                 </button>
                 <button
                     type="button"
                     :aria-label="valuesVisible ? 'Ocultar valores' : 'Mostrar valores'"
-                    class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                    class="ep-btn-secondary ep-btn-icon text-[var(--ep-text-3)] hover:text-[var(--ep-text)]"
                     @click="valuesVisible = !valuesVisible"
                 >
-                    <Eye v-if="valuesVisible" class="h-5 w-5" aria-hidden="true" />
-                    <EyeOff v-else class="h-5 w-5" aria-hidden="true" />
+                    <Eye v-if="valuesVisible" class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                    <EyeOff v-else class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                 </button>
             </div>
         </div>
 
         <form
             v-if="period === 'personalizado'"
-            class="flex flex-wrap items-end gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800/60"
+            class="panel-card flex flex-wrap items-end gap-3 p-4"
             @submit.prevent="applyCustomPeriod"
         >
-            <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label class="ep-label mb-0">
                 Data inicial
                 <input
                     v-model="customDateFrom"
                     type="date"
                     required
                     :max="customDateTo || undefined"
-                    class="mt-1 block rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-white"
+                    class="ep-input mt-1.5 w-auto tabular-nums"
                 />
             </label>
-            <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label class="ep-label mb-0">
                 Data final
                 <input
                     v-model="customDateTo"
                     type="date"
                     required
                     :min="customDateFrom || undefined"
-                    class="mt-1 block rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-white"
+                    class="ep-input mt-1.5 w-auto tabular-nums"
                 />
             </label>
             <button
                 type="submit"
-                class="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white"
+                class="ep-btn h-[38px]"
             >
                 Aplicar período
             </button>
@@ -298,59 +308,68 @@ const chartOptionsFormas = computed(() => ({
 
         <p
             v-if="!meta_export_products.length"
-            class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100"
+            class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-warn)_30%,transparent)] bg-[var(--ep-warn-bg)] px-4 py-2.5 text-[13px] text-[var(--ep-text-2)]"
         >
+            <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-warn)]" aria-hidden="true" />
             Não há produtos disponíveis para exportação (verifique permissões da equipe ou cadastre um produto).
         </p>
 
         <div
             v-if="showModalCompradores"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="ep-scrim fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="meta-modal-compradores-title"
             @click.self="showModalCompradores = false"
         >
             <div
-                class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-600 dark:bg-zinc-900"
+                class="ep-modal max-h-[90vh] w-full max-w-lg overflow-y-auto p-6"
                 @click.stop
             >
-                <h2 id="meta-modal-compradores-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <span class="ep-chip ep-chip--accent">
+                    <Download class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                    Meta Ads
+                </span>
+                <h2 id="meta-modal-compradores-title" class="mt-3 text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                     Baixar CSV — clientes existentes (Meta Ads)
                 </h2>
-                <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+                <p class="mt-3 text-[13px] leading-relaxed text-[var(--ep-text-3)] [&_strong]:font-medium [&_strong]:text-[var(--ep-text)]">
                     Será gerado um arquivo no formato de lista de clientes do Meta, com <strong>compradores que concluíram o
                         pagamento</strong> do produto selecionado nos <strong>últimos 180 dias</strong>. Em caso de mais de um
                     pedido no período, usa-se o <strong>pedido mais recente</strong> por e-mail (valor na coluna
-                    <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">value</code>).
+                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">value</code>).
                 </p>
-                <label class="mt-4 block text-sm font-medium text-zinc-700 dark:text-zinc-200" for="meta-product-compradores"
+                <label class="ep-label mt-5" for="meta-product-compradores"
                     >Produto</label
                 >
-                <select
-                    id="meta-product-compradores"
-                    v-model="productCompradores"
-                    class="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                >
-                    <option v-for="p in meta_export_products" :key="p.id" :value="p.id">{{ p.name }}</option>
-                </select>
-                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <div class="relative">
+                    <select
+                        id="meta-product-compradores"
+                        v-model="productCompradores"
+                        class="ep-input appearance-none pr-9"
+                    >
+                        <option v-for="p in meta_export_products" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                    <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
+                <p class="ep-help break-all font-mono text-[11px]">
                     Cabeçalho do arquivo: {{ META_HEADER }}
                 </p>
-                <div class="mt-5 flex flex-wrap justify-end gap-2">
+                <div class="mt-6 flex flex-wrap justify-end gap-2 border-t border-[var(--ep-line)] pt-5">
                     <button
                         type="button"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                        class="ep-btn-ghost"
                         @click="showModalCompradores = false"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
-                        class="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                        class="ep-btn"
                         :disabled="!productCompradores"
                         @click="downloadMetaCompradores"
                     >
+                        <Download class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                         Baixar CSV
                     </button>
                 </div>
@@ -359,130 +378,104 @@ const chartOptionsFormas = computed(() => ({
 
         <div
             v-if="showModalAbandonos"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="ep-scrim fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="meta-modal-abandonos-title"
             @click.self="showModalAbandonos = false"
         >
             <div
-                class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-600 dark:bg-zinc-900"
+                class="ep-modal max-h-[90vh] w-full max-w-lg overflow-y-auto p-6"
                 @click.stop
             >
-                <h2 id="meta-modal-abandonos-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <span class="ep-chip ep-chip--accent">
+                    <Download class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                    Meta Ads
+                </span>
+                <h2 id="meta-modal-abandonos-title" class="mt-3 text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                     Baixar CSV — clientes engajados (Meta Ads)
                 </h2>
-                <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+                <p class="mt-3 text-[13px] leading-relaxed text-[var(--ep-text-3)] [&_strong]:font-medium [&_strong]:text-[var(--ep-text)]">
                     Lista de quem <strong>iniciou o checkout</strong> (formulário), <strong>não concluiu a compra</strong> no
                     fluxo da sessão, com sessão criada nos <strong>últimos 180 dias</strong>, após o período de graça de
                     abandono. <strong>Não entram</strong> e-mails que tenham <strong>pedido concluído do mesmo produto
                         depois</strong> do momento do abandono (última interação no formulário).
                 </p>
-                <label class="mt-4 block text-sm font-medium text-zinc-700 dark:text-zinc-200" for="meta-product-abandonos"
+                <label class="ep-label mt-5" for="meta-product-abandonos"
                     >Produto</label
                 >
-                <select
-                    id="meta-product-abandonos"
-                    v-model="productAbandonos"
-                    class="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                >
-                    <option v-for="p in meta_export_products" :key="p.id" :value="p.id">{{ p.name }}</option>
-                </select>
-                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <div class="relative">
+                    <select
+                        id="meta-product-abandonos"
+                        v-model="productAbandonos"
+                        class="ep-input appearance-none pr-9"
+                    >
+                        <option v-for="p in meta_export_products" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                    <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
+                <p class="ep-help break-all font-mono text-[11px]">
                     Cabeçalho do arquivo: {{ META_HEADER }}
                 </p>
-                <div class="mt-5 flex flex-wrap justify-end gap-2">
+                <div class="mt-6 flex flex-wrap justify-end gap-2 border-t border-[var(--ep-line)] pt-5">
                     <button
                         type="button"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                        class="ep-btn-ghost"
                         @click="showModalAbandonos = false"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
-                        class="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                        class="ep-btn"
                         :disabled="!productAbandonos"
                         @click="downloadMetaAbandonos"
                     >
+                        <Download class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                         Baixar CSV
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8">
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <CircleDollarSign class="h-5 w-5" />
-                    <span class="text-sm font-medium" title="Valor pago pelos clientes">Faturamento bruto</span>
+        <!-- Linha 1: faturamento (herói) + receita por período -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-4" aria-labelledby="rel-faturamento">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="rel-faturamento" class="text-[13px] font-medium text-[var(--ep-text-2)]" title="Valor pago pelos clientes">Faturamento bruto</h2>
+                    <span class="ep-chip">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                        {{ periodOptions.find((o) => o.value === period)?.label || 'Período' }}
+                    </span>
                 </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(receita_bruta || receita_total) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <CircleDollarSign class="h-5 w-5 opacity-60" />
-                    <span class="text-sm font-medium" title="Taxas do gateway (reais ou estimadas)">Taxas gateway</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(taxas_gateway) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <TrendingUp class="h-5 w-5" />
-                    <span class="text-sm font-medium" title="Bruto menos taxas do gateway">Receita líquida</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(receita_liquida) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <ShoppingCart class="h-5 w-5" />
-                    <span class="text-sm font-medium">Vendas</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayNumber(quantidade_vendas) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <TrendingUp class="h-5 w-5" />
-                    <span class="text-sm font-medium">Ticket médio</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(ticket_medio) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <Users class="h-5 w-5" />
-                    <span class="text-sm font-medium">Alunos</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayNumber(total_alunos) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <Package class="h-5 w-5" />
-                    <span class="text-sm font-medium">Produtos</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayNumber(total_produtos) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <XCircle class="h-5 w-5" />
-                    <span class="text-sm font-medium">Vendas abandonadas</span>
-                </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayNumber(abandonados_total) }}</p>
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Taxa: {{ valuesVisible ? `${taxa_conversao}%` : '—' }} conversão</p>
-            </div>
-        </div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
-            <div class="panel-card-md">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Receita por período</h2>
-                    <div class="flex rounded-lg border border-zinc-200 p-0.5 dark:border-zinc-700">
+                <MoneyAmount :value="receita_bruta || receita_total" :hidden="!valuesVisible" size="hero" class="mt-5 block" />
+                <p class="mt-3 text-[12.5px] text-[var(--ep-text-3)]">Valor pago pelos clientes, antes das taxas do gateway</p>
+
+                <dl class="mt-6 grid grid-cols-2 gap-3 border-t border-[var(--ep-line)] pt-5 lg:mt-auto">
+                    <div class="min-w-0">
+                        <dt class="text-[11.5px] text-[var(--ep-text-3)]" title="Taxas do gateway (reais ou estimadas)">Taxas gateway</dt>
+                        <dd class="mt-1 truncate text-[17px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]">{{ displayCurrency(taxas_gateway) }}</dd>
+                    </div>
+                    <div class="min-w-0">
+                        <dt class="flex items-center gap-1.5 text-[11.5px] text-[var(--ep-text-3)]" title="Bruto menos taxas do gateway">
+                            <TrendingUp class="h-3.5 w-3.5 text-[var(--ep-pos)]" :stroke-width="1.75" aria-hidden="true" />
+                            Receita líquida
+                        </dt>
+                        <dd class="mt-1 truncate text-[17px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]">{{ displayCurrency(receita_liquida) }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="panel-card flex min-w-0 flex-col p-5 pb-3 lg:col-span-8" aria-labelledby="rel-receita-periodo">
+                <div class="flex flex-wrap items-center justify-between gap-3 px-1">
+                    <h2 id="rel-receita-periodo" class="ep-section-title">Receita por período</h2>
+                    <div class="ep-tabs !p-[2px]" role="group" aria-label="Tipo de receita">
                         <button
                             type="button"
                             :class="[
-                                'rounded-md px-2.5 py-1 text-xs font-medium transition',
-                                chartReceitaMode === 'bruto'
-                                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700'
-                                    : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200',
+                                'ep-tab !h-7 !px-2.5 !text-[12px]',
+                                chartReceitaMode === 'bruto' ? 'ep-tab--active' : '',
                             ]"
                             @click="chartReceitaMode = 'bruto'"
                         >
@@ -491,10 +484,8 @@ const chartOptionsFormas = computed(() => ({
                         <button
                             type="button"
                             :class="[
-                                'rounded-md px-2.5 py-1 text-xs font-medium transition',
-                                chartReceitaMode === 'liquido'
-                                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700'
-                                    : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200',
+                                'ep-tab !h-7 !px-2.5 !text-[12px]',
+                                chartReceitaMode === 'liquido' ? 'ep-tab--active' : '',
                             ]"
                             @click="chartReceitaMode = 'liquido'"
                         >
@@ -502,22 +493,74 @@ const chartOptionsFormas = computed(() => ({
                         </button>
                     </div>
                 </div>
-                <div class="mt-4 min-h-[260px]">
+                <div class="rel-chart rel-chart--area mt-3 min-h-[260px] flex-1 [--rel-grid:rgba(15,21,48,0.08)] dark:[--rel-grid:rgba(255,255,255,0.07)]">
                     <VueApexCharts
                         v-if="chartReceitaData.length"
-                        type="area"
+                        :key="chartReceitaType"
+                        :type="chartReceitaType"
                         height="260"
                         :options="chartOptionsReceita"
                         :series="chartSeriesReceita"
                     />
-                    <p v-else class="flex h-[260px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
-                        Nenhum dado no período
-                    </p>
+                    <div v-else class="ep-empty h-[260px]">
+                        <svg class="h-10 w-28 text-[var(--ep-line-strong)]" viewBox="0 0 112 40" fill="none" aria-hidden="true">
+                            <path d="M2 34 C 18 34, 22 22, 36 24 S 58 34, 70 20 S 94 8, 110 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 5" />
+                        </svg>
+                        <p class="ep-empty__title mt-2">Nenhum dado no período</p>
+                        <p class="ep-empty__text">Escolha outro período acima para ver a evolução da receita.</p>
+                    </div>
                 </div>
+            </section>
+        </div>
+
+        <!-- Linha 2: KPIs -->
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Vendas</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><ShoppingCart class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value mt-auto">{{ displayNumber(quantidade_vendas) }}</p>
             </div>
-            <div class="panel-card-md">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Receita por produto (top 10)</h2>
-                <div class="mt-4 min-h-[260px]">
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Ticket médio</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><TrendingUp class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value mt-auto truncate">{{ displayCurrency(ticket_medio) }}</p>
+            </div>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Alunos</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><Users class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value mt-auto">{{ displayNumber(total_alunos) }}</p>
+            </div>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Produtos</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><Package class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value mt-auto">{{ displayNumber(total_produtos) }}</p>
+            </div>
+            <div class="panel-card ep-kpi sm:col-span-2 lg:col-span-1">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Vendas abandonadas</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><XCircle class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value mt-auto">{{ displayNumber(abandonados_total) }}</p>
+                <p class="ep-kpi__meta">Taxa: {{ valuesVisible ? `${taxa_conversao}%` : '—' }} conversão</p>
+            </div>
+        </div>
+
+        <!-- Linha 3: receita por produto + distribuição -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card min-w-0 p-5 lg:col-span-7" aria-labelledby="rel-produto">
+                <div class="flex items-center justify-between gap-3 px-1">
+                    <h2 id="rel-produto" class="ep-section-title">Receita por produto (top 10)</h2>
+                    <Package class="h-4 w-4 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
+                <div class="rel-chart rel-chart--bar mt-3 min-h-[260px] [--rel-grid:rgba(15,21,48,0.08)] dark:[--rel-grid:rgba(255,255,255,0.07)]">
                     <VueApexCharts
                         v-if="receita_por_produto.length"
                         type="bar"
@@ -525,176 +568,304 @@ const chartOptionsFormas = computed(() => ({
                         :options="chartOptionsProduto"
                         :series="chartSeriesProduto"
                     />
-                    <p v-else class="flex h-[260px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
-                        Nenhum dado no período
-                    </p>
+                    <div v-else class="ep-empty h-[260px]">
+                        <p class="ep-empty__title">Nenhum dado no período</p>
+                        <p class="ep-empty__text">Os produtos aparecem aqui assim que houver vendas aprovadas no período.</p>
+                    </div>
+                </div>
+            </section>
+            <section class="panel-card min-w-0 p-5 lg:col-span-5" aria-labelledby="rel-distribuicao">
+                <div class="flex items-center justify-between gap-3 px-1">
+                    <h2 id="rel-distribuicao" class="ep-section-title">Distribuição</h2>
+                    <span class="text-[12px] text-[var(--ep-text-4)]">por forma de pagamento</span>
+                </div>
+                <div class="rel-chart rel-chart--donut mt-4 flex min-h-[220px] items-center justify-center">
+                    <VueApexCharts
+                        v-if="formasFiltradas.length"
+                        type="donut"
+                        height="220"
+                        class="w-full"
+                        :options="chartOptionsFormas"
+                        :series="chartSeriesFormas"
+                    />
+                    <div v-else class="ep-empty">
+                        <p class="ep-empty__title">Sem dados</p>
+                        <p class="ep-empty__text">A distribuição aparece após o primeiro pagamento no período.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Linha 4: formas de pagamento + reembolsos -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-data min-w-0 overflow-hidden lg:col-span-8" aria-labelledby="rel-formas">
+                <div class="flex items-center gap-2 px-5 pb-3 pt-5">
+                    <CreditCard class="h-4 w-4 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                    <h2 id="rel-formas" class="ep-section-title">Formas de pagamento</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="ep-table min-w-[520px]">
+                        <thead>
+                            <tr>
+                                <th>Método</th>
+                                <th class="ep-num">Bruto</th>
+                                <th class="ep-num">Taxas</th>
+                                <th class="ep-num">Líquido</th>
+                                <th class="ep-num">Vendas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="fp in formas_pagamento"
+                                :key="fp.metodo"
+                            >
+                                <td class="font-medium">{{ fp.label }}</td>
+                                <td class="ep-num">{{ displayCurrency(fp.gross ?? fp.total) }}</td>
+                                <td class="ep-num text-[var(--ep-text-3)]" title="Taxas">−{{ displayCurrency(fp.fees ?? 0) }}</td>
+                                <td class="ep-num font-semibold text-[var(--ep-pos)]">{{ displayCurrency(fp.net ?? fp.total) }}</td>
+                                <td class="ep-num text-[var(--ep-text-3)]">{{ displayNumber(fp.quantidade) }}</td>
+                            </tr>
+                            <tr v-if="!formas_pagamento.length" class="hover:!bg-transparent">
+                                <td colspan="5">
+                                    <div class="ep-empty !py-8">
+                                        <p class="ep-empty__title">Nenhum pagamento no período</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="panel-card ep-kpi lg:col-span-4">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Reembolsos</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><RotateCcw class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <div class="mt-auto pt-6">
+                    <MoneyAmount :value="reembolsos_total" :hidden="!valuesVisible" size="lg" class="block" />
+                    <p class="ep-kpi__meta mt-1.5">{{ displayNumber(reembolsos_count) }} pedido(s)</p>
                 </div>
             </div>
         </div>
 
-        <section class="panel-card-md">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <h2 class="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-white">
-                        <BarChart3 class="h-5 w-5 text-zinc-500" />
+        <!-- Order Bumps -->
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="rel-order-bumps">
+            <div class="flex flex-wrap items-start justify-between gap-4 p-5">
+                <div class="min-w-0">
+                    <h2 id="rel-order-bumps" class="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
+                        <BarChart3 class="h-4 w-4 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
                         Desempenho dos Order Bumps
                     </h2>
-                    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    <p class="mt-1 text-[12.5px] text-[var(--ep-text-3)]">
                         Vendas concluídas no período selecionado, incluindo ofertas sem nenhuma aceitação.
                     </p>
                 </div>
-                <label v-if="order_bump_report.products.length" class="min-w-64 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label v-if="order_bump_report.products.length" class="ep-label mb-0 min-w-64">
                     Produto principal
-                    <select
-                        v-model="orderBumpProductId"
-                        class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-white"
-                        @change="setOrderBumpProduct"
-                    >
-                        <option v-for="product in order_bump_report.products" :key="product.id" :value="product.id">
-                            {{ product.name }}
-                        </option>
-                    </select>
+                    <span class="relative mt-1.5 block">
+                        <select
+                            v-model="orderBumpProductId"
+                            class="ep-input appearance-none pr-9"
+                            @change="setOrderBumpProduct"
+                        >
+                            <option v-for="product in order_bump_report.products" :key="product.id" :value="product.id">
+                                {{ product.name }}
+                            </option>
+                        </select>
+                        <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                    </span>
                 </label>
             </div>
 
-            <div v-if="order_bump_report.products.length" class="mt-5 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800">
-                    <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Pedidos concluídos</p>
-                    <p class="mt-1 text-2xl font-bold text-zinc-900 dark:text-white">
+            <div v-if="order_bump_report.products.length" class="grid gap-3 px-5 pb-5 sm:grid-cols-2">
+                <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                    <p class="ep-kpi__label">Pedidos concluídos</p>
+                    <p class="ep-kpi__value mt-1.5">
                         {{ displayNumber(order_bump_report.eligible_orders) }}
                     </p>
                 </div>
-                <div class="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800">
-                    <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Order Bumps vendidos</p>
-                    <p class="mt-1 text-2xl font-bold text-zinc-900 dark:text-white">
+                <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                    <p class="ep-kpi__label">Order Bumps vendidos</p>
+                    <p class="ep-kpi__value mt-1.5">
                         {{ displayNumber(order_bump_report.accepted_items) }}
                     </p>
                 </div>
             </div>
 
-            <div v-if="order_bump_report.products.length" class="mt-5 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
-                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                    <thead class="bg-zinc-100/80 dark:bg-zinc-800/80">
+            <div v-if="order_bump_report.products.length" class="overflow-x-auto border-t border-[var(--ep-line)]">
+                <table class="ep-table min-w-[520px]">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500">Order Bump</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500">Produto ofertado</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium uppercase text-zinc-500">Vendas</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium uppercase text-zinc-500">Aceitação</th>
+                            <th>Order Bump</th>
+                            <th>Produto ofertado</th>
+                            <th class="ep-num">Vendas</th>
+                            <th class="ep-num">Aceitação</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                        <tr v-for="bump in order_bump_report.bumps" :key="bump.id" class="bg-white dark:bg-zinc-800/60">
-                            <td class="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">{{ bump.title }}</td>
-                            <td class="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300">{{ bump.target_name }}</td>
-                            <td class="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-white">
+                    <tbody>
+                        <tr v-for="bump in order_bump_report.bumps" :key="bump.id">
+                            <td class="font-medium">{{ bump.title }}</td>
+                            <td class="text-[var(--ep-text-2)]">{{ bump.target_name }}</td>
+                            <td class="ep-num font-semibold">
                                 {{ displayNumber(bump.sales_count) }}
                             </td>
-                            <td class="px-4 py-3 text-right text-sm text-zinc-600 dark:text-zinc-300">
-                                {{ valuesVisible ? `${bump.acceptance_rate}%` : '—' }}
+                            <td class="ep-num">
+                                <span class="ep-chip ep-chip--accent tabular-nums">{{ valuesVisible ? `${bump.acceptance_rate}%` : '—' }}</span>
                             </td>
                         </tr>
-                        <tr v-if="!order_bump_report.bumps.length" class="bg-white dark:bg-zinc-800/60">
-                            <td colspan="4" class="px-4 py-8 text-center text-sm text-zinc-500">
-                                Este produto não possui Order Bumps configurados.
+                        <tr v-if="!order_bump_report.bumps.length" class="hover:!bg-transparent">
+                            <td colspan="4">
+                                <div class="ep-empty !py-8">
+                                    <p class="ep-empty__title">Este produto não possui Order Bumps configurados.</p>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <p v-else class="mt-5 rounded-lg border border-dashed border-zinc-300 px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-700">
-                Nenhum produto possui Order Bumps configurados.
-            </p>
+            <div v-else class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhum produto possui Order Bumps configurados.</p>
+                <p class="ep-empty__text">Configure um Order Bump no checkout de um produto para acompanhar a aceitação aqui.</p>
+            </div>
         </section>
 
-        <div class="grid gap-4 lg:grid-cols-3">
-            <div class="panel-card-md lg:col-span-2">
-                <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <CreditCard class="h-4 w-4 text-zinc-500" />
-                    Formas de pagamento
-                </h2>
-                <ul class="mt-4 space-y-3">
-                    <li
-                        v-for="fp in formas_pagamento"
-                        :key="fp.metodo"
-                        class="flex flex-col gap-1 border-b border-zinc-200/60 py-2 last:border-0 dark:border-zinc-700/60 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                        <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ fp.label }}</span>
-                        <div class="text-right text-sm">
-                            <span class="font-medium text-zinc-900 dark:text-white">{{ displayCurrency(fp.gross ?? fp.total) }}</span>
-                            <span class="mx-1 text-zinc-400">·</span>
-                            <span class="text-zinc-500" title="Taxas">−{{ displayCurrency(fp.fees ?? 0) }}</span>
-                            <span class="mx-1 text-zinc-400">=</span>
-                            <span class="font-medium text-emerald-700 dark:text-emerald-400">{{ displayCurrency(fp.net ?? fp.total) }}</span>
-                            <span class="ml-1 font-normal text-zinc-500">({{ displayNumber(fp.quantidade) }})</span>
-                        </div>
-                    </li>
-                    <li v-if="!formas_pagamento.length" class="py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                        Nenhum pagamento no período
-                    </li>
-                </ul>
+        <!-- Abandonos com e-mail -->
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="rel-abandonos">
+            <div class="flex items-center gap-2 px-5 pb-3 pt-5">
+                <XCircle class="h-4 w-4 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                <h2 id="rel-abandonos" class="ep-section-title">Vendas abandonadas com e-mail (para recuperação)</h2>
             </div>
-            <div class="space-y-4">
-                <div class="panel-card-md">
-                    <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Distribuição</h2>
-                    <div class="mt-4 min-h-[160px]">
-                        <VueApexCharts
-                            v-if="formasFiltradas.length"
-                            type="donut"
-                            height="180"
-                            :options="chartOptionsFormas"
-                            :series="chartSeriesFormas"
-                        />
-                        <p v-else class="flex h-[160px] items-center justify-center text-sm text-zinc-500 dark:text-zinc-400">
-                            Sem dados
-                        </p>
-                    </div>
-                </div>
-                <div class="panel-card-sm">
-                    <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                        <RotateCcw class="h-4 w-4" />
-                        <span class="text-sm font-medium">Reembolsos</span>
-                    </div>
-                    <p class="mt-2 text-lg font-bold text-zinc-900 dark:text-white">{{ displayCurrency(reembolsos_total) }}</p>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ displayNumber(reembolsos_count) }} pedido(s)</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel-card-md">
-            <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                <XCircle class="h-4 w-4 text-zinc-500" />
-                Vendas abandonadas com e-mail (para recuperação)
-            </h2>
-            <div class="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
-                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                    <thead class="bg-zinc-100/80 dark:bg-zinc-800/80">
+            <div class="overflow-x-auto">
+                <table class="ep-table min-w-[640px]">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500 dark:text-zinc-400">E-mail</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500 dark:text-zinc-400">Nome</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500 dark:text-zinc-400">Produto</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium uppercase text-zinc-500 dark:text-zinc-400">Atualizado</th>
+                            <th>E-mail</th>
+                            <th>Nome</th>
+                            <th>Produto</th>
+                            <th class="ep-num">Atualizado</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                    <tbody>
                         <tr
                             v-for="a in abandonados_com_email"
                             :key="a.id"
-                            class="bg-white dark:bg-zinc-800/60"
                         >
-                            <td class="px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">{{ a.email }}</td>
-                            <td class="px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">{{ a.name || '–' }}</td>
-                            <td class="px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">{{ a.product_name }}</td>
-                            <td class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">{{ formatDate(a.updated_at) }}</td>
+                            <td class="font-medium">{{ a.email }}</td>
+                            <td class="text-[var(--ep-text-2)]">{{ a.name || '–' }}</td>
+                            <td class="text-[var(--ep-text-2)]">{{ a.product_name }}</td>
+                            <td class="ep-num text-[12.5px] text-[var(--ep-text-3)]">{{ formatDate(a.updated_at) }}</td>
                         </tr>
-                        <tr v-if="!abandonados_com_email.length" class="bg-white dark:bg-zinc-800/60">
-                            <td colspan="4" class="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                                Nenhum abandono com e-mail no período
+                        <tr v-if="!abandonados_com_email.length" class="hover:!bg-transparent">
+                            <td colspan="4">
+                                <div class="ep-empty">
+                                    <p class="ep-empty__title">Nenhum abandono com e-mail no período</p>
+                                    <p class="ep-empty__text">Quem preencher o e-mail no checkout e não concluir a compra aparece aqui para recuperação.</p>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </template>
+
+<style scoped>
+/* ApexCharts sobre vidro: fundo transparente, grid hairline, rótulos em --ep-text-4 e cor da marca (--ep-accent). */
+.rel-chart :deep(.apexcharts-canvas),
+.rel-chart :deep(.apexcharts-svg) {
+    background: transparent !important;
+}
+.rel-chart :deep(.apexcharts-gridline),
+.rel-chart :deep(.apexcharts-grid-borders line),
+.rel-chart :deep(.apexcharts-xaxis line),
+.rel-chart :deep(.apexcharts-yaxis line) {
+    stroke: var(--rel-grid, var(--ep-line));
+}
+.rel-chart :deep(.apexcharts-xaxis-label),
+.rel-chart :deep(.apexcharts-yaxis-label) {
+    fill: var(--ep-text-4);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.rel-chart :deep(.apexcharts-xaxistooltip) {
+    display: none;
+}
+
+/* Área: linha 2.25px com brilho e gradiente da marca */
+.rel-chart--area :deep(.apexcharts-series path[fill='none']) {
+    stroke: var(--ep-accent);
+    stroke-width: 2.25px;
+    filter: drop-shadow(0 0 4px color-mix(in oklab, var(--ep-accent) 80%, transparent))
+        drop-shadow(0 0 12px color-mix(in oklab, var(--ep-accent) 45%, transparent));
+}
+.rel-chart--area :deep(linearGradient stop) {
+    stop-color: var(--ep-accent);
+}
+.rel-chart--area :deep(.apexcharts-marker) {
+    fill: var(--ep-accent);
+    stroke: transparent;
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--ep-accent) 80%, transparent));
+}
+
+/* Barras horizontais na cor da marca */
+.rel-chart--bar :deep(.apexcharts-bar-area) {
+    fill: var(--ep-accent);
+    fill-opacity: 0.82;
+    stroke: transparent;
+    transition: fill-opacity 150ms var(--ep-ease-out);
+}
+.rel-chart--bar :deep(.apexcharts-bar-area:hover) {
+    fill-opacity: 1;
+}
+
+/* Rosca: ordem fixa de cores (Pix, Cartão, Boleto…), sem contorno branco */
+.rel-chart--donut :deep(.apexcharts-pie-area) {
+    stroke: transparent;
+}
+.rel-chart--donut :deep(.apexcharts-pie-area[j='0']),
+.rel-chart--donut :deep(.apexcharts-legend-series[rel='1'] path) { fill: var(--ep-pix); }
+.rel-chart--donut :deep(.apexcharts-pie-area[j='1']),
+.rel-chart--donut :deep(.apexcharts-legend-series[rel='2'] path) { fill: var(--ep-cartao); }
+.rel-chart--donut :deep(.apexcharts-pie-area[j='2']),
+.rel-chart--donut :deep(.apexcharts-legend-series[rel='3'] path) { fill: var(--ep-boleto); }
+.rel-chart--donut :deep(.apexcharts-pie-area[j='3']),
+.rel-chart--donut :deep(.apexcharts-legend-series[rel='4'] path) { fill: var(--ep-neg); }
+.rel-chart--donut :deep(.apexcharts-pie-area[j='4']),
+.rel-chart--donut :deep(.apexcharts-legend-series[rel='5'] path) { fill: var(--ep-accent-2); }
+.rel-chart--donut :deep(.apexcharts-legend-text) {
+    color: var(--ep-text-3) !important;
+    font-family: inherit !important;
+    font-size: 12px !important;
+}
+
+/* Tooltip em vidro */
+.rel-chart :deep(.apexcharts-tooltip) {
+    border: 1px solid var(--ep-glass-border) !important;
+    border-radius: 12px !important;
+    background: var(--ep-drawer) !important;
+    color: var(--ep-text) !important;
+    box-shadow: var(--ep-shadow-pop) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    font-family: inherit !important;
+}
+.rel-chart :deep(.apexcharts-tooltip-title) {
+    border-bottom: 1px solid var(--ep-line) !important;
+    background: transparent !important;
+    color: var(--ep-text-3);
+    font-family: inherit !important;
+    font-size: 11.5px !important;
+}
+.rel-chart :deep(.apexcharts-tooltip-text-y-value) {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.rel-chart--area :deep(.apexcharts-tooltip-marker),
+.rel-chart--bar :deep(.apexcharts-tooltip-marker) {
+    background-color: var(--ep-accent) !important;
+    color: var(--ep-accent) !important;
+}
+</style>

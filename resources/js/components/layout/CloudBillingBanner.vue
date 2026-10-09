@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { ExternalLink } from 'lucide-vue-next';
+import { ExternalLink, CalendarClock } from 'lucide-vue-next';
 import Button from '@/components/ui/Button.vue';
 
 const page = usePage();
@@ -176,17 +176,31 @@ const buttonVariant = computed(() => {
 
 <template>
     <div v-if="banner" class="w-full px-3 md:px-4 lg:px-6">
-        <div class="flex w-full items-start justify-between gap-3 rounded-xl border px-4 py-3" :class="toneClasses">
-            <div class="min-w-0">
-                <div class="text-sm font-semibold leading-5">
-                    {{ banner.title }}
-                </div>
-                <div class="mt-0.5 text-sm opacity-90">
-                    {{ banner.subtitle }}
+        <div
+            class="panel-card flex w-full flex-col gap-3 overflow-hidden py-3 pl-4 pr-3 sm:flex-row sm:items-center sm:justify-between"
+            :style="{ '--tone': banner.tone === 'danger' ? 'var(--ep-neg)' : banner.tone === 'warning' ? 'var(--ep-warn)' : 'var(--ep-accent)' }"
+            role="status"
+        >
+            <span class="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-[var(--tone)]" aria-hidden="true" />
+            <span
+                class="pointer-events-none absolute -left-10 top-1/2 h-28 w-40 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--tone)_28%,transparent),transparent)] blur-xl"
+                aria-hidden="true"
+            />
+            <div class="relative flex min-w-0 items-start gap-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-[color-mix(in_oklab,var(--tone)_35%,transparent)] bg-[color-mix(in_oklab,var(--tone)_14%,transparent)] text-[var(--tone)]">
+                    <CalendarClock class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                </span>
+                <div class="min-w-0">
+                    <div class="text-[13.5px] font-semibold leading-5 tracking-[-0.01em] text-[var(--ep-text)]">
+                        {{ banner.title }}
+                    </div>
+                    <div class="mt-0.5 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
+                        {{ banner.subtitle }}
+                    </div>
                 </div>
             </div>
 
-            <div class="shrink-0">
+            <div class="relative shrink-0 pl-11 sm:pl-0">
                 <Button
                     v-if="banner.ctaUrl && banner.ctaLabel"
                     as="a"
@@ -197,9 +211,9 @@ const buttonVariant = computed(() => {
                     :variant="buttonVariant"
                 >
                     {{ banner.ctaLabel }}
-                    <ExternalLink class="h-4 w-4" />
+                    <ExternalLink class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
                 </Button>
-                <div v-else-if="loading" class="text-xs opacity-70">
+                <div v-else-if="loading" class="text-[12px] text-[var(--ep-text-4)]">
                     Carregando…
                 </div>
             </div>

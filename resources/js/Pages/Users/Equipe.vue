@@ -224,218 +224,273 @@ function confirmClearLogs() {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                    Usuários
-                </h1>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+    <div class="space-y-5">
+        <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="min-w-0">
+                <h1 class="ep-page-heading">Usuários</h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
                     Gerencie equipe e permissões.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <Button v-if="activeTab === 'cargos'" class="inline-flex items-center gap-2" @click="openCreateRole">
-                    <Plus class="h-4 w-4" />
+                <Button v-if="activeTab === 'cargos'" class="shrink-0" @click="openCreateRole">
+                    <Plus class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     Novo cargo
                 </Button>
-                <Button v-else-if="activeTab === 'membros'" class="inline-flex items-center gap-2" @click="openCreateMember">
-                    <UserPlus class="h-4 w-4" />
+                <Button v-else-if="activeTab === 'membros'" class="shrink-0" @click="openCreateMember">
+                    <UserPlus class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     Novo membro
                 </Button>
                 <Button
                     v-else-if="activeTab === 'logs' && role === 'admin'"
                     variant="outline"
-                    class="inline-flex items-center gap-2"
+                    class="shrink-0"
                     @click="confirmClearLogs"
                 >
-                    <Trash class="h-4 w-4" />
+                    <Trash class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     Limpar logs
                 </Button>
             </div>
-        </div>
+        </header>
         <PluginRenderZone zone="equipe.index.after_header" />
 
         <!-- Abas Usuários (principal) + Abas Equipe (secundária) -->
-        <div class="flex min-w-0 flex-col gap-3">
-            <HorizontalScrollTabs aria-label="Abas de usuários">
+        <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <HorizontalScrollTabs aria-label="Abas de usuários" nav-class="ep-tabs" wrapper-class="sm:w-auto">
                 <Link
                     v-for="t in userTabs"
                     :key="t.key"
                     :href="t.href"
                     v-show="!t.adminOnly || role === 'admin'"
-                    :class="[
-                        'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                        isUsersTabActive(t.href)
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                            : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                    ]"
+                    :class="['ep-tab', isUsersTabActive(t.href) ? 'ep-tab--active' : '']"
                     :aria-current="isUsersTabActive(t.href) ? 'page' : undefined"
                 >
-                    <Shield v-if="t.key === 'usuarios'" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <Users v-else class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Shield v-if="t.key === 'usuarios'" class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                    <Users v-else class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
                     {{ t.label }}
                 </Link>
             </HorizontalScrollTabs>
 
-            <HorizontalScrollTabs aria-label="Abas de equipe">
+            <HorizontalScrollTabs aria-label="Abas de equipe" nav-class="ep-tabs" wrapper-class="sm:w-auto">
                 <button
                     v-for="t in tabs"
                     :key="t.key"
                     type="button"
-                    :class="[
-                        'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                        activeTab === t.key
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                            : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                    ]"
+                    :class="['ep-tab', activeTab === t.key ? 'ep-tab--active' : '']"
                     :aria-current="activeTab === t.key ? 'page' : undefined"
                     @click="activeTab = t.key"
                 >
-                    <Shield v-if="t.key === 'cargos'" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <Users v-else-if="t.key === 'membros'" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <ScrollText v-else class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Shield v-if="t.key === 'cargos'" class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                    <Users v-else-if="t.key === 'membros'" class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                    <ScrollText v-else class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
                     {{ t.label }}
+                    <span
+                        class="ml-0.5 rounded-full bg-[var(--ep-active)] px-1.5 text-[11px] font-medium tabular-nums leading-[18px] text-[var(--ep-text-3)]"
+                    >{{ t.key === 'cargos' ? roles.length : t.key === 'membros' ? members.length : logs.length }}</span>
                 </button>
             </HorizontalScrollTabs>
         </div>
 
         <!-- Cargos -->
-        <div v-if="activeTab === 'cargos'" class="panel-table">
-            <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                <li v-for="r in roles" :key="r.id" class="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <div class="flex min-w-0 flex-1 items-center gap-3">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
-                            <Shield class="h-5 w-5" />
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ r.name }}</span>
-                                <span class="text-xs text-zinc-500 dark:text-zinc-400">
-                                    {{ (r.product_ids?.length ?? 0) }} produto(s)
-                                </span>
-                            </div>
-                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                                Permissões: {{ permissionDefs.filter(p => r.permissions?.[p.key]).map(p => p.label).join(', ') || '—' }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button
-                            type="button"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                            title="Editar cargo"
-                            @click="openEditRole(r)"
-                        >
-                            <Pencil class="h-4 w-4" />
-                        </button>
-                        <button
-                            type="button"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                            title="Remover cargo"
-                            @click="confirmDeleteRole(r)"
-                        >
-                            <Trash2 class="h-4 w-4" />
-                        </button>
-                    </div>
-                </li>
-            </ul>
-            <p v-if="!roles.length" class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                Nenhum cargo criado.
-            </p>
-        </div>
-
-        <!-- Membros -->
-        <div v-else-if="activeTab === 'membros'" class="panel-table">
-            <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                <li v-for="m in members" :key="m.id" class="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <div class="flex min-w-0 flex-1 items-center gap-3">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
-                            <Users class="h-5 w-5" />
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ m.name }}</span>
-                                <span class="text-xs text-zinc-500 dark:text-zinc-400">
-                                    {{ m.team_role_name || 'Sem cargo' }}
-                                </span>
-                            </div>
-                            <p class="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">{{ m.email }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-zinc-500 dark:text-zinc-400 tabular-nums">
-                            {{ formatDate(m.created_at) }}
-                        </span>
-                        <button
-                            type="button"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                            title="Editar membro"
-                            @click="openEditMember(m)"
-                        >
-                            <Pencil class="h-4 w-4" />
-                        </button>
-                        <button
-                            type="button"
-                            class="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                            title="Remover membro"
-                            @click="confirmDeleteMember(m)"
-                        >
-                            <Trash2 class="h-4 w-4" />
-                        </button>
-                    </div>
-                </li>
-            </ul>
-            <p v-if="!members.length" class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                Nenhum membro cadastrado.
-            </p>
-        </div>
-
-        <!-- Logs (admin only) -->
-        <div
-            v-else
-            class="panel-table"
-        >
-            <div class="overflow-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-white/70 dark:bg-zinc-900/40">
-                        <tr class="text-left text-zinc-600 dark:text-zinc-300">
-                            <th class="px-4 py-3 font-medium">Quando</th>
-                            <th class="px-4 py-3 font-medium">Usuário</th>
-                            <th class="px-4 py-3 font-medium">Ação</th>
-                            <th class="px-4 py-3 font-medium">IP</th>
+        <section v-if="activeTab === 'cargos'" class="panel-card ep-data overflow-hidden" aria-labelledby="equipe-cargos">
+            <div class="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
+                <h2 id="equipe-cargos" class="ep-section-title">Cargos e permissões</h2>
+                <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
+                    {{ roles.length }} {{ roles.length === 1 ? 'cargo' : 'cargos' }}
+                </span>
+            </div>
+            <div class="overflow-x-auto border-t border-[var(--ep-line)]" :class="{ hidden: !roles.length }">
+                <table class="ep-table min-w-[720px]">
+                    <thead>
+                        <tr>
+                            <th class="w-[28%]">Cargo</th>
+                            <th>Permissões</th>
+                            <th class="ep-num">Produtos</th>
+                            <th class="w-[96px]"><span class="sr-only">Ações</span></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                        <tr v-for="l in logs" :key="l.id" class="text-zinc-700 dark:text-zinc-200">
-                            <td class="px-4 py-3 whitespace-nowrap">{{ formatDateTime(l.created_at) }}</td>
-                            <td class="px-4 py-3">
-                                <div class="font-medium text-zinc-900 dark:text-zinc-100">
+                    <tbody>
+                        <tr v-for="r in roles" :key="r.id">
+                            <td>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span
+                                        class="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] border border-[var(--ep-glass-border)] bg-[var(--ep-card-2)] text-[var(--ep-text-3)]"
+                                        aria-hidden="true"
+                                    >
+                                        <Shield class="h-4 w-4" :stroke-width="1.75" />
+                                    </span>
+                                    <span class="truncate text-[13px] font-medium text-[var(--ep-text)]">{{ r.name }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex min-w-0 items-start gap-2.5">
+                                    <span class="ep-chip ep-chip--accent shrink-0 tabular-nums">
+                                        {{ permissionDefs.filter(p => r.permissions?.[p.key]).length }}/{{ permissionDefs.length }}
+                                    </span>
+                                    <p class="line-clamp-2 min-w-0 max-w-[520px] pt-0.5 text-[12.5px] leading-[18px] text-[var(--ep-text-3)]">
+                                        {{ permissionDefs.filter(p => r.permissions?.[p.key]).map(p => p.label).join(', ') || '—' }}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="ep-num">
+                                <span class="font-medium text-[var(--ep-text)]">{{ (r.product_ids?.length ?? 0) }}</span>
+                                <span class="ml-1 text-[12px] text-[var(--ep-text-4)]">produto(s)</span>
+                            </td>
+                            <td>
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        type="button"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
+                                        title="Editar cargo"
+                                        aria-label="Editar cargo"
+                                        @click="openEditRole(r)"
+                                    >
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
+                                        title="Remover cargo"
+                                        aria-label="Remover cargo"
+                                        @click="confirmDeleteRole(r)"
+                                    >
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!roles.length" class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhum cargo criado.</p>
+                <p class="ep-empty__text">Crie um cargo em “Novo cargo” para definir permissões e produtos antes de convidar membros.</p>
+            </div>
+        </section>
+
+        <!-- Membros -->
+        <section v-else-if="activeTab === 'membros'" class="panel-card ep-data overflow-hidden" aria-labelledby="equipe-membros">
+            <div class="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
+                <h2 id="equipe-membros" class="ep-section-title">Membros da equipe</h2>
+                <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
+                    {{ members.length }} {{ members.length === 1 ? 'membro' : 'membros' }}
+                </span>
+            </div>
+            <div class="overflow-x-auto border-t border-[var(--ep-line)]" :class="{ hidden: !members.length }">
+                <table class="ep-table min-w-[640px]">
+                    <thead>
+                        <tr>
+                            <th>Membro</th>
+                            <th>Cargo</th>
+                            <th class="ep-num">Desde</th>
+                            <th class="w-[96px]"><span class="sr-only">Ações</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="m in members" :key="m.id">
+                            <td>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span v-avatar="m.name" class="ep-avatar shrink-0" aria-hidden="true">{{ (m.name || '?').trim().split(' ').filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase() || '?' }}</span>
+                                    <div class="min-w-0">
+                                        <p class="truncate text-[13px] font-medium text-[var(--ep-text)]">{{ m.name }}</p>
+                                        <p class="truncate text-[12px] text-[var(--ep-text-3)]">{{ m.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="ep-chip" :class="m.team_role_name ? 'ep-chip--accent' : ''">
+                                    <Users class="h-3 w-3" :stroke-width="2" aria-hidden="true" />
+                                    {{ m.team_role_name || 'Sem cargo' }}
+                                </span>
+                            </td>
+                            <td class="ep-num text-[12.5px] !text-[var(--ep-text-3)]">
+                                {{ formatDate(m.created_at) }}
+                            </td>
+                            <td>
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        type="button"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
+                                        title="Editar membro"
+                                        aria-label="Editar membro"
+                                        @click="openEditMember(m)"
+                                    >
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
+                                        title="Remover membro"
+                                        aria-label="Remover membro"
+                                        @click="confirmDeleteMember(m)"
+                                    >
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!members.length" class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhum membro cadastrado.</p>
+                <p class="ep-empty__text">Adicione alguém em “Novo membro” e escolha o cargo que define o que ele pode ver.</p>
+            </div>
+        </section>
+
+        <!-- Logs (admin only) -->
+        <section
+            v-else
+            class="panel-card ep-data overflow-hidden"
+            aria-labelledby="equipe-logs"
+        >
+            <div class="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
+                <h2 id="equipe-logs" class="ep-section-title">Registro de auditoria</h2>
+                <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
+                    {{ logs.length }} {{ logs.length === 1 ? 'evento' : 'eventos' }}
+                </span>
+            </div>
+            <div class="max-h-[640px] overflow-auto border-t border-[var(--ep-line)]" :class="{ hidden: !logs.length }">
+                <table class="ep-table min-w-[720px]">
+                    <thead>
+                        <tr>
+                            <th class="w-[150px]">Quando</th>
+                            <th>Usuário</th>
+                            <th>Ação</th>
+                            <th class="ep-num">IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="l in logs" :key="l.id">
+                            <td class="whitespace-nowrap text-[12.5px] tabular-nums !text-[var(--ep-text-2)]">{{ formatDateTime(l.created_at) }}</td>
+                            <td>
+                                <div class="truncate text-[13px] font-medium text-[var(--ep-text)]">
                                     {{ l.actor?.name || '—' }}
                                 </div>
-                                <div class="text-xs text-zinc-500 dark:text-zinc-400">
+                                <div class="truncate text-[12px] text-[var(--ep-text-3)]">
                                     {{ l.actor?.email || '' }}
                                 </div>
                             </td>
-                            <td class="px-4 py-3">
-                                <div class="font-mono text-xs text-zinc-700 dark:text-zinc-200">
+                            <td>
+                                <code class="inline-flex rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">
                                     {{ l.action }}
-                                </div>
-                                <div v-if="l.target_type || l.target_id" class="text-xs text-zinc-500 dark:text-zinc-400">
+                                </code>
+                                <div v-if="l.target_type || l.target_id" class="mt-1 text-[12px] tabular-nums text-[var(--ep-text-4)]">
                                     {{ l.target_type }} {{ l.target_id ? `#${l.target_id}` : '' }}
                                 </div>
                             </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-xs text-zinc-500 dark:text-zinc-400">
+                            <td class="ep-num font-mono text-[12px] !text-[var(--ep-text-3)]">
                                 {{ l.ip || '—' }}
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <p v-if="!logs.length" class="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                Nenhum log registrado ainda.
-            </p>
-        </div>
+            <div v-if="!logs.length" class="ep-empty border-t border-[var(--ep-line)]">
+                <p class="ep-empty__title">Nenhum log registrado ainda.</p>
+                <p class="ep-empty__text">Os eventos de auditoria da equipe aparecem aqui assim que forem registrados.</p>
+            </div>
+        </section>
     </div>
 
     <!-- Modal: Cargo -->
@@ -446,83 +501,98 @@ function confirmClearLogs() {
             role="dialog"
             aria-modal="true"
         >
-            <div class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeRoleModal" />
-            <div class="relative w-full max-w-2xl rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
-                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {{ editingRole ? 'Editar cargo' : 'Novo cargo' }}
-                    </h2>
+            <div class="ep-scrim fixed inset-0" aria-hidden="true" @click="closeRoleModal" />
+            <div class="ep-modal relative flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden">
+                <div class="flex shrink-0 items-start justify-between gap-4 px-6 pt-6">
+                    <div class="min-w-0">
+                        <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            {{ editingRole ? 'Editar cargo' : 'Novo cargo' }}
+                        </h2>
+                        <p class="mt-1 text-[12.5px] text-[var(--ep-text-3)]">Defina o que este cargo pode ver e quais produtos acessa.</p>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 -mt-1 shrink-0"
                         aria-label="Fechar"
                         @click="closeRoleModal"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
-                <form class="space-y-5 p-5" @submit.prevent="submitRole">
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do cargo</label>
-                        <input
-                            v-model="roleForm.name"
-                            type="text"
-                            required
-                            class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-                        />
-                        <p v-if="roleForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ roleForm.errors.name }}</p>
-                    </div>
-
-                    <div class="grid gap-5 lg:grid-cols-2">
-                        <div class="rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
-                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Permissões</h3>
-                            <div class="mt-3 space-y-2">
-                                <template v-for="p in permissionDefs.filter((d) => !d.group)" :key="p.key">
-                                    <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                                        <input v-model="roleForm.permissions[p.key]" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
-                                        <span>{{ p.label }}</span>
-                                    </label>
-                                </template>
-                                <template v-if="permissionDefs.some((d) => d.group === 'plugin')">
-                                    <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Plugins</p>
-                                    <label
-                                        v-for="p in permissionDefs.filter((d) => d.group === 'plugin')"
-                                        :key="p.key"
-                                        class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200"
-                                    >
-                                        <input v-model="roleForm.permissions[p.key]" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
-                                        <span>{{ p.label }}</span>
-                                    </label>
-                                </template>
-                            </div>
+                <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="submitRole">
+                    <div class="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 pb-2 pt-5">
+                        <div>
+                            <label class="ep-label">Nome do cargo</label>
+                            <input
+                                v-model="roleForm.name"
+                                type="text"
+                                required
+                                class="ep-input"
+                            />
+                            <p v-if="roleForm.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ roleForm.errors.name }}</p>
                         </div>
 
-                        <div class="rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
-                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Produtos permitidos</h3>
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                Afeta todos os módulos por produto (Dashboard, Vendas, Produtos, etc.).
-                            </p>
-                            <div class="mt-3 max-h-[260px] overflow-auto space-y-2 pr-1">
-                                <label v-for="p in products" :key="p.id" class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                                    <input
-                                        :value="p.id"
-                                        v-model="roleForm.product_ids"
-                                        type="checkbox"
-                                        class="rounded border-zinc-300 dark:border-zinc-600"
-                                    />
-                                    <span class="truncate">{{ p.name }}</span>
-                                </label>
+                        <div class="grid gap-4 lg:grid-cols-2">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h3 class="ep-section-title">Permissões</h3>
+                                    <span class="ep-chip ep-chip--accent tabular-nums">
+                                        {{ permissionDefs.filter((d) => roleForm.permissions[d.key]).length }}/{{ permissionDefs.length }}
+                                    </span>
+                                </div>
+                                <div class="-mx-2 mt-3 space-y-0.5">
+                                    <template v-for="p in permissionDefs.filter((d) => !d.group)" :key="p.key">
+                                        <label class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]">
+                                            <input v-model="roleForm.permissions[p.key]" type="checkbox" class="h-4 w-4 shrink-0 rounded accent-[var(--ep-accent)]" />
+                                            <span>{{ p.label }}</span>
+                                        </label>
+                                    </template>
+                                    <template v-if="permissionDefs.some((d) => d.group === 'plugin')">
+                                        <p class="px-2 pb-1 pt-3 text-[11.5px] font-medium text-[var(--ep-text-4)]">Plugins</p>
+                                        <label
+                                            v-for="p in permissionDefs.filter((d) => d.group === 'plugin')"
+                                            :key="p.key"
+                                            class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
+                                        >
+                                            <input v-model="roleForm.permissions[p.key]" type="checkbox" class="h-4 w-4 shrink-0 rounded accent-[var(--ep-accent)]" />
+                                            <span>{{ p.label }}</span>
+                                        </label>
+                                    </template>
+                                </div>
                             </div>
-                            <p v-if="roleForm.errors.product_ids" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ roleForm.errors.product_ids }}</p>
+
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h3 class="ep-section-title">Produtos permitidos</h3>
+                                    <span class="ep-chip tabular-nums">
+                                        {{ roleForm.product_ids.length }}/{{ products.length }}
+                                    </span>
+                                </div>
+                                <p class="ep-help !mt-1">
+                                    Afeta todos os módulos por produto (Dashboard, Vendas, Produtos, etc.).
+                                </p>
+                                <div class="-mx-2 mt-3 max-h-[260px] space-y-0.5 overflow-auto pr-1">
+                                    <label v-for="p in products" :key="p.id" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]">
+                                        <input
+                                            :value="p.id"
+                                            v-model="roleForm.product_ids"
+                                            type="checkbox"
+                                            class="h-4 w-4 shrink-0 rounded accent-[var(--ep-accent)]"
+                                        />
+                                        <span class="truncate">{{ p.name }}</span>
+                                    </label>
+                                </div>
+                                <p v-if="roleForm.errors.product_ids" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ roleForm.errors.product_ids }}</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex gap-3 pt-2">
-                        <Button type="submit" :disabled="roleForm.processing">
-                            Salvar
-                        </Button>
+                    <div class="flex shrink-0 justify-end gap-2 border-t border-[var(--ep-line)] px-6 py-4">
                         <Button type="button" variant="outline" @click="closeRoleModal">
                             Cancelar
+                        </Button>
+                        <Button type="submit" :disabled="roleForm.processing">
+                            Salvar
                         </Button>
                     </div>
                 </form>
@@ -538,65 +608,70 @@ function confirmClearLogs() {
             role="dialog"
             aria-modal="true"
         >
-            <div class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeMemberModal" />
-            <div class="relative w-full max-w-md rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
-                <div class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {{ editingMember ? 'Editar membro' : 'Novo membro' }}
-                    </h2>
+            <div class="ep-scrim fixed inset-0" aria-hidden="true" @click="closeMemberModal" />
+            <div class="ep-modal relative w-full max-w-md">
+                <div class="flex items-start justify-between gap-4 px-6 pt-6">
+                    <div class="min-w-0">
+                        <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            {{ editingMember ? 'Editar membro' : 'Novo membro' }}
+                        </h2>
+                        <p class="mt-1 text-[12.5px] text-[var(--ep-text-3)]">O cargo define o que este membro pode ver no painel.</p>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 -mt-1 shrink-0"
                         aria-label="Fechar"
                         @click="closeMemberModal"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </button>
                 </div>
-                <form class="space-y-4 p-5" @submit.prevent="submitMember">
+                <form class="space-y-4 px-6 pb-6 pt-5" @submit.prevent="submitMember">
                     <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
-                        <input v-model="memberForm.name" type="text" required class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
-                        <p v-if="memberForm.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ memberForm.errors.name }}</p>
+                        <label class="ep-label">Nome</label>
+                        <input v-model="memberForm.name" type="text" required autocomplete="name" class="ep-input" />
+                        <p v-if="memberForm.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ memberForm.errors.name }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail</label>
-                        <input v-model="memberForm.email" type="email" required class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
-                        <p v-if="memberForm.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ memberForm.errors.email }}</p>
+                        <label class="ep-label">E-mail</label>
+                        <input v-model="memberForm.email" type="email" required autocomplete="email" class="ep-input" />
+                        <p v-if="memberForm.errors.email" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ memberForm.errors.email }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Cargo</label>
-                        <select v-model="memberForm.team_role_id" required class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100">
+                        <label class="ep-label">Cargo</label>
+                        <select v-model="memberForm.team_role_id" required class="ep-input">
                             <option v-for="r in roleOptions" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
-                        <p v-if="memberForm.errors.team_role_id" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ memberForm.errors.team_role_id }}</p>
+                        <p v-if="memberForm.errors.team_role_id" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ memberForm.errors.team_role_id }}</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            {{ editingMember ? 'Nova senha (opcional)' : 'Senha' }}
-                        </label>
-                        <input v-model="memberForm.password" type="password" :required="!editingMember" minlength="8" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
-                        <p v-if="memberForm.errors.password" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ memberForm.errors.password }}</p>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="ep-label">
+                                {{ editingMember ? 'Nova senha (opcional)' : 'Senha' }}
+                            </label>
+                            <input v-model="memberForm.password" type="password" :required="!editingMember" minlength="8" autocomplete="new-password" class="ep-input" />
+                        </div>
+                        <div>
+                            <label class="ep-label">Confirmar senha</label>
+                            <input v-model="memberForm.password_confirmation" type="password" :required="!editingMember && !!memberForm.password" minlength="8" autocomplete="new-password" class="ep-input" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Confirmar senha</label>
-                        <input v-model="memberForm.password_confirmation" type="password" :required="!editingMember && !!memberForm.password" minlength="8" class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-zinc-100" />
-                    </div>
-                    <div v-if="!editingMember" class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/40 p-3">
-                        <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                            <input v-model="memberForm.send_access_email" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600" />
+                    <p v-if="memberForm.errors.password" class="-mt-2 text-[12px] text-[var(--ep-neg)]">{{ memberForm.errors.password }}</p>
+                    <div v-if="!editingMember" class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3.5">
+                        <label class="flex cursor-pointer items-center gap-2.5 text-[13px] font-medium text-[var(--ep-text)]">
+                            <input v-model="memberForm.send_access_email" type="checkbox" class="h-4 w-4 shrink-0 rounded accent-[var(--ep-accent)]" />
                             <span>Enviar e-mail de acesso com login e senha</span>
                         </label>
-                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                        <p class="ep-help !mt-1 pl-[26px]">
                             O e-mail será enviado para o endereço informado acima.
                         </p>
                     </div>
-                    <div class="flex gap-3 pt-2">
-                        <Button type="submit" :disabled="memberForm.processing">
-                            Salvar
-                        </Button>
+                    <div class="flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                         <Button type="button" variant="outline" @click="closeMemberModal">
                             Cancelar
+                        </Button>
+                        <Button type="submit" :disabled="memberForm.processing">
+                            Salvar
                         </Button>
                     </div>
                 </form>

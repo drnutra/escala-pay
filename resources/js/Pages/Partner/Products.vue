@@ -38,34 +38,42 @@ function statusClass(status) {
 </script>
 
 <template>
-    <div class="space-y-8">
-        <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Meus produtos</h1>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Produtos em que você atua como parceiro. Clique para ver detalhes, links e pixels.
-            </p>
-        </div>
+    <div class="space-y-5">
+        <header class="flex flex-wrap items-end justify-between gap-3">
+            <div class="min-w-0">
+                <h1 class="text-[22px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]">Meus produtos</h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
+                    Produtos em que você atua como parceiro. Clique para ver detalhes, links e pixels.
+                </p>
+            </div>
+            <span class="ep-chip tabular-nums">
+                <Package class="h-3.5 w-3.5 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
+                {{ products.length }} {{ products.length === 1 ? 'produto' : 'produtos' }}
+            </span>
+        </header>
 
         <section>
             <div
                 v-if="products.length === 0"
-                class="panel-card-lg flex flex-col items-center justify-center py-12 text-center"
+                class="panel-card ep-empty py-14"
             >
-                <Package class="mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600" />
-                <p class="font-medium text-zinc-700 dark:text-zinc-300">Nenhum produto ainda</p>
-                <p class="mt-2 max-w-md text-sm text-zinc-500 dark:text-zinc-400">
+                <span class="ep-kpi__icon mb-2" aria-hidden="true">
+                    <Package class="h-4 w-4" :stroke-width="1.75" />
+                </span>
+                <p class="ep-empty__title">Nenhum produto ainda</p>
+                <p class="ep-empty__text">
                     Afilie-se pelo link público do produtor ou aguarde a aprovação se já solicitou afiliação.
                 </p>
             </div>
 
-            <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <ul v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <li v-for="p in products" :key="p.id">
                     <Link
                         :href="`/parceiro/produtos/${p.id}`"
-                        class="flex items-center gap-3 rounded-xl border border-zinc-200/80 bg-white p-3 shadow-sm transition hover:ring-2 hover:ring-[var(--color-primary)] dark:border-zinc-800 dark:bg-zinc-900"
+                        class="panel-card group flex h-full items-center gap-4 p-4 transition-[border-color,transform] duration-150 hover:-translate-y-px hover:border-[var(--ep-line-strong)]"
                     >
                         <div
-                            class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                            class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] shadow-[var(--ep-glass-highlight)]"
                         >
                             <img
                                 v-if="p.image_url"
@@ -75,30 +83,30 @@ function statusClass(status) {
                             />
                             <span
                                 v-else
-                                class="text-lg font-semibold text-zinc-400 dark:text-zinc-500"
+                                class="text-lg font-semibold text-[var(--ep-text-4)]"
                             >
                                 {{ p.name?.charAt(0) }}
                             </span>
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="flex items-start justify-between gap-2">
-                                <p class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ p.name }}</p>
+                                <p class="truncate text-[13.5px] font-medium text-[var(--ep-text)]">{{ p.name }}</p>
                                 <span
                                     v-if="p.affiliate_status"
-                                    class="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase leading-tight"
-                                    :class="statusClass(p.affiliate_status)"
+                                    class="ep-chip shrink-0 !h-5 !px-1.5 !text-[10.5px]"
+                                    :class="p.affiliate_status === 'approved' ? 'ep-chip--pos' : p.affiliate_status === 'pending' ? 'ep-chip--warn' : ''"
                                 >
                                     {{ statusLabel(p.affiliate_status) }}
                                 </span>
                             </div>
                             <p
                                 v-if="formatPrice(p.price, p.currency)"
-                                class="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400"
+                                class="mt-0.5 text-[15px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]"
                             >
                                 {{ formatPrice(p.price, p.currency) }}
                             </p>
-                            <p class="mt-1 text-[11px] text-zinc-500">
-                                <span v-if="p.commission_percent != null">{{ p.commission_percent }}% comissão</span>
+                            <p class="mt-1 text-[12px] text-[var(--ep-text-3)]">
+                                <span v-if="p.commission_percent != null" class="tabular-nums"><span class="font-medium text-[var(--ep-accent)]">{{ p.commission_percent }}%</span> comissão</span>
                                 <span v-if="p.partner_type" class="capitalize"> · {{ p.partner_type }}</span>
                             </p>
                         </div>

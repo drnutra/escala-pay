@@ -382,126 +382,131 @@ function truncateUrl(url, max = 40) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="closeSidebar"
             />
             <aside
-                class="relative flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-md flex-col"
             >
                 <!-- Header -->
-                <div
-                    class="flex items-center justify-between gap-3 rounded-tl-2xl bg-zinc-50/80 px-5 py-4 dark:bg-zinc-800/50"
+                <header
+                    class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4"
                 >
                     <div class="flex min-w-0 items-center gap-2">
                         <button
                             v-if="currentView !== 'hub'"
                             type="button"
-                            class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+                            class="ep-btn-ghost ep-btn-icon -ml-2 shrink-0"
                             title="Voltar"
                             @click="currentView === 'logs' ? backToHub() : cancelEdit()"
                         >
-                            <ArrowLeft class="h-5 w-5" />
+                            <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                         </button>
-                        <h2 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">
+                        <h2 class="truncate text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                             {{ headerTitle }}
                         </h2>
                     </div>
                     <button
                         type="button"
-                        class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="closeSidebar"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
-                </div>
+                </header>
 
                 <div class="flex flex-1 flex-col overflow-y-auto">
                     <!-- View: hub -->
                     <template v-if="currentView === 'hub'">
-                        <div class="space-y-4 p-4">
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        <div class="space-y-4 px-6 pt-5">
+                            <p class="text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                                 Envie os eventos mapeados para a Pixel X com token e payload proprietário.
                             </p>
 
-                            <Button class="bg-emerald-600 hover:bg-emerald-700" @click="startNew">
-                                <Plus class="mr-2 h-4 w-4" />
+                            <Button @click="startNew">
+                                <Plus class="h-4 w-4" :stroke-width="1.75" />
                                 Nova integração
                             </Button>
                         </div>
 
-                        <div class="flex-1 px-4 pb-6">
-                            <h3 class="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                Minhas integrações ({{ pixel_x_integrations.length }})
+                        <div class="flex-1 px-6 pb-6 pt-6">
+                            <h3 class="ep-section-title mb-3 flex items-center gap-2">
+                                Minhas integrações
+                                <span class="ep-chip tabular-nums">{{ pixel_x_integrations.length }}</span>
                             </h3>
 
-                            <ul v-if="pixel_x_integrations.length > 0" class="space-y-3">
+                            <ul
+                                v-if="pixel_x_integrations.length > 0"
+                                class="panel-card ep-data divide-y divide-[var(--ep-line)] overflow-hidden"
+                            >
                                 <li
                                     v-for="integration in pixel_x_integrations"
                                     :key="integration.id"
-                                    class="rounded-2xl border border-zinc-200/80 bg-zinc-50/80 shadow-sm transition-shadow hover:shadow dark:border-zinc-700/60 dark:bg-zinc-800/60"
+                                    class="transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
-                                    <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex flex-col gap-3 px-4 py-4">
                                         <div class="min-w-0 flex-1">
                                             <div class="flex flex-wrap items-center gap-2">
-                                                <span class="font-medium text-zinc-900 dark:text-white">
+                                                <span class="text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                                                     {{ integration.name }}
                                                 </span>
                                                 <span
-                                                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                                    class="ep-chip"
                                                     :class="
                                                         integration.is_active
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                            ? 'ep-chip--pos'
+                                                            : 'ep-chip--warn'
                                                     "
                                                 >
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                                     {{ integration.is_active ? 'Ativo' : 'Inativo' }}
                                                 </span>
                                             </div>
                                             <div
-                                                class="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400"
+                                                class="mt-1 truncate font-mono text-[12px] text-[var(--ep-text-3)]"
                                                 :title="integration.url"
                                             >
                                                 {{ truncateUrl(integration.url, 52) }}
                                             </div>
-                                            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                            <div class="mt-1.5 text-[12px] tabular-nums text-[var(--ep-text-4)]">
                                                 {{ (integration.events || []).length }} evento(s)
                                             </div>
                                         </div>
 
-                                        <div class="flex shrink-0 flex-wrap items-center gap-1">
+                                        <div class="-ml-2 flex shrink-0 flex-wrap items-center gap-1">
                                             <template v-if="confirmingDeleteId === integration.id">
-                                                <span class="mr-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Excluir?</span>
+                                                <span class="ml-2 mr-1 text-[12.5px] font-medium text-[var(--ep-text-2)]">Excluir?</span>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost !h-8 !px-3 text-[12.5px]"
                                                     @click.stop="cancelDelete()"
                                                 >
                                                     Cancelar
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="flex items-center gap-1 rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/60"
+                                                    class="ep-btn-danger !h-8 !gap-1.5 !px-3 text-[12.5px]"
                                                     :disabled="deleting === integration.id"
                                                     @click.stop="deleteIntegration(integration.id)"
                                                 >
-                                                    <Loader2 v-if="deleting === integration.id" class="h-3 w-3 animate-spin" />
-                                                    <Trash2 v-else class="h-3 w-3" />
+                                                    <Loader2 v-if="deleting === integration.id" class="h-3.5 w-3.5 animate-spin" :stroke-width="1.75" />
+                                                    <Trash2 v-else class="h-3.5 w-3.5" :stroke-width="1.75" />
                                                     {{ deleting === integration.id ? 'Excluindo...' : 'Excluir' }}
                                                 </button>
                                             </template>
                                             <template v-else>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost !h-8 !px-3 text-[12.5px]"
                                                     @click.stop="openLogs(integration)"
                                                 >
                                                     Ver logs
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+                                                    class="ep-btn-ghost !h-8 !gap-1.5 !px-3 text-[12.5px] !text-[var(--ep-accent)]"
                                                     title="Disparar evento de teste"
                                                     :disabled="testingIntegrationId === integration.id"
                                                     @click.stop="testIntegration(integration.id)"
@@ -509,26 +514,27 @@ function truncateUrl(url, max = 40) {
                                                     <Loader2
                                                         v-if="testingIntegrationId === integration.id"
                                                         class="h-3.5 w-3.5 animate-spin"
+                                                        :stroke-width="1.75"
                                                     />
-                                                    <Send v-else class="h-3.5 w-3.5" />
+                                                    <Send v-else class="h-3.5 w-3.5" :stroke-width="1.75" />
                                                     Testar
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
                                                     title="Configurar"
                                                     @click.stop="editIntegration(integration)"
                                                 >
-                                                    <Settings class="h-4 w-4" />
+                                                    <Settings class="h-4 w-4" :stroke-width="1.75" />
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg p-2 text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!text-[var(--ep-neg)]"
                                                     title="Excluir"
                                                     :disabled="deleting === integration.id"
                                                     @click.stop="requestDelete(integration)"
                                                 >
-                                                    <Trash2 class="h-4 w-4" />
+                                                    <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                                 </button>
                                             </template>
                                         </div>
@@ -536,20 +542,21 @@ function truncateUrl(url, max = 40) {
                                 </li>
                             </ul>
 
-                            <p
+                            <div
                                 v-else
-                                class="rounded-2xl bg-zinc-50 py-8 text-center text-sm text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400"
+                                class="panel-card ep-empty"
                             >
-                                Nenhuma integração configurada. Clique em "Nova integração" para criar.
-                            </p>
+                                <p class="ep-empty__title">Nenhuma integração configurada</p>
+                                <p class="ep-empty__text">Clique em "Nova integração" para criar.</p>
+                            </div>
 
                             <p
                                 v-if="testResult"
                                 :class="[
-                                    'mt-3 rounded-lg px-3 py-2 text-sm',
+                                    'mt-3 rounded-xl border px-3.5 py-2.5 text-[13px]',
                                     testResult.success
-                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                                        ? 'border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'
+                                        : 'border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]',
                                 ]"
                             >
                                 {{ testResult.message }}
@@ -559,63 +566,64 @@ function truncateUrl(url, max = 40) {
 
                     <!-- View: logs -->
                     <template v-else-if="currentView === 'logs' && logsIntegration">
-                        <div class="flex-1 px-4 pb-6 pt-4">
+                        <div class="flex-1 px-6 pb-6 pt-5">
                             <div
                                 v-if="loadingLogs"
-                                class="flex items-center justify-center gap-2 py-12 text-sm text-zinc-500"
+                                class="flex items-center justify-center gap-2 py-12 text-[13px] text-[var(--ep-text-3)]"
                             >
-                                <Loader2 class="h-5 w-5 animate-spin" />
+                                <Loader2 class="h-[18px] w-[18px] animate-spin" :stroke-width="1.75" />
                                 Carregando logs...
                             </div>
                             <div
                                 v-else-if="logs.length === 0"
-                                class="rounded-2xl border border-dashed border-zinc-300 py-12 text-center text-sm text-zinc-500 dark:border-zinc-600"
+                                class="panel-card ep-empty"
                             >
-                                Nenhum log encontrado.
+                                <p class="ep-empty__title">Nenhum log encontrado.</p>
+                                <p class="ep-empty__text">Use "Testar" na lista de integrações para gerar o primeiro envio.</p>
                             </div>
-                            <div v-else class="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700">
-                                <table class="w-full text-left text-xs">
-                                    <thead class="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                            <div v-else class="panel-card ep-data overflow-hidden">
+                                <table class="ep-table">
+                                    <thead>
                                         <tr>
-                                            <th class="px-3 py-2 font-medium">Horário</th>
-                                            <th class="px-3 py-2 font-medium">Evento</th>
-                                            <th class="px-3 py-2 font-medium">Status</th>
-                                            <th class="px-3 py-2 font-medium">Origem</th>
-                                            <th class="px-3 py-2 font-medium"></th>
+                                            <th class="!px-3">Horário</th>
+                                            <th class="!px-3">Evento</th>
+                                            <th class="!px-3">Status</th>
+                                            <th class="!px-3">Origem</th>
+                                            <th class="!px-3"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr
                                             v-for="log in logs"
                                             :key="log.id"
-                                            class="cursor-pointer border-t border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/80"
+                                            class="cursor-pointer"
                                             @click="openLogDetail(log)"
                                         >
-                                            <td class="whitespace-nowrap px-3 py-2.5 text-zinc-600 dark:text-zinc-400">
+                                            <td class="whitespace-nowrap !px-3 text-[12px] tabular-nums !text-[var(--ep-text-3)]">
                                                 {{ formatLogDate(log.created_at) }}
                                             </td>
-                                            <td class="px-3 py-2.5 font-medium text-zinc-800 dark:text-zinc-200">
+                                            <td class="!px-3 font-medium">
                                                 {{ log.event_label || log.event }}
                                             </td>
-                                            <td class="px-3 py-2.5">
+                                            <td class="!px-3">
                                                 <span
-                                                    class="rounded px-1.5 py-0.5 font-medium"
+                                                    class="ep-chip tabular-nums"
                                                     :class="
                                                         log.success
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                                            ? 'ep-chip--pos'
+                                                            : 'ep-chip--neg'
                                                     "
                                                 >
                                                     {{ log.success ? (log.response_status || 'OK') : (log.response_status || 'Erro') }}
                                                 </span>
                                             </td>
-                                            <td class="px-3 py-2.5 text-zinc-500">
+                                            <td class="!px-3 !text-[var(--ep-text-3)]">
                                                 {{ log.source === 'test' ? 'Teste' : 'Automático' }}
                                             </td>
-                                            <td class="px-3 py-2.5 text-right">
+                                            <td class="!px-3 text-right">
                                                 <button
                                                     type="button"
-                                                    class="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                                    class="ep-btn-ghost !h-7 !px-2.5 text-[12px]"
                                                     @click.stop="openLogDetail(log)"
                                                 >
                                                     Detalhes
@@ -631,59 +639,65 @@ function truncateUrl(url, max = 40) {
                     <!-- View: form (criar/editar) -->
                     <div
                         v-else-if="currentView === 'form'"
-                        class="flex flex-1 flex-col bg-zinc-50/50 p-4 dark:bg-zinc-800/30"
+                        class="flex flex-1 flex-col gap-4 px-6 py-5"
                     >
                         <div class="space-y-4">
-                            <!-- Nome -->
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Nome
-                                </label>
-                                <input
-                                    v-model="form.name"
-                                    type="text"
-                                    placeholder="Ex: Pixel X Principal"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
+                            <section class="panel-card space-y-4 p-5">
+                                <h3 class="ep-section-title">Conexão</h3>
+                                <!-- Nome -->
+                                <div>
+                                    <label class="ep-label">
+                                        Nome
+                                    </label>
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        placeholder="Ex: Pixel X Principal"
+                                        class="ep-input"
+                                    />
+                                </div>
 
-                            <!-- URL do Webhook -->
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    URL do Webhook
-                                </label>
-                                <input
-                                    v-model="form.url"
-                                    type="url"
-                                    placeholder="https://app.pixelx.com.br/api/..."
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
+                                <!-- URL do Webhook -->
+                                <div>
+                                    <label class="ep-label">
+                                        URL do Webhook
+                                    </label>
+                                    <input
+                                        v-model="form.url"
+                                        type="url"
+                                        placeholder="https://app.pixelx.com.br/api/..."
+                                        class="ep-input font-mono !text-[13px]"
+                                    />
+                                </div>
 
-                            <!-- Token -->
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Token
-                                    <span v-if="editingIntegration" class="font-normal text-zinc-500">(opcional)</span>
-                                </label>
-                                <p v-if="editingIntegration" class="mb-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                                    Por segurança, o token salvo não é exibido. Deixe em branco para manter o atual.
-                                </p>
-                                <input
-                                    v-model="form.token"
-                                    type="password"
-                                    :placeholder="editingIntegration ? 'Deixe vazio para manter o token atual' : 'Token da Pixel X'"
-                                    autocomplete="new-password"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
+                                <!-- Token -->
+                                <div>
+                                    <label class="ep-label">
+                                        Token
+                                        <span v-if="editingIntegration" class="font-normal text-[var(--ep-text-4)]">(opcional)</span>
+                                    </label>
+                                    <input
+                                        v-model="form.token"
+                                        type="password"
+                                        :placeholder="editingIntegration ? 'Deixe vazio para manter o token atual' : 'Token da Pixel X'"
+                                        autocomplete="new-password"
+                                        class="ep-input"
+                                    />
+                                    <p v-if="editingIntegration" class="ep-help">
+                                        Por segurança, o token salvo não é exibido. Deixe em branco para manter o atual.
+                                    </p>
+                                </div>
+                            </section>
 
                             <!-- Eventos -->
-                            <div>
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                    Eventos
-                                </label>
-                                <div class="max-h-48 space-y-2 overflow-y-auto rounded-xl bg-white p-3 shadow-sm ring-1 ring-zinc-200/80 dark:ring-zinc-600 dark:bg-zinc-800/50">
+                            <section class="panel-card p-5">
+                                <div class="mb-3 flex items-center justify-between gap-3">
+                                    <label class="ep-section-title">
+                                        Eventos
+                                    </label>
+                                    <span class="ep-chip tabular-nums">{{ form.events.length }}</span>
+                                </div>
+                                <div class="max-h-56 space-y-2.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5">
                                     <Checkbox
                                         v-for="event in PIXEL_X_EVENTS"
                                         :key="event.slug"
@@ -693,15 +707,15 @@ function truncateUrl(url, max = 40) {
                                         @update:model-value="toggleEvent(event.slug)"
                                     />
                                 </div>
-                            </div>
+                            </section>
 
                             <!-- Produtos -->
-                            <div>
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <section class="panel-card p-5">
+                                <label class="ep-section-title mb-3 block">
                                     Produtos
-                                    <span class="font-normal text-zinc-500">(opcional - deixe vazio para todos)</span>
+                                    <span class="font-normal text-[var(--ep-text-4)]">(opcional - deixe vazio para todos)</span>
                                 </label>
-                                <div class="max-h-40 space-y-2 overflow-y-auto rounded-xl bg-white p-3 shadow-sm ring-1 ring-zinc-200/80 dark:ring-zinc-600 dark:bg-zinc-800/50">
+                                <div class="max-h-44 space-y-2.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5">
                                     <template v-if="products.length > 0">
                                         <Checkbox
                                             v-for="product in products"
@@ -714,30 +728,30 @@ function truncateUrl(url, max = 40) {
                                     </template>
                                     <p
                                         v-else
-                                        class="py-2 text-center text-xs text-zinc-500 dark:text-zinc-400"
+                                        class="py-2 text-center text-[12.5px] text-[var(--ep-text-4)]"
                                     >
                                         Nenhum produto cadastrado
                                     </p>
                                 </div>
-                            </div>
+                            </section>
 
                             <!-- Toggle ativo/inativo -->
-                            <div>
+                            <section class="panel-card px-5 py-4">
                                 <Toggle
                                     v-model="form.is_active"
                                     label="Ativo"
                                 />
-                            </div>
+                            </section>
                         </div>
 
                         <p
                             v-if="errorMessage"
-                            class="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                            class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                         >
                             {{ errorMessage }}
                         </p>
 
-                        <div class="mt-4 flex gap-2">
+                        <div class="mt-auto flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                             <Button
                                 variant="outline"
                                 :disabled="saving"
@@ -755,85 +769,86 @@ function truncateUrl(url, max = 40) {
                 <!-- Modal: detalhe do log -->
                 <div
                     v-if="logDetailModal"
-                    class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/40 p-4 dark:bg-zinc-950/60"
+                    class="ep-scrim absolute inset-0 z-10 flex items-center justify-center p-4"
                     @click.self="closeLogDetail"
                 >
                     <div
-                        class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-2xl dark:bg-zinc-800"
+                        class="ep-modal flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden"
                         role="dialog"
                         aria-labelledby="log-detail-title"
                     >
-                        <div class="flex items-center justify-between bg-zinc-50/80 px-5 py-3 dark:bg-zinc-800/80">
-                            <h3 id="log-detail-title" class="text-sm font-semibold text-zinc-900 dark:text-white">
+                        <div class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-5 py-4">
+                            <h3 id="log-detail-title" class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                                 Detalhe do envio
                             </h3>
                             <button
                                 type="button"
-                                class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                class="ep-btn-ghost ep-btn-icon -mr-2"
                                 aria-label="Fechar"
                                 @click="closeLogDetail"
                             >
-                                <X class="h-5 w-5" />
+                                <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                             </button>
                         </div>
-                        <div class="flex-1 overflow-y-auto p-4">
+                        <div class="flex-1 overflow-y-auto px-5 py-5">
                             <div v-if="loadingLogDetail" class="flex items-center justify-center py-12">
-                                <Loader2 class="h-8 w-8 animate-spin text-zinc-400" />
+                                <Loader2 class="h-6 w-6 animate-spin text-[var(--ep-text-3)]" :stroke-width="1.75" />
                             </div>
                             <template v-else-if="selectedLog">
-                                <div class="mb-4 flex flex-wrap items-center gap-2">
-                                    <span class="font-medium text-zinc-700 dark:text-zinc-300">
+                                <div class="mb-5 flex flex-wrap items-center gap-2">
+                                    <span class="mr-1 text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                                         {{ selectedLog.event_label || selectedLog.event }}
                                     </span>
                                     <span
                                         :class="[
-                                            'rounded px-2 py-0.5 text-xs font-medium',
+                                            'ep-chip tabular-nums',
                                             selectedLog.success
-                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                                                ? 'ep-chip--pos'
+                                                : 'ep-chip--neg',
                                         ]"
                                     >
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                         {{ selectedLog.success ? 'Sucesso' : 'Falha' }}
                                         <span v-if="selectedLog.response_status != null">
                                             (HTTP {{ selectedLog.response_status }})
                                         </span>
                                     </span>
-                                    <span v-if="selectedLog.source === 'test'" class="rounded bg-zinc-200 px-2 py-0.5 text-xs dark:bg-zinc-600">
+                                    <span v-if="selectedLog.source === 'test'" class="ep-chip">
                                         Teste manual
                                     </span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
                                         {{ formatLogDate(selectedLog.created_at) }}
                                     </span>
                                 </div>
                                 <p
                                     v-if="selectedLog.error_message"
-                                    class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                                    class="mb-4 rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                                 >
                                     {{ selectedLog.error_message }}
                                 </p>
-                                <div class="space-y-4">
+                                <div class="space-y-5">
                                     <div>
-                                        <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                        <span class="ep-section-title mb-2 block">
                                             Payload enviado (request)
                                         </span>
-                                        <pre class="max-h-64 overflow-auto rounded-xl bg-zinc-50 p-4 text-xs leading-relaxed text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">{{ formatPayload(selectedLog.request_payload) }}</pre>
+                                        <pre class="max-h-64 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-4 font-mono text-[12px] leading-relaxed text-[var(--ep-text-2)]">{{ formatPayload(selectedLog.request_payload) }}</pre>
                                     </div>
                                     <div>
-                                        <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                        <span class="ep-section-title mb-2 block">
                                             Resposta do servidor (response)
                                         </span>
-                                        <p v-if="selectedLog.response_status != null" class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">
+                                        <p v-if="selectedLog.response_status != null" class="mb-2 text-[12px] tabular-nums text-[var(--ep-text-3)]">
                                             Status: {{ selectedLog.response_status }}
                                         </p>
-                                        <pre class="max-h-64 overflow-auto rounded-xl bg-zinc-50 p-4 text-xs leading-relaxed text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">{{ formatPayload(selectedLog.response_body) }}</pre>
+                                        <pre class="max-h-64 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-4 font-mono text-[12px] leading-relaxed text-[var(--ep-text-2)]">{{ formatPayload(selectedLog.response_body) }}</pre>
                                     </div>
                                 </div>
                             </template>
-                            <p v-else class="py-8 text-center text-sm text-zinc-500">
-                                Não foi possível carregar o detalhe do log.
-                            </p>
+                            <div v-else class="ep-empty">
+                                <p class="ep-empty__title">Não foi possível carregar o detalhe do log.</p>
+                            </div>
                         </div>
-                        <div class="bg-zinc-50/80 px-5 py-3 dark:bg-zinc-800/80">
+                        <div class="flex justify-end border-t border-[var(--ep-line)] px-5 py-4">
                             <Button variant="outline" size="sm" class="w-full sm:w-auto" @click="closeLogDetail">
                                 Fechar
                             </Button>

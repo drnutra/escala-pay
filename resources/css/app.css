@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter/opsz.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import './escala-pay.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -9,8 +12,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /* Sombras leves para layout */
     --shadow-theme-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
@@ -57,25 +61,48 @@
     }
 }
 
-/* Utilities para sidebar */
+/* Superfícies do shell (vidro; tokens em escala-pay.css) */
+@utility ep-canvas {
+    background-color: transparent;
+}
+
+@utility ep-surface {
+    position: relative;
+    background: var(--ep-surface);
+    border: 1px solid var(--ep-glass-border);
+    box-shadow: var(--ep-glass-highlight), var(--ep-glass-shadow);
+}
+
+/* Utilities para sidebar: item ativo marcado por fundo neutro, sem barra colorida */
 @utility menu-item {
-    @apply relative flex items-center w-full gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors;
+    @apply relative flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-[13.5px] font-medium;
+    border: 1px solid transparent;
+    transition: background-color 150ms var(--ep-ease-out), color 150ms var(--ep-ease-out);
 }
 
 @utility menu-item-active {
-    @apply relative bg-zinc-200 font-semibold text-zinc-900 dark:bg-zinc-800 dark:text-white before:absolute before:bottom-0 before:left-[-0.75rem] before:top-0 before:w-1.5 before:rounded-r-full before:content-[''] before:bg-[var(--color-primary)];
+    background: var(--ep-active);
+    border: 1px solid rgba(182, 188, 195, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: var(--ep-text);
 }
 
 @utility menu-item-inactive {
-    @apply text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200;
+    color: var(--ep-text-3);
+
+    &:hover {
+        background-color: var(--ep-hover);
+        color: var(--ep-text);
+        transition-duration: 0ms;
+    }
 }
 
 @utility menu-item-icon-active {
-    @apply text-zinc-700 dark:text-zinc-200;
+    color: #6ba4ff;
 }
 
 @utility menu-item-icon-inactive {
-    @apply text-zinc-500 dark:text-zinc-500;
+    color: var(--ep-text-4);
 }
 
 /** Ícone de métrica na dashboard: só o ícone na cor primária */
@@ -95,29 +122,36 @@
     @apply flex h-10 w-10 shrink-0 items-center justify-center text-[var(--color-primary)];
 }
 
-/** Cards do painel (mesmo padrão da dashboard) */
+/** Cards do painel: lâminas de vidro sobre a aurora */
 @utility panel-card {
-    @apply rounded-xl border border-zinc-50 bg-zinc-50 dark:border-zinc-800/60 dark:bg-zinc-900/60;
+    position: relative;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--ep-glass-strong), var(--ep-glass));
+    border: 1px solid var(--ep-glass-border);
+    border-top-color: var(--ep-glass-border-top);
+    box-shadow: var(--ep-glass-highlight), var(--ep-glass-inner), var(--ep-glass-shadow);
 }
 
 @utility panel-card-sm {
-    @apply rounded-xl border border-zinc-50 bg-zinc-50 p-4 dark:border-zinc-800/60 dark:bg-zinc-900/60;
+    @apply panel-card p-4;
 }
 
 @utility panel-card-md {
-    @apply rounded-xl border border-zinc-50 bg-zinc-50 p-5 dark:border-zinc-800/60 dark:bg-zinc-900/60;
+    @apply panel-card p-5;
 }
 
 @utility panel-card-lg {
-    @apply rounded-xl border border-zinc-50 bg-zinc-50 p-6 dark:border-zinc-800/60 dark:bg-zinc-900/60;
+    @apply panel-card p-6;
 }
 
 @utility panel-table {
-    @apply overflow-hidden rounded-xl border border-zinc-50 bg-zinc-50 dark:border-zinc-800/60 dark:bg-zinc-900/60;
+    @apply panel-card overflow-hidden;
 }
 
 @utility panel-card-dashed {
-    @apply rounded-xl border border-dashed border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900/60;
+    border-radius: 18px;
+    border: 1px dashed var(--ep-line-strong);
+    background-color: var(--ep-card-2);
 }
 
 @utility no-scrollbar {
@@ -181,12 +215,12 @@
         background: rgb(113 113 122); /* zinc-500 */
     }
     .dark *::-webkit-scrollbar-thumb {
-        background: rgb(63 63 70); /* zinc-700 */
+        background: rgb(255 255 255 / 0.08);
     }
     .dark *::-webkit-scrollbar-thumb:hover {
-        background: rgb(82 82 91); /* zinc-600 */
+        background: rgb(255 255 255 / 0.14);
     }
     .dark *::-webkit-scrollbar-thumb:active {
-        background: rgb(113 113 122); /* zinc-500 */
+        background: rgb(255 255 255 / 0.2);
     }
 }

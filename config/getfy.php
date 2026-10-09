@@ -78,19 +78,21 @@ return [
      */
     'plugin_store_api_url' => rtrim((string) env('PLUGIN_STORE_API_URL', 'https://getfy.org'), '/'),
 
-    'app_name' => 'Getfy',
-    'theme_primary' => '#74d909',
-    'app_logo' => 'https://cdn.getfy.cloud/logo-white-v3.png',
-    'app_logo_dark' => 'https://cdn.getfy.cloud/logo-dark-v3.png',
-    'app_logo_icon' => 'https://cdn.getfy.cloud/collapsed-logo-v3.png',
-    'app_logo_icon_dark' => 'https://cdn.getfy.cloud/collapsed-logo-v2.png',
+    'app_name' => 'Escala Pay', // demo local (original: Getfy)
+    'theme_primary' => '#6ba4ff', // demo local: azul primário do EscalaX (original: #74d909)
+    // demo local: logo EscalaX (originais em cdn.getfy.cloud/logo-white-v3.png, logo-dark-v3.png, collapsed-logo-v3.png, collapsed-logo-v2.png)
+    // v3 = símbolo EX redesenhado (grid 4:3, platina + azul #6BA4FF) + letras ESCALAX originais
+    'app_logo' => '/brand/escalax/logo-light-v3.png',
+    'app_logo_dark' => '/brand/escalax/logo-dark-v3.png',
+    'app_logo_icon' => '/brand/escalax/icon-light-v3.png',
+    'app_logo_icon_dark' => '/brand/escalax/icon-dark-v3.png',
 
     /** White Label plugin (null = default / não aplicado) */
-    'login_hero_image' => null,
-    'favicon_url' => '/brand/favicon.png',
+    'login_hero_image' => '/brand/escalax/login-hero-v2.webp', // demo local: entrada EscalaX (original: null = jacaré do CDN)
+    'favicon_url' => '/brand/favicon.png', // demo local: o arquivo foi trocado pelo favicon EscalaX (nginx serve o estático direto)
     'pwa_theme_color' => null,
     /** Ícone do PWA (painel). Usado no manifest e no “Adicionar à tela inicial”. */
-    'pwa_icon' => '/icons/icon.png',
-    'pwa_icon_192' => '/icons/icon.png',
-    'pwa_icon_512' => '/icons/icon.png',
+    'pwa_icon' => '/brand/escalax/icon-512-v3.png', // demo local (original: /icons/icon.png)
+    'pwa_icon_192' => '/brand/escalax/icon-192-v3.png',
+    'pwa_icon_512' => '/brand/escalax/icon-512-v3.png',
 ];

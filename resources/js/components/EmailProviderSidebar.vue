@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { X, Loader2 } from 'lucide-vue-next';
+import { X, Loader2, Lock } from 'lucide-vue-next';
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -54,7 +54,7 @@ const fixedValueClass =
   >
     <div
       v-if="open"
-      class="fixed inset-0 bg-black/30 z-[100000]"
+      class="ep-scrim fixed inset-0 z-[100000]"
       @click="$emit('close')"
     />
   </Transition>
@@ -70,48 +70,58 @@ const fixedValueClass =
   >
     <div
       v-if="open"
-      class="fixed top-0 right-0 h-full w-full sm:w-[480px] bg-white dark:bg-zinc-900 shadow-2xl z-[100001] overflow-y-auto"
+      class="ep-drawer fixed top-0 right-0 z-[100001] flex h-full w-full flex-col sm:w-[480px]"
+      role="dialog"
+      aria-modal="true"
     >
       <!-- Header -->
-      <div class="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <img v-if="provider?.logo" :src="provider.logo" alt="" class="h-8 w-auto rounded-lg object-contain" />
-          <div>
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ provider?.title || 'Configurar E-mail' }}</h2>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ provider?.description || '' }}</p>
+      <div class="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--ep-line)] px-6 py-5">
+        <div class="flex min-w-0 items-center gap-3">
+          <span
+            v-if="provider?.logo"
+            class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--ep-glass-border)] bg-white/90 p-1.5"
+          >
+            <img :src="provider.logo" alt="" class="max-h-full w-auto object-contain" />
+          </span>
+          <div class="min-w-0">
+            <h2 class="truncate text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">{{ provider?.title || 'Configurar E-mail' }}</h2>
+            <p class="truncate text-[12.5px] text-[var(--ep-text-3)]">{{ provider?.description || '' }}</p>
           </div>
         </div>
         <button
           type="button"
-          class="rounded-lg p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          class="ep-btn-ghost ep-btn-icon -mr-2 shrink-0"
+          aria-label="Fechar"
           @click="$emit('close')"
         >
-          <X class="h-5 w-5 text-zinc-500" />
+          <X class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
         </button>
       </div>
 
       <!-- Content -->
-      <div class="p-6 space-y-6">
+      <div class="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
         <!-- SendGrid: API Key + Remetente -->
         <template v-if="isSendGrid">
           <section class="space-y-4">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Configuração SendGrid</h3>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">
-              Crie uma API Key em <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" rel="noopener noreferrer" class="text-[var(--color-primary)] underline">SendGrid &gt; Settings &gt; API Keys</a>. Deixe em branco para manter a atual.
-            </p>
+            <div>
+              <h3 class="ep-section-title">Configuração SendGrid</h3>
+              <p class="mt-1 text-[12.5px] leading-5 text-[var(--ep-text-3)]">
+                Crie uma API Key em <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--ep-accent)] underline-offset-4 hover:underline">SendGrid &gt; Settings &gt; API Keys</a>. Deixe em branco para manter a atual.
+              </p>
+            </div>
             <div class="space-y-4">
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">API Key (SendGrid)</label>
-                <input v-model="form.sendgrid_api_key" type="password" autocomplete="new-password" :class="inputClass" placeholder="SG.xxx..." />
+                <label class="ep-label">API Key (SendGrid)</label>
+                <input v-model="form.sendgrid_api_key" type="password" autocomplete="new-password" class="ep-input font-mono" placeholder="SG.xxx..." />
               </div>
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail do remetente</label>
-                <input v-model="form.sendgrid_mail_from_address" type="email" :class="inputClass" placeholder="remetente@seudominio.com" />
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">O remetente deve estar verificado no SendGrid (Single Sender ou Domain Authentication).</p>
+                <label class="ep-label">E-mail do remetente</label>
+                <input v-model="form.sendgrid_mail_from_address" type="email" class="ep-input" placeholder="remetente@seudominio.com" />
+                <p class="ep-help">O remetente deve estar verificado no SendGrid (Single Sender ou Domain Authentication).</p>
               </div>
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do remetente</label>
-                <input v-model="form.sendgrid_mail_from_name" type="text" :class="inputClass" placeholder="Ex: Minha Loja" />
+                <label class="ep-label">Nome do remetente</label>
+                <input v-model="form.sendgrid_mail_from_name" type="text" class="ep-input" placeholder="Ex: Minha Loja" />
               </div>
             </div>
           </section>
@@ -119,142 +129,161 @@ const fixedValueClass =
 
         <!-- SMTP Configuration (Hostinger ou SMTP genérico) -->
         <section v-else class="space-y-4">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Configurações SMTP</h3>
-          
+          <h3 class="ep-section-title">Configurações SMTP</h3>
+
           <div class="grid gap-4 sm:grid-cols-2">
             <!-- Host, Porta, Criptografia: fixos quando o provedor tem defaults (ex.: Hostinger) -->
             <template v-if="hasFixedDefaults">
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Host</label>
-                <div :class="fixedValueClass">smtp.hostinger.com</div>
+                <label class="ep-label">Host</label>
+                <div class="ep-input flex items-center justify-between gap-2 !bg-[var(--ep-card-2)] font-mono !text-[12.5px] !text-[var(--ep-text-3)]">
+                  smtp.hostinger.com
+                  <Lock class="h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
               </div>
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Porta</label>
-                <div :class="fixedValueClass">465</div>
+                <label class="ep-label">Porta</label>
+                <div class="ep-input flex items-center justify-between gap-2 !bg-[var(--ep-card-2)] font-mono !text-[12.5px] tabular-nums !text-[var(--ep-text-3)]">
+                  465
+                  <Lock class="h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Criptografia</label>
-                <div :class="fixedValueClass">SSL</div>
+                <label class="ep-label">Criptografia</label>
+                <div class="ep-input flex items-center justify-between gap-2 !bg-[var(--ep-card-2)] font-mono !text-[12.5px] !text-[var(--ep-text-3)]">
+                  SSL
+                  <Lock class="h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                </div>
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Usuário</label>
-                <input v-model="form.hostinger_smtp_username" type="text" :class="inputClass" />
+                <label class="ep-label">Usuário</label>
+                <input v-model="form.hostinger_smtp_username" type="text" class="ep-input" />
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Senha (deixe em branco para manter)</label>
-                <input v-model="form.hostinger_smtp_password" type="password" autocomplete="new-password" :class="inputClass" />
+                <label class="ep-label">Senha</label>
+                <input v-model="form.hostinger_smtp_password" type="password" autocomplete="new-password" class="ep-input" />
+                <p class="ep-help">Deixe em branco para manter.</p>
               </div>
             </template>
             <template v-else>
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Host</label>
-                <input v-model="form.smtp_host" type="text" :class="inputClass" />
+                <label class="ep-label">Host</label>
+                <input v-model="form.smtp_host" type="text" class="ep-input font-mono !text-[13px]" />
               </div>
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Porta</label>
-                <input v-model="form.smtp_port" type="text" :class="inputClass" />
+                <label class="ep-label">Porta</label>
+                <input v-model="form.smtp_port" type="text" inputmode="numeric" class="ep-input font-mono !text-[13px] tabular-nums" />
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Criptografia</label>
-                <select v-model="form.smtp_encryption" :class="selectClass">
+                <label class="ep-label">Criptografia</label>
+                <select v-model="form.smtp_encryption" class="ep-input">
                   <option value="tls">TLS</option>
                   <option value="ssl">SSL</option>
                 </select>
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Usuário</label>
-                <input v-model="form.smtp_username" type="text" :class="inputClass" />
+                <label class="ep-label">Usuário</label>
+                <input v-model="form.smtp_username" type="text" class="ep-input" />
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Senha (deixe em branco para manter)</label>
-                <input v-model="form.smtp_password" type="password" autocomplete="new-password" :class="inputClass" />
+                <label class="ep-label">Senha</label>
+                <input v-model="form.smtp_password" type="password" autocomplete="new-password" class="ep-input" />
+                <p class="ep-help">Deixe em branco para manter.</p>
               </div>
             </template>
           </div>
         </section>
 
         <!-- Remetente: Hostinger usa o e-mail do usuário SMTP; SMTP genérico permite e-mail separado -->
-        <section v-if="!isSendGrid && hasFixedDefaults" class="space-y-4">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Remetente (nome)</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400">O e-mail do remetente é o mesmo do usuário SMTP acima. Defina apenas o nome exibido:</p>
+        <section v-if="!isSendGrid && hasFixedDefaults" class="space-y-4 border-t border-[var(--ep-line)] pt-6">
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do remetente</label>
-            <input v-model="form.hostinger_mail_from_name" type="text" :class="inputClass" placeholder="Ex: Minha Loja" />
+            <h3 class="ep-section-title">Remetente (nome)</h3>
+            <p class="mt-1 text-[12.5px] leading-5 text-[var(--ep-text-3)]">O e-mail do remetente é o mesmo do usuário SMTP acima. Defina apenas o nome exibido:</p>
+          </div>
+          <div>
+            <label class="ep-label">Nome do remetente</label>
+            <input v-model="form.hostinger_mail_from_name" type="text" class="ep-input" placeholder="Ex: Minha Loja" />
           </div>
         </section>
 
-        <section v-if="!isSendGrid && !hasFixedDefaults" class="space-y-4">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Remetente</h3>
+        <section v-if="!isSendGrid && !hasFixedDefaults" class="space-y-4 border-t border-[var(--ep-line)] pt-6">
+          <h3 class="ep-section-title">Remetente</h3>
           <div class="space-y-4">
             <div>
-              <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">E-mail do remetente</label>
-              <input v-model="form.mail_from_address" type="email" :class="inputClass" placeholder="noreply@seudominio.com" />
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Pode ser diferente do usuário SMTP, se o servidor permitir.</p>
+              <label class="ep-label">E-mail do remetente</label>
+              <input v-model="form.mail_from_address" type="email" class="ep-input" placeholder="noreply@seudominio.com" />
+              <p class="ep-help">Pode ser diferente do usuário SMTP, se o servidor permitir.</p>
             </div>
             <div>
-              <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do remetente</label>
-              <input v-model="form.mail_from_name" type="text" :class="inputClass" placeholder="Ex: Minha Loja" />
+              <label class="ep-label">Nome do remetente</label>
+              <input v-model="form.mail_from_name" type="text" class="ep-input" placeholder="Ex: Minha Loja" />
             </div>
           </div>
         </section>
 
         <!-- Test Connection -->
-        <section class="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Testar Configuração</h3>
-          
+        <section class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+          <h3 class="ep-section-title">Testar configuração</h3>
+
           <button
             type="button"
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-white border-2 border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-70 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+            class="ep-btn-secondary w-full"
             :disabled="connectionTesting"
             @click="handleTestConnection"
           >
-            <Loader2 v-if="connectionTesting" class="h-4 w-4 animate-spin shrink-0" />
+            <Loader2 v-if="connectionTesting" class="h-4 w-4 animate-spin shrink-0" :stroke-width="1.75" />
             {{ connectionTesting ? 'Testando...' : 'Testar conexão' }}
           </button>
-          <p v-if="connectionResult.status === 'success'" class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          <p v-if="connectionResult.status === 'success'" class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] bg-[var(--ep-pos-bg)] px-3 py-2 text-[12.5px] text-[var(--ep-pos)]">
+            <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
             {{ connectionResult.message || 'Conexão estabelecida com sucesso.' }}
           </p>
-          <p v-if="connectionResult.status === 'error'" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
+          <p v-if="connectionResult.status === 'error'" class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2 text-[12.5px] text-[var(--ep-neg)]">
+            <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
             {{ connectionResult.message || 'Erro ao testar conexão.' }}
           </p>
 
-          <div class="space-y-3">
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Enviar e-mail de teste</label>
-            <input
-              v-model="testEmail"
-              type="email"
-              placeholder="destino@exemplo.com"
-              :class="inputClass"
-            />
-            <button
-              type="button"
-              class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-              :disabled="!testEmail || sendTestSending"
-              @click="handleSendTest"
-            >
-              <Loader2 v-if="sendTestSending" class="h-4 w-4 animate-spin shrink-0" />
-              {{ sendTestSending ? 'Enviando...' : 'Enviar e-mail de teste' }}
-            </button>
-            <p v-if="sendResult.status === 'success'" class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          <div class="space-y-3 border-t border-[var(--ep-line)] pt-4">
+            <label class="ep-label !mb-0">Enviar e-mail de teste</label>
+            <div class="flex flex-col gap-2 sm:flex-row">
+              <input
+                v-model="testEmail"
+                type="email"
+                placeholder="destino@exemplo.com"
+                class="ep-input min-w-0 flex-1"
+              />
+              <button
+                type="button"
+                class="ep-btn-secondary shrink-0"
+                :disabled="!testEmail || sendTestSending"
+                @click="handleSendTest"
+              >
+                <Loader2 v-if="sendTestSending" class="h-4 w-4 animate-spin shrink-0" :stroke-width="1.75" />
+                {{ sendTestSending ? 'Enviando...' : 'Enviar e-mail de teste' }}
+              </button>
+            </div>
+            <p v-if="sendResult.status === 'success'" class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] bg-[var(--ep-pos-bg)] px-3 py-2 text-[12.5px] text-[var(--ep-pos)]">
+              <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
               {{ sendResult.message || 'E-mail de teste enviado com sucesso.' }}
             </p>
-            <p v-if="sendResult.status === 'error'" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
+            <p v-if="sendResult.status === 'error'" class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2 text-[12.5px] text-[var(--ep-neg)]">
+              <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
               {{ sendResult.message || 'Erro ao enviar e-mail de teste.' }}
             </p>
           </div>
         </section>
+      </div>
 
-        <!-- Salvar -->
-        <section class="pt-4 border-t border-zinc-200 dark:border-zinc-700">
-          <button
-            type="button"
-            class="w-full rounded-xl bg-[var(--color-primary)] text-white px-4 py-3 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-            :disabled="form.processing"
-            @click="$emit('save')"
-          >
-            Salvar configurações
-          </button>
-        </section>
+      <!-- Salvar -->
+      <div class="shrink-0 border-t border-[var(--ep-line)] px-6 py-4">
+        <button
+          type="button"
+          class="ep-btn w-full !h-10"
+          :disabled="form.processing"
+          @click="$emit('save')"
+        >
+          Salvar configurações
+        </button>
       </div>
     </div>
   </Transition>

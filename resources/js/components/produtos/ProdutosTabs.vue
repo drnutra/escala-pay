@@ -17,53 +17,53 @@ const isAfiliadosProgramas = computed(() => page.url.startsWith('/produtos/afili
 </script>
 
 <template>
-    <HorizontalScrollTabs aria-label="Abas de produtos">
+    <HorizontalScrollTabs aria-label="Abas de produtos" nav-class="ep-tabs">
         <Link
             href="/produtos"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'ep-tab',
                 isProdutos
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                    ? 'ep-tab--active [&>svg]:text-[var(--ep-accent)]'
+                    : 'border border-transparent',
             ]"
         >
-            <Package class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Package class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
             Produtos
         </Link>
         <Link
             href="/produtos/cupons"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'ep-tab',
                 isCupons
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                    ? 'ep-tab--active [&>svg]:text-[var(--ep-accent)]'
+                    : 'border border-transparent',
             ]"
         >
-            <TicketPercent class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <TicketPercent class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
             Cupons
         </Link>
         <Link
             href="/produtos/alunos"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'ep-tab',
                 isAlunos
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                    ? 'ep-tab--active [&>svg]:text-[var(--ep-accent)]'
+                    : 'border border-transparent',
             ]"
         >
-            <Users class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Users class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
             Alunos
         </Link>
         <Link
             href="/produtos/co-produtores"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'ep-tab',
                 isCoprodutores
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                    ? 'ep-tab--active [&>svg]:text-[var(--ep-accent)]'
+                    : 'border border-transparent',
             ]"
         >
-            <Handshake class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Handshake class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
             <span class="flex items-center gap-1.5">
                 Co-produtores
                 <BetaBadge size="xs" />
@@ -72,13 +72,13 @@ const isAfiliadosProgramas = computed(() => page.url.startsWith('/produtos/afili
         <Link
             href="/produtos/afiliados-programas"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'ep-tab',
                 isAfiliadosProgramas
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                    ? 'ep-tab--active [&>svg]:text-[var(--ep-accent)]'
+                    : 'border border-transparent',
             ]"
         >
-            <UserPlus class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <UserPlus class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
             <span class="flex items-center gap-1.5">
                 Afiliados
                 <BetaBadge size="xs" />

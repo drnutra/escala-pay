@@ -14,26 +14,26 @@ defineProps({
 
 <template>
     <p
-        class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-zinc-200/70 bg-zinc-50/60 px-3 py-2 text-xs leading-relaxed text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-400"
+        class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2 text-[12px] leading-relaxed text-[var(--ep-text-3)]"
         role="note"
     >
-        <Info class="h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
+        <Info class="h-3.5 w-3.5 shrink-0 text-[var(--ep-accent)]" :stroke-width="1.75" aria-hidden="true" />
         <span>
             <template v-if="variant === 'producer'">
                 Saques e repasses de parceiros usam exclusivamente a
-                <span class="font-medium text-zinc-600 dark:text-zinc-300">API CajuPay</span>
+                <span class="font-medium text-[var(--ep-text-2)]">API CajuPay</span>
                 (transferência PIX).
             </template>
             <template v-else>
                 Saques via PIX são processados pela
-                <span class="font-medium text-zinc-600 dark:text-zinc-300">API CajuPay</span>
+                <span class="font-medium text-[var(--ep-text-2)]">API CajuPay</span>
                 da conta do produtor.
             </template>
         </span>
         <Link
             v-if="variant === 'producer'"
             :href="gatewaysUrl"
-            class="shrink-0 font-medium text-zinc-600 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200"
+            class="shrink-0 font-medium text-[var(--ep-accent)] underline-offset-2 transition-colors duration-150 hover:underline"
         >
             Ver integração
         </Link>

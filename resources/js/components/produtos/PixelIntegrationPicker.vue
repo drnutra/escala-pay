@@ -61,11 +61,14 @@ function onUseIntegrationsChange(checked) {
 </script>
 
 <template>
-    <div class="space-y-3 rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/30">
-        <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Integrações cadastradas</p>
-        <p v-if="integrations.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+    <div class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+        <div class="flex items-center justify-between gap-3">
+            <p class="ep-section-title">Integrações cadastradas</p>
+            <span class="ep-chip tabular-nums">{{ integrations.length }}</span>
+        </div>
+        <p v-if="integrations.length === 0" class="text-[12.5px] text-[var(--ep-text-4)]">
             Nenhuma integração nesta plataforma.
-            <Link href="/integracoes" class="text-[var(--color-primary)] underline">Cadastrar em Integrações</Link>
+            <Link href="/integracoes" class="ml-1 font-medium text-[var(--ep-accent)] underline-offset-4 hover:underline">Cadastrar em Integrações</Link>
         </p>
         <template v-else>
             <Checkbox
@@ -74,26 +77,29 @@ function onUseIntegrationsChange(checked) {
                 :disabled="disabled"
                 @update:model-value="onUseIntegrationsChange"
             />
-            <div v-if="usesIntegrations" class="space-y-2 pl-1">
+            <div v-if="usesIntegrations" class="space-y-2">
                 <label
                     v-for="item in integrations"
                     :key="item.id"
-                    class="flex cursor-pointer items-start gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900"
+                    class="flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 transition-colors duration-150"
+                    :class="isSelected(item.id)
+                        ? 'border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)]'
+                        : 'border-[var(--ep-line)] bg-[var(--ep-input)] hover:border-[var(--ep-line-strong)]'"
                 >
                     <input
                         type="checkbox"
-                        class="mt-1 rounded border-zinc-300"
+                        class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--ep-accent)]"
                         :checked="isSelected(item.id)"
                         :disabled="disabled"
                         @change="toggleIntegration(item.id, $event.target.checked)"
                     />
-                    <span class="min-w-0 text-sm">
-                        <span class="font-medium text-zinc-900 dark:text-white">{{ item.name }}</span>
-                        <span class="block text-xs text-zinc-500">{{ item.summary }}</span>
+                    <span class="min-w-0">
+                        <span class="block truncate text-[13px] font-medium text-[var(--ep-text)]">{{ item.name }}</span>
+                        <span class="mt-0.5 block text-[12px] text-[var(--ep-text-3)]">{{ item.summary }}</span>
                     </span>
                 </label>
             </div>
-            <div v-if="usesIntegrations" class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+            <div v-if="usesIntegrations" class="space-y-3 border-t border-[var(--ep-line)] pt-4">
                 <Checkbox v-model="block.fire_purchase_on_pix" label="Disparar Purchase ao gerar PIX (não na aprovação)?" :disabled="disabled" />
                 <Checkbox v-model="block.fire_purchase_on_boleto" label="Disparar Purchase ao gerar boleto (não na aprovação)?" :disabled="disabled" />
                 <Checkbox v-model="block.disable_order_bump_events" label="Desativar eventos de order bumps?" :disabled="disabled" />

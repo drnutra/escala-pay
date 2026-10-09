@@ -46,11 +46,11 @@ onUnmounted(() => {
     <div v-if="user" ref="dropdownRef" class="relative">
         <button
             type="button"
-            class="flex items-center gap-2 rounded-full border border-zinc-200/50 bg-white/50 px-1 py-1 text-left text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:hover:bg-[#0f0f13]"
+            class="flex h-8 items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 text-left text-[13px] transition-colors duration-150 hover:bg-[var(--ep-hover)]"
             @click.prevent="toggleDropdown"
         >
             <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-primary)] text-xs font-medium text-white"
+                class="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-primary)] text-[10.5px] font-semibold text-white ring-1 ring-[var(--ep-line)]"
             >
                 <img
                     v-if="user.avatar_url"
@@ -60,11 +60,11 @@ onUnmounted(() => {
                 />
                 <span v-else>{{ initials }}</span>
             </span>
-            <span class="hidden max-w-[120px] truncate font-medium text-zinc-700 dark:text-zinc-300 sm:block">
+            <span class="hidden max-w-[120px] truncate font-medium text-[var(--ep-text-2)] sm:block">
                 {{ user.name }}
             </span>
             <svg
-                class="h-4 w-4 shrink-0 text-zinc-500 transition-transform dark:text-zinc-400"
+                class="h-3.5 w-3.5 shrink-0 text-[var(--ep-text-4)] transition-transform duration-150"
                 :class="{ 'rotate-180': dropdownOpen }"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -80,13 +80,13 @@ onUnmounted(() => {
 
         <div
             v-if="dropdownOpen"
-            class="absolute right-0 z-50 mt-2 w-56 flex flex-col rounded-xl border border-zinc-200 bg-white p-3 shadow-[var(--shadow-theme-sm)] dark:border-zinc-800 dark:bg-zinc-900"
+            class="absolute right-0 z-50 mt-2 flex w-60 origin-top-right flex-col rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card)] p-1.5 shadow-[var(--ep-shadow-pop)]"
         >
-            <div class="border-b border-zinc-200 pb-3 dark:border-zinc-800">
-                <p class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div class="mb-1 border-b border-[var(--ep-line)] px-2.5 pb-2.5 pt-1.5">
+                <p class="truncate text-[13px] font-medium text-[var(--ep-text)]">
                     {{ user.name }}
                 </p>
-                <p class="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                <p class="mt-0.5 truncate text-[12px] text-[var(--ep-text-3)]">
                     {{ user.email }}
                 </p>
             </div>
@@ -94,7 +94,7 @@ onUnmounted(() => {
                 v-if="user.role === 'infoprodutor' || user.role === 'admin'"
                 href="/meu-perfil"
                 :prefetch="panelNavPrefetch"
-                class="mt-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                 @click="closeDropdown"
             >
                 Meu perfil
@@ -103,7 +103,7 @@ onUnmounted(() => {
                 href="/logout"
                 method="post"
                 as="button"
-                class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                 @click="closeDropdown"
             >
                 Sair

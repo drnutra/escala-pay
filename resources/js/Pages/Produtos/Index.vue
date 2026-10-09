@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import ProdutosTabs from '@/components/produtos/ProdutosTabs.vue';
 import ProdutoCreateSidebar from '@/components/produtos/ProdutoCreateSidebar.vue';
 import PluginRuntimeMount from '@/components/plugins/PluginRuntimeMount.vue';
@@ -18,6 +19,7 @@ import {
     Upload,
 } from 'lucide-vue-next';
 import ProductPackageModal from '@/components/produtos/ProductPackageModal.vue';
+import { Plus, ArrowUpRight } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -119,124 +121,136 @@ function pluginActions(productId) {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
         <ProdutosTabs />
-        <div class="flex justify-end gap-2">
-            <Button variant="outline" @click="openImportModal">
-                <Upload class="h-4 w-4" />
-                Importar produto
-            </Button>
-            <Button @click="openSidebar">
-                Novo produto
-            </Button>
+
+        <!-- Barra de ações -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-[12.5px] text-[var(--ep-text-3)]">
+                <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ produtos?.total ?? produtosList.length }}</span>
+                {{ (produtos?.total ?? produtosList.length) === 1 ? 'produto' : 'produtos' }} no catálogo
+            </p>
+            <div class="flex items-center gap-2">
+                <Button variant="outline" @click="openImportModal">
+                    <Upload class="h-4 w-4" :stroke-width="1.75" />
+                    Importar produto
+                </Button>
+                <Button @click="openSidebar">
+                    <Plus class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
+                    Novo produto
+                </Button>
+            </div>
         </div>
         <PluginRenderZone zone="produtos.index.after_toolbar" />
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <article
                 v-for="p in produtosList"
                 :key="p.id"
-                class="group relative flex flex-row gap-3 panel-card p-3 pr-2 transition hover:border-zinc-200 dark:hover:border-zinc-600"
+                class="panel-card group relative flex gap-4 p-3 transition-[border-color,box-shadow] duration-200 hover:border-[var(--ep-line-strong)] focus-within:z-20 [&:has([data-product-menu]>div:not([style*=none]))]:z-20"
             >
-                <!-- Coluna da imagem: clicável → edição -->
+                <!-- Imagem: clicável → edição (raio concêntrico ao card: 20px − 12px de respiro) -->
                 <Link
                     :href="`/produtos/${p.id}/edit`"
-                    class="flex w-20 shrink-0 items-center justify-center self-stretch"
+                    class="block shrink-0 self-start"
                 >
-                    <div class="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-600">
+                    <div class="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-[8px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                         <img
                             v-if="p.image_url"
                             :src="p.image_url"
                             :alt="p.name"
-                            class="absolute inset-0 h-full w-full object-cover object-center"
+                            class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]"
                         />
                         <div
                             v-else
-                            class="flex h-full w-full items-center justify-center bg-zinc-100 text-zinc-400 dark:bg-zinc-700/50 dark:text-zinc-500"
+                            class="flex h-full w-full items-center justify-center bg-[linear-gradient(145deg,color-mix(in_oklab,var(--ep-accent)_16%,transparent),color-mix(in_oklab,var(--ep-accent-2)_10%,transparent))] text-[var(--ep-text-4)]"
                         >
-                            <Package class="h-8 w-8" aria-hidden="true" />
+                            <Package class="h-6 w-6" :stroke-width="1.75" aria-hidden="true" />
                         </div>
                     </div>
                 </Link>
-                <!-- Conteúdo à direita (só padding horizontal para não somar com o do card no topo/baixo) -->
-                <div class="flex min-w-0 flex-1 flex-col px-2">
-                    <div class="flex items-start justify-between gap-1.5">
-                        <div class="min-w-0 flex-1">
+
+                <!-- Conteúdo -->
+                <div class="flex min-w-0 flex-1 flex-col py-0.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1 pt-0.5">
                             <Link
                                 :href="`/produtos/${p.id}/edit`"
-                                class="font-medium text-zinc-900 dark:text-white line-clamp-2 block text-sm leading-tight hover:underline"
+                                class="line-clamp-2 block text-[14px] font-medium leading-[1.3] tracking-[-0.01em] text-[var(--ep-text)] transition-colors duration-150 hover:text-[var(--ep-accent)]"
                             >
                                 {{ p.name }}
                             </Link>
-                            <div class="mt-0.5 flex flex-wrap items-center gap-1.5">
-                                <span class="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                                    {{ p.type_label }}
-                                </span>
-                                <span class="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                                    {{ p.billing_type_label ?? 'Pagamento único' }}
-                                </span>
+                            <div class="mt-2 flex flex-wrap items-center gap-1.5">
                                 <span
                                     :class="[
-                                        'inline-block rounded px-2 py-0.5 text-xs font-medium',
+                                        'ep-chip',
                                         p.is_active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+                                            ? 'ep-chip--pos'
+                                            : 'text-[var(--ep-text-3)]',
                                     ]"
                                 >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                     {{ p.is_active ? 'Ativo' : 'Inativo' }}
+                                </span>
+                                <span class="ep-chip">
+                                    {{ p.type_label }}
+                                </span>
+                                <span class="ep-chip text-[var(--ep-text-3)]">
+                                    {{ p.billing_type_label ?? 'Pagamento único' }}
                                 </span>
                             </div>
                         </div>
-                        <div class="relative shrink-0" :data-product-menu="p.id">
+                        <div class="relative -mr-1 -mt-1 shrink-0" :data-product-menu="p.id">
                             <button
                                 type="button"
-                                class="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                                class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] text-[var(--ep-text-3)]"
                                 aria-label="Abrir menu"
                                 aria-expanded="openMenuId === p.id"
                                 @click="toggleMenu(p.id)"
                             >
-                                <MoreVertical class="h-3.5 w-3.5" />
+                                <MoreVertical class="h-4 w-4" :stroke-width="1.75" />
                             </button>
                             <div
                                 v-show="openMenuId === p.id"
-                                class="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+                                class="absolute right-0 top-full z-50 mt-1.5 w-52 rounded-[14px] border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] p-1 shadow-[var(--ep-shadow-pop)] backdrop-blur-2xl backdrop-saturate-150"
                             >
                                 <Link
                                     :href="`/produtos/${p.id}/edit`"
-                                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                    class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                     @click="closeMenu"
                                 >
-                                    <Pencil class="h-4 w-4 shrink-0" />
+                                    <Pencil class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                                     Editar
                                 </Link>
                                 <button
                                     type="button"
-                                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                    class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                     @click="duplicate(p)"
                                 >
-                                    <Copy class="h-4 w-4 shrink-0" />
+                                    <Copy class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                                     Duplicar
                                 </button>
                                 <button
                                     type="button"
-                                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                    class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                     @click="openExportModal(p)"
                                 >
-                                    <Download class="h-4 w-4 shrink-0" />
+                                    <Download class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                                     Exportar
                                 </button>
+                                <div class="ep-divider my-1" aria-hidden="true" />
                                 <button
                                     type="button"
-                                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                    class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-neg)] transition-colors duration-150 hover:bg-[var(--ep-neg-bg)]"
                                     @click="openDeleteModal(p)"
                                 >
-                                    <Trash2 class="h-4 w-4 shrink-0" />
+                                    <Trash2 class="h-4 w-4 shrink-0" :stroke-width="1.75" />
                                     Excluir
                                 </button>
                                 <template v-for="(action, actIdx) in pluginActions(p.id)" :key="`plugin-${p.id}-${actIdx}`">
                                     <div
                                         v-if="action.ui_mode === 'runtime'"
-                                        class="px-3 py-2"
+                                        class="px-2.5 py-2"
                                         @click="closeMenu"
                                     >
                                         <PluginRuntimeMount :item="action" :context="{ product: p }" />
@@ -244,67 +258,75 @@ function pluginActions(productId) {
                                     <a
                                         v-else-if="action.href"
                                         :href="action.href"
-                                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                        class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                         @click="closeMenu"
                                     >
-                                        <ExternalLink v-if="!action.icon" class="h-4 w-4 shrink-0" />
-                                        <component v-else :is="action.icon" class="h-4 w-4 shrink-0" />
+                                        <ExternalLink v-if="!action.icon" class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" />
+                                        <component v-else :is="action.icon" class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" />
                                         {{ action.label }}
                                     </a>
-                                    <span v-else class="block border-t border-zinc-100 px-3 py-1 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+                                    <span v-else class="mt-1 block border-t border-[var(--ep-line)] px-2.5 pb-1 pt-2 text-[11.5px] text-[var(--ep-text-4)]">
                                         {{ action.label }}
                                     </span>
                                 </template>
                             </div>
                         </div>
                     </div>
-                    <p class="mt-0.5 text-sm font-semibold text-[var(--color-primary)]">
-                        {{ formatBRL(p.price_brl ?? p.price) }}
-                    </p>
-                    <a
-                        v-if="p.checkout_slug"
-                        :href="`/c/${p.checkout_slug}`"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="mt-0.5 text-xs text-zinc-500 hover:text-[var(--color-primary)] dark:text-zinc-400 dark:hover:text-[var(--color-primary)]"
-                    >
-                        Ver checkout →
-                    </a>
+
+                    <div class="mt-auto flex items-end justify-between gap-3 pt-3">
+                        <MoneyAmount :value="p.price_brl ?? p.price" size="md" class="tracking-[-0.02em]" />
+                        <a
+                            v-if="p.checkout_slug"
+                            :href="`/c/${p.checkout_slug}`"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="-mb-0.5 -mr-0.5 inline-flex shrink-0 items-center gap-1 rounded-[8px] px-1.5 py-1 text-[12px] font-medium text-[var(--ep-text-3)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-accent)]"
+                        >
+                            Ver checkout
+                            <ArrowUpRight class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </article>
         </div>
 
         <nav
             v-if="produtos?.links?.length > 3"
-            class="flex items-center justify-center gap-2"
+            class="flex justify-center"
             aria-label="Paginação"
         >
-            <a
-                v-for="link in produtos.links"
-                :key="link.label"
-                :href="link.url"
-                :aria-current="link.active ? 'page' : undefined"
-                :aria-disabled="!link.url"
-                :class="[
-                    'relative inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition',
-                    link.active
-                        ? 'z-10 bg-[var(--color-primary)] text-white'
-                        : link.url
-                          ? 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700'
-                          : 'cursor-not-allowed text-zinc-400 dark:text-zinc-500',
-                ]"
-                v-html="link.label"
-                @click.prevent="link.url && router.visit(link.url, { preserveState: true })"
-            />
+            <div class="ep-tabs max-w-full overflow-x-auto">
+                <a
+                    v-for="link in produtos.links"
+                    :key="link.label"
+                    :href="link.url"
+                    :aria-current="link.active ? 'page' : undefined"
+                    :aria-disabled="!link.url"
+                    :class="[
+                        'ep-tab min-w-[30px] justify-center tabular-nums',
+                        link.active
+                            ? 'ep-tab--active'
+                            : link.url
+                              ? ''
+                              : 'pointer-events-none cursor-not-allowed opacity-40',
+                    ]"
+                    v-html="link.label"
+                    @click.prevent="link.url && router.visit(link.url, { preserveState: true })"
+                />
+            </div>
         </nav>
 
         <div
             v-if="!produtosList.length"
-            class="panel-card-dashed flex flex-col items-center justify-center py-16"
+            class="panel-card ep-empty py-16"
         >
-            <Package class="h-14 w-14 text-zinc-400 dark:text-zinc-500" />
-            <p class="mt-3 text-zinc-600 dark:text-zinc-400">Nenhum produto ainda.</p>
-            <Button class="mt-4" @click="openSidebar">
+            <span class="ep-kpi__icon mb-2 h-10 w-10 rounded-[12px]" aria-hidden="true">
+                <Package class="h-5 w-5" :stroke-width="1.75" />
+            </span>
+            <p class="ep-empty__title">Nenhum produto ainda.</p>
+            <p class="ep-empty__text">Crie seu primeiro produto para gerar o checkout e começar a vender — ou importe um pacote exportado de outra conta.</p>
+            <Button class="mt-3" @click="openSidebar">
+                <Plus class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
                 Criar primeiro produto
             </Button>
         </div>
@@ -320,22 +342,25 @@ function pluginActions(productId) {
             aria-labelledby="delete-modal-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="closeDeleteModal"
             />
             <div
-                class="relative w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                class="ep-modal relative w-full max-w-sm p-6"
             >
-                <h2 id="delete-modal-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <span class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]" aria-hidden="true">
+                    <Trash2 class="h-[18px] w-[18px]" :stroke-width="1.75" />
+                </span>
+                <h2 id="delete-modal-title" class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                     Excluir produto?
                 </h2>
-                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                     Tem certeza que deseja excluir
-                    <strong class="text-zinc-900 dark:text-white">"{{ productToDelete?.name }}"</strong>?
+                    <strong class="font-medium text-[var(--ep-text)]">"{{ productToDelete?.name }}"</strong>?
                     Esta ação não pode ser desfeita.
                 </p>
-                <div class="mt-5 flex gap-3 justify-end">
+                <div class="mt-6 flex justify-end gap-2">
                     <Button variant="outline" @click="closeDeleteModal">
                         Cancelar
                     </Button>

@@ -145,75 +145,84 @@ function showToast(message, type) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-md flex-col sm:rounded-l-[22px]"
             >
-                <div class="flex items-center justify-between rounded-tl-2xl px-5 py-5">
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <div class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-5 py-4">
+                    <h2 class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                         {{ editing ? 'Editar aluno' : 'Detalhes do aluno' }}
                     </h2>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-4 w-4" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div v-if="!aluno" class="flex flex-1 items-center justify-center p-8">
-                    <p class="text-sm text-zinc-500">Nenhum aluno selecionado.</p>
+                <div v-if="!aluno" class="ep-empty flex-1">
+                    <p class="ep-empty__title">Nenhum aluno selecionado.</p>
+                    <p class="ep-empty__text">Escolha um aluno na lista para ver os detalhes.</p>
                 </div>
 
                 <div v-else class="flex flex-1 flex-col overflow-hidden">
                     <div class="flex-1 overflow-y-auto p-5">
                         <div v-if="!editing" class="space-y-5">
-                            <div class="space-y-1">
-                                <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                    Nome
-                                </p>
-                                <p class="text-sm text-zinc-900 dark:text-white">{{ aluno.name }}</p>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                    E-mail
-                                </p>
-                                <p class="text-sm text-zinc-900 dark:text-white">{{ aluno.email }}</p>
+                            <div class="panel-card ep-glow-card p-5">
+                                <div class="flex items-center gap-3.5">
+                                    <span v-avatar="aluno.name" class="ep-avatar !h-11 !w-11 shrink-0 !text-[15px]" aria-hidden="true">{{ (aluno.name || '?').trim().charAt(0).toUpperCase() }}</span>
+                                    <dl class="min-w-0 flex-1 space-y-2.5">
+                                        <div>
+                                            <dt class="text-[11.5px] text-[var(--ep-text-3)]">
+                                                Nome
+                                            </dt>
+                                            <dd class="break-words text-[14px] font-medium text-[var(--ep-text)]">{{ aluno.name }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-[11.5px] text-[var(--ep-text-3)]">
+                                                E-mail
+                                            </dt>
+                                            <dd class="break-all text-[13px] text-[var(--ep-text-2)]">{{ aluno.email }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
                             </div>
                             <div class="space-y-2">
-                                <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                <p class="ep-section-title flex items-center justify-between">
                                     Produtos com acesso
+                                    <span class="ep-chip tabular-nums">{{ (aluno.products ?? []).length }}</span>
                                 </p>
                                 <div
                                     v-for="p in (aluno.products ?? [])"
                                     :key="p.id"
-                                    class="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-3 pr-2 dark:border-zinc-700 dark:bg-zinc-800/50"
+                                    class="flex items-center justify-between gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] py-2 pl-3 pr-2 shadow-[var(--ep-glass-highlight)]"
                                 >
-                                    <span class="flex items-center gap-2 text-sm text-zinc-900 dark:text-white">
-                                        <Package class="h-4 w-4 text-zinc-500" />
-                                        {{ p.name }}
+                                    <span class="flex min-w-0 items-center gap-2.5 text-[13px] text-[var(--ep-text)]">
+                                        <Package class="h-4 w-4 shrink-0 text-[var(--ep-accent)]" :stroke-width="1.75" />
+                                        <span class="truncate">{{ p.name }}</span>
                                     </span>
                                     <button
                                         type="button"
-                                        class="rounded-lg px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                        class="shrink-0 rounded-lg px-2 py-1 text-[12px] font-medium text-[var(--ep-neg)] transition-colors duration-150 hover:bg-[var(--ep-neg-bg)] disabled:opacity-50"
                                         :disabled="removingProductId === p.id"
                                         @click="removeProduct(p.id)"
                                     >
                                         {{ removingProductId === p.id ? 'Removendo...' : 'Remover' }}
                                     </button>
                                 </div>
-                                <p v-if="!aluno.products?.length" class="text-sm text-zinc-500">
+                                <p v-if="!aluno.products?.length" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-3 py-4 text-center text-[12.5px] text-[var(--ep-text-4)]">
                                     Nenhum produto
                                 </p>
                             </div>
-                            <div class="flex flex-col gap-2 pt-4">
+                            <div class="flex flex-col gap-2 border-t border-[var(--ep-line)] pt-5">
                                 <Button variant="outline" class="w-full justify-start" @click="startEdit">
-                                    <Pencil class="h-4 w-4" />
+                                    <Pencil class="h-4 w-4" :stroke-width="1.75" />
                                     Editar
                                 </Button>
                                 <Button
@@ -222,56 +231,56 @@ function showToast(message, type) {
                                     :disabled="deleting"
                                     @click="deleteAluno"
                                 >
-                                    <Loader2 v-if="deleting" class="h-4 w-4 animate-spin" />
-                                    <Trash2 v-else class="h-4 w-4" />
+                                    <Loader2 v-if="deleting" class="h-4 w-4 animate-spin" :stroke-width="1.75" />
+                                    <Trash2 v-else class="h-4 w-4" :stroke-width="1.75" />
                                     Excluir aluno
                                 </Button>
                             </div>
                         </div>
 
-                        <div v-else class="space-y-5">
-                            <div class="space-y-2">
-                                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        <div v-else class="space-y-4">
+                            <div>
+                                <label class="ep-label">
                                     Nome
                                 </label>
                                 <input
                                     v-model="form.name"
                                     type="text"
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input"
                                     placeholder="Nome do aluno"
                                 />
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            <div>
+                                <label class="ep-label">
                                     E-mail
                                 </label>
                                 <input
                                     v-model="form.email"
                                     type="email"
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input"
                                     placeholder="email@exemplo.com"
                                 />
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                    Nova senha (deixe em branco para manter)
+                            <div>
+                                <label class="ep-label">
+                                    Nova senha <span class="font-normal text-[var(--ep-text-4)]">(deixe em branco para manter)</span>
                                 </label>
                                 <input
                                     v-model="form.password"
                                     type="password"
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input"
                                     placeholder="••••••••"
                                 />
                             </div>
-                            <div class="space-y-2">
-                                <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            <div>
+                                <p class="ep-label">
                                     Produtos com acesso
                                 </p>
-                                <div class="space-y-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                <div class="space-y-0.5 rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5">
                                     <label
                                         v-for="p in produtos"
                                         :key="p.id"
-                                        class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                                        class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                     >
                                         <span class="shrink-0 w-fit">
                                             <Checkbox
@@ -279,21 +288,21 @@ function showToast(message, type) {
                                                 @update:model-value="(v) => { if (v) form.product_ids = [...form.product_ids, p.id]; else form.product_ids = form.product_ids.filter(x => x !== p.id); }"
                                             />
                                         </span>
-                                        <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">{{ p.name }}</span>
+                                        <span class="flex-1 truncate text-left text-[13px] text-[var(--ep-text)]">{{ p.name }}</span>
                                     </label>
-                                    <p v-if="!produtos.length" class="text-sm text-zinc-500">
+                                    <p v-if="!produtos.length" class="px-2 py-1.5 text-[12.5px] text-[var(--ep-text-4)]">
                                         Nenhum produto disponível
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex gap-2 pt-4">
+                            <div class="flex gap-2 border-t border-[var(--ep-line)] pt-5">
                                 <Button
                                     variant="primary"
                                     class="flex-1"
                                     :disabled="saving"
                                     @click="save"
                                 >
-                                    <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
+                                    <Loader2 v-if="saving" class="h-4 w-4 animate-spin" :stroke-width="1.75" />
                                     Salvar
                                 </Button>
                                 <Button variant="outline" :disabled="saving" @click="cancelEdit">
@@ -316,10 +325,10 @@ function showToast(message, type) {
                             v-if="toast.message"
                             role="alert"
                             :class="[
-                                'mx-5 mb-5 rounded-xl border px-4 py-3 text-sm',
+                                'mx-5 mb-5 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-[13px] font-medium',
                                 toast.type === 'error'
-                                    ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200'
-                                    : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-200',
+                                    ? 'border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]'
+                                    : 'border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]',
                             ]"
                         >
                             {{ toast.message }}

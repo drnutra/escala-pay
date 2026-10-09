@@ -124,10 +124,15 @@ const navItems = computed(() => {
     if (canView('configuracoes.view')) groupSistema.push({ name: 'Configurações', href: '/configuracoes', icon: Settings });
     if (isProducer) groupSistema.push({ name: 'Plugins', href: '/gerenciar-plugins', icon: Plug });
 
-    for (const group of [groupOperacao, groupFerramentas, groupSistema]) {
-        if (!group.length) continue;
-        if (items.length) items.push({ separator: true });
-        items.push(...group);
+    const groups = [
+        { label: 'Operação', items: groupOperacao },
+        { label: 'Ferramentas', items: groupFerramentas },
+        { label: 'Sistema', items: groupSistema },
+    ];
+    for (const group of groups) {
+        if (!group.items.length) continue;
+        items.push({ separator: true, label: group.label, first: items.length === 0 });
+        items.push(...group.items);
     }
 
     return items;
@@ -171,20 +176,20 @@ function closeFlyout() {
 <template>
     <aside
         :class="[
-            'fixed left-0 top-0 z-[99999] flex h-screen flex-col rounded-r-2xl bg-zinc-100 transition-all duration-300 ease-in-out dark:bg-zinc-900',
+            'ep-sidebar fixed left-0 top-0 z-[99999] flex h-screen flex-col transition-[width,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] lg:left-3 lg:top-3 lg:h-[calc(100vh-24px)] lg:rounded-[22px]',
             {
-                'w-[260px] translate-x-0': isMobileOpen,
+                'w-[272px] translate-x-0 shadow-[var(--ep-shadow-pop)] lg:shadow-none': isMobileOpen,
                 '-translate-x-full': !isMobileOpen,
                 'lg:translate-x-0': true,
-                'lg:w-[260px]': isExpanded || isMobileOpen,
-                'lg:w-[72px]': !isExpanded && !isMobileOpen,
+                'lg:w-[236px]': isExpanded || isMobileOpen,
+                'lg:w-[60px]': !isExpanded && !isMobileOpen,
             },
         ]"
     >
         <div
             :class="[
-                'flex items-center px-4 py-5',
-                showText() ? 'justify-between gap-2' : 'lg:justify-center',
+                'flex h-16 shrink-0 items-center px-3 pt-2',
+                showText() ? 'justify-between gap-2 pl-4' : 'lg:justify-center',
             ]"
         >
             <!-- Expandido: logo + botão recolher -->
@@ -195,12 +200,12 @@ function closeFlyout() {
                     class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-zinc-900 dark:text-white"
                 >
                     <template v-if="hasLogoFull()">
-                        <div class="flex h-9 w-[148px] shrink-0 items-center justify-start">
+                        <div class="flex h-8 w-[156px] shrink-0 items-center justify-start">
                             <img
                                 v-if="appSettings().app_logo"
                                 :src="appSettings().app_logo"
                                 :alt="appName()"
-                                class="max-h-9 max-w-[148px] object-contain object-left"
+                                class="max-h-[26px] max-w-[156px] object-contain object-left"
                                 :class="appSettings().app_logo_dark ? 'dark:hidden' : ''"
                                 @error="retryImageOnError"
                             />
@@ -208,28 +213,28 @@ function closeFlyout() {
                                 v-if="appSettings().app_logo_dark"
                                 :src="appSettings().app_logo_dark"
                                 :alt="appName()"
-                                class="hidden max-h-9 max-w-[148px] object-contain object-left dark:block"
+                                class="hidden max-h-[26px] max-w-[156px] object-contain object-left dark:block"
                                 @error="retryImageOnError"
                             />
                         </div>
                     </template>
-                    <span v-else class="truncate text-lg font-semibold">{{ appName() }}</span>
+                    <span v-else class="truncate text-[15px] font-semibold tracking-[-0.02em]">{{ appName() }}</span>
                 </Link>
                 <button
                     type="button"
-                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--ep-text-4)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                     :aria-label="isMobile ? 'Fechar menu' : 'Recolher menu'"
                     @click="toggleSidebar"
                 >
-                    <X v-if="isMobile" class="h-5 w-5" aria-hidden="true" />
-                    <PanelRightOpen v-else class="h-5 w-5" aria-hidden="true" />
+                    <X v-if="isMobile" class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                    <PanelRightOpen v-else class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                 </button>
             </template>
             <!-- Recolhido: só logo (clique abre) -->
             <button
                 v-else
                 type="button"
-                class="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                class="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--ep-text-3)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                 aria-label="Expandir menu"
                 @click="toggleSidebar"
             >
@@ -252,17 +257,23 @@ function closeFlyout() {
                         />
                     </div>
                 </template>
-                <span v-else class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-200 text-sm font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                <span v-else class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--ep-active)] text-[13px] font-semibold text-[var(--ep-text)]">
                     {{ appName().charAt(0) }}
                 </span>
             </button>
         </div>
-        <hr class="mx-3 border-t border-zinc-200 dark:border-zinc-700" />
-        <nav class="flex-1 overflow-y-auto no-scrollbar px-3 py-4" @mouseleave="closeFlyout">
-            <ul class="flex flex-col gap-1">
+        <nav class="flex-1 overflow-y-auto no-scrollbar px-2.5 pb-4" @mouseleave="closeFlyout">
+            <ul class="flex flex-col gap-px">
                 <template v-for="(item, index) in navItems" :key="item.separator ? `sep-${index}` : (item.href ?? index)">
-                    <li v-if="item.separator">
-                        <hr class="my-2 border-t border-zinc-200 dark:border-zinc-700" />
+                    <li v-if="item.separator" aria-hidden="true">
+                        <p
+                            v-if="showText() && item.label"
+                            class="px-2.5 pb-1.5 text-[11.5px] font-medium text-[var(--ep-text-4)]"
+                            :class="item.first ? 'pt-2' : 'pt-5'"
+                        >
+                            {{ item.label }}
+                        </p>
+                        <hr v-else-if="!item.first" class="mx-2 my-2.5 border-t border-[var(--ep-line)]" />
                     </li>
                     <li v-else>
                         <Link
@@ -284,7 +295,7 @@ function closeFlyout() {
                                     isActive(item.href) ? 'menu-item-icon-active' : 'menu-item-icon-inactive',
                                 ]"
                             >
-                                <component :is="item.icon" class="h-5 w-5" aria-hidden="true" />
+                                <component :is="item.icon" class="h-[17px] w-[17px]" :stroke-width="1.75" aria-hidden="true" />
                             </span>
                             <span
                                 v-if="showText()"
@@ -298,23 +309,19 @@ function closeFlyout() {
                 </template>
             </ul>
         </nav>
-        <!-- Mobile: Instalar App + Conquistas (parte inferior) -->
-        <div v-if="isMobile && showText()" class="space-y-2 px-4 py-4 lg:hidden">
-            <PwaInstallButton />
+        <!-- Rodapé: jornada de faturamento (+ instalar app no mobile) -->
+        <div v-if="showText()" class="space-y-2 px-2.5 pb-3">
+            <PwaInstallButton v-if="isMobile" />
             <ConquistasWidget variant="sidebar" />
         </div>
 
         <Teleport to="body">
             <div
                 v-if="flyout.visible"
-                class="pointer-events-none fixed z-[100001] flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-xl border border-zinc-200/90 bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:border-zinc-600/90 dark:bg-zinc-800 dark:text-zinc-50 dark:shadow-black/40"
+                class="pointer-events-none fixed z-[100001] flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card)] px-2.5 py-1.5 text-[12.5px] font-medium text-[var(--ep-text)] shadow-[var(--ep-shadow-pop)]"
                 :style="{ top: `${flyout.top}px`, left: `${flyout.left}px` }"
                 role="tooltip"
             >
-                <span
-                    class="absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent border-r-white dark:border-r-zinc-800"
-                    aria-hidden="true"
-                />
                 <span>{{ flyout.label }}</span>
                 <BetaBadge v-if="flyout.beta" size="xs" />
             </div>

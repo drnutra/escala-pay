@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onUnmounted, ref, watch } from 'vue';
 import Button from '@/components/ui/Button.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import {
     Wallet,
     Clock,
@@ -306,224 +307,249 @@ selectWallet('pix');
 </script>
 
 <template>
-    <div class="fin-dash space-y-6">
+    <div class="fin-dash space-y-4">
         <!-- Seletor de carteira -->
-        <div class="flex flex-wrap items-center gap-2 border-b border-zinc-100 pb-5 dark:border-zinc-800">
-            <button
-                v-for="key in walletKeys"
-                :key="key"
-                type="button"
-                class="flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition"
-                :class="
-                    selectedWallet === key
-                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-zinc-900 dark:text-white'
-                        : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400'
-                "
-                @click="selectWallet(key)"
-            >
-                <component :is="walletIcons[key]" class="h-4 w-4" :class="selectedWallet === key ? 'text-[var(--color-primary)]' : ''" />
-                {{ walletLabels[key] || key }}
-            </button>
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="ep-tabs max-w-full overflow-x-auto no-scrollbar" role="group" aria-label="Carteiras">
+                <button
+                    v-for="key in walletKeys"
+                    :key="key"
+                    type="button"
+                    class="ep-tab"
+                    :class="selectedWallet === key ? 'ep-tab--active' : ''"
+                    @click="selectWallet(key)"
+                >
+                    <component
+                        :is="walletIcons[key]"
+                        class="h-4 w-4"
+                        :class="selectedWallet === key ? 'text-[var(--ep-accent)]' : 'text-[var(--ep-text-4)]'"
+                        :stroke-width="1.75"
+                    />
+                    {{ walletLabels[key] || key }}
+                </button>
+            </div>
         </div>
 
-        <!-- Cards métricas -->
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div class="fin-metric-card">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Saldo disponível</p>
-                        <p class="mt-2 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                            {{ formatBRL(metrics.available) }}
-                        </p>
-                        <p class="mt-1 text-xs text-zinc-500">Carteira {{ walletLabels[selectedWallet] }}</p>
+        <!-- Herói (saldo disponível) + KPIs -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-5" aria-labelledby="fin-disponivel">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="fin-disponivel" class="text-[13px] font-medium text-[var(--ep-text-2)]">Saldo disponível</h2>
+                    <span class="ep-chip">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                        Carteira {{ walletLabels[selectedWallet] }}
+                    </span>
+                </div>
+
+                <MoneyAmount :value="metrics.available" size="hero" class="mt-5 block" />
+                <p class="mt-3 text-[12.5px] tabular-nums text-[var(--ep-text-3)]">
+                    Mínimo por saque · {{ formatBRL(minPayoutReais) }}
+                </p>
+
+                <dl class="mt-6 border-t border-[var(--ep-line)] pt-4 lg:mt-auto">
+                    <dt class="text-[11.5px] text-[var(--ep-text-3)]">Destino dos saques</dt>
+                    <dd class="mt-1 truncate text-[13px] font-medium text-[var(--ep-text)]">
+                        {{ withdrawPixDestination || 'Nenhuma chave PIX cadastrada' }}
+                    </dd>
+                </dl>
+            </section>
+
+            <div class="grid gap-4 sm:grid-cols-3 lg:col-span-7">
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">A liberar</span>
+                        <span class="ep-kpi__icon" aria-hidden="true"><TrendingUp class="h-4 w-4" :stroke-width="1.75" /></span>
                     </div>
-                    <div class="fin-metric-icon fin-metric-icon--primary">
-                        <Wallet class="h-5 w-5" />
+                    <div class="mt-auto pt-6">
+                        <MoneyAmount :value="metrics.pending" size="lg" class="block" />
+                        <p class="ep-kpi__meta mt-1.5">Aguardando prazo de liquidação</p>
                     </div>
                 </div>
-            </div>
 
-            <div class="fin-metric-card">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">A liberar</p>
-                        <p class="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-                            {{ formatBRL(metrics.pending) }}
-                        </p>
-                        <p class="mt-1 text-xs text-zinc-500">Aguardando prazo de liquidação</p>
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Saídas (saques)</span>
+                        <span class="ep-kpi__icon" aria-hidden="true"><TrendingDown class="h-4 w-4" :stroke-width="1.75" /></span>
                     </div>
-                    <div class="fin-metric-icon fin-metric-icon--green">
-                        <TrendingUp class="h-5 w-5" />
+                    <div class="mt-auto pt-6">
+                        <MoneyAmount :value="saidasPeriodo" size="lg" class="block" />
+                        <p class="ep-kpi__meta mt-1.5">Histórico de movimentações</p>
                     </div>
                 </div>
-            </div>
 
-            <div class="fin-metric-card">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Saídas (saques)</p>
-                        <p class="mt-2 text-2xl font-bold tracking-tight text-red-600 dark:text-red-400">
-                            {{ formatBRL(saidasPeriodo) }}
-                        </p>
-                        <p class="mt-1 text-xs text-zinc-500">Histórico de movimentações</p>
+                <div class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Saques pendentes</span>
+                        <span class="ep-kpi__icon" aria-hidden="true"><Clock class="h-4 w-4" :stroke-width="1.75" /></span>
                     </div>
-                    <div class="fin-metric-icon fin-metric-icon--red">
-                        <TrendingDown class="h-5 w-5" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="fin-metric-card">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Saques pendentes</p>
-                        <p class="mt-2 text-2xl font-bold tracking-tight text-violet-600 dark:text-violet-400">
-                            {{ formatBRL(metrics.reserved) }}
-                        </p>
-                        <p class="mt-1 text-xs text-zinc-500">
+                    <div class="mt-auto pt-6">
+                        <MoneyAmount :value="metrics.reserved" size="lg" class="block" />
+                        <p class="ep-kpi__meta mt-1.5 flex items-center gap-1.5" :class="metrics.reserved > 0 ? '!text-[var(--ep-warn)]' : ''">
+                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                             {{ metrics.reserved > 0 ? 'Processando' : 'Nenhum em andamento' }}
                         </p>
                     </div>
-                    <div class="fin-metric-icon fin-metric-icon--violet">
-                        <Clock class="h-5 w-5" />
-                    </div>
                 </div>
             </div>
         </div>
 
-        <div v-if="partnerSummary" class="grid gap-3 sm:grid-cols-2">
-            <div class="fin-metric-card">
-                <p class="text-xs text-zinc-500">Comissões parceiros (a pagar)</p>
-                <p class="mt-1 text-lg font-semibold">{{ formatBRL(partnerSummary.partner_commissions_pending) }}</p>
+        <div v-if="partnerSummary" class="grid gap-4 sm:grid-cols-2">
+            <div class="panel-card ep-kpi">
+                <span class="ep-kpi__label">Comissões parceiros (a pagar)</span>
+                <MoneyAmount :value="partnerSummary.partner_commissions_pending" size="lg" class="block" />
             </div>
-            <div class="fin-metric-card">
-                <p class="text-xs text-zinc-500">Comissões parceiros (pagas)</p>
-                <p class="mt-1 text-lg font-semibold">{{ formatBRL(partnerSummary.partner_commissions_paid) }}</p>
+            <div class="panel-card ep-kpi">
+                <span class="ep-kpi__label">Comissões parceiros (pagas)</span>
+                <MoneyAmount :value="partnerSummary.partner_commissions_paid" size="lg" class="block" />
             </div>
         </div>
 
         <div class="grid gap-4 lg:grid-cols-3">
             <!-- Coluna principal -->
-            <div class="space-y-4 lg:col-span-2">
-                <div class="fin-panel">
-                    <div class="flex items-center justify-between border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-                        <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Visão geral</h2>
-                        <span class="text-xs text-zinc-500">Comissões — últimos 14 dias</span>
+            <div class="min-w-0 space-y-4 lg:col-span-2">
+                <section class="panel-card p-5" aria-labelledby="fin-visao">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 id="fin-visao" class="ep-section-title">Visão geral</h2>
+                        <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
+                            Comissões — últimos 14 dias ·
+                            <span class="font-medium text-[var(--ep-text-2)]">{{ formatBRL(chartBars.reduce((s, b) => s + b.value, 0)) }}</span>
+                        </span>
                     </div>
-                    <div class="flex items-end justify-between gap-1 px-5 py-6" style="min-height: 180px">
+                    <div class="ep-bars mt-6 grid-cols-[repeat(14,minmax(0,1fr))] gap-1 sm:gap-2" role="img" aria-label="Comissões por dia nos últimos 14 dias">
                         <div
                             v-for="bar in chartBars"
                             :key="bar.date"
-                            class="flex flex-1 flex-col items-center gap-2"
+                            class="ep-bar max-sm:even:[&>.ep-bar__label]:invisible"
+                            :class="{ 'ep-bar--today': bar.date === chartBars[chartBars.length - 1].date }"
+                            :title="formatBRL(bar.value)"
                         >
-                            <div
-                                class="w-full max-w-[28px] rounded-t-md bg-[var(--color-primary)]/80 transition-all dark:bg-[var(--color-primary)]"
-                                :style="{ height: `${bar.height}px` }"
-                                :title="formatBRL(bar.value)"
-                            />
-                            <span class="text-[10px] text-zinc-400">{{ bar.label }}</span>
+                            <div class="ep-bar__track h-[120px] w-2.5"><div class="ep-bar__fill" :style="{ height: `${bar.height}%` }" /></div>
+                            <span class="ep-bar__label">{{ bar.label }}</span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-4 border-t border-zinc-100 px-5 py-3 text-xs dark:border-zinc-800">
+                    <div class="mt-4 flex flex-wrap gap-4 border-t border-[var(--ep-line)] pt-3 text-[12px] text-[var(--ep-text-3)]">
                         <span class="flex items-center gap-1.5">
-                            <span class="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                            <span class="h-2 w-2 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
                             Entradas (comissões)
                         </span>
                     </div>
-                </div>
+                </section>
 
-                <div class="fin-panel">
-                    <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-                        <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Movimentações recentes</h2>
+                <section class="panel-card ep-data overflow-hidden" aria-labelledby="fin-extrato">
+                    <div class="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
+                        <h2 id="fin-extrato" class="ep-section-title">Movimentações recentes</h2>
+                        <span class="text-[12px] text-[var(--ep-text-4)]">Extrato</span>
                     </div>
-                    <ul v-if="recentMovements.length" class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                        <li
-                            v-for="item in recentMovements"
-                            :key="item.id"
-                            class="flex items-center justify-between gap-3 px-5 py-3.5"
-                        >
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="flex h-9 w-9 items-center justify-center rounded-full"
-                                    :class="item.type === 'credit' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'"
-                                >
-                                    <ArrowDownCircle v-if="item.type === 'credit'" class="h-4 w-4" />
-                                    <ArrowUpCircle v-else class="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ item.label }}</p>
-                                    <p class="text-xs text-zinc-500">{{ formatDate(item.date) }}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p
-                                    class="text-sm font-semibold"
-                                    :class="item.type === 'credit' ? 'text-emerald-600' : 'text-red-600'"
-                                >
-                                    {{ item.type === 'credit' ? '+' : '−' }}{{ formatBRL(item.amount) }}
-                                </p>
-                                <span
-                                    v-if="item.status"
-                                    class="text-xs text-zinc-500"
-                                >{{ statusLabels[item.status] || item.status }}</span>
-                            </div>
-                        </li>
-                    </ul>
-                    <p v-else class="px-5 py-10 text-center text-sm text-zinc-500">Nenhuma movimentação ainda.</p>
-                </div>
+                    <div v-if="recentMovements.length" class="overflow-x-auto">
+                        <table class="ep-table min-w-[480px]">
+                            <thead>
+                                <tr>
+                                    <th>Movimentação</th>
+                                    <th>Status</th>
+                                    <th class="ep-num">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in recentMovements" :key="item.id">
+                                    <td>
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span
+                                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-[var(--ep-line)] bg-[var(--ep-card-2)]"
+                                                :class="item.type === 'credit' ? 'text-[var(--ep-pos)]' : 'text-[var(--ep-text-3)]'"
+                                                aria-hidden="true"
+                                            >
+                                                <ArrowDownCircle v-if="item.type === 'credit'" class="h-4 w-4" :stroke-width="1.75" />
+                                                <ArrowUpCircle v-else class="h-4 w-4" :stroke-width="1.75" />
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-[13px] font-medium text-[var(--ep-text)]">{{ item.label }}</p>
+                                                <p class="text-[12px] tabular-nums text-[var(--ep-text-4)]">{{ formatDate(item.date) }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            v-if="item.status"
+                                            class="ep-chip"
+                                            :class="{
+                                                'ep-chip--pos': item.status === 'completed' || item.status === 'paid',
+                                                'ep-chip--warn': ['pending', 'pending_approval', 'awaiting_payout', 'processing'].includes(item.status),
+                                                'ep-chip--neg': item.status === 'failed' || item.status === 'cancelled',
+                                            }"
+                                        >
+                                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                            {{ statusLabels[item.status] || item.status }}
+                                        </span>
+                                    </td>
+                                    <td
+                                        class="ep-num font-semibold"
+                                        :class="item.type === 'credit' ? 'text-[var(--ep-pos)]' : 'text-[var(--ep-text)]'"
+                                    >
+                                        {{ item.type === 'credit' ? '+' : '−' }}{{ formatBRL(item.amount) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else class="ep-empty">
+                        <p class="ep-empty__title">Nenhuma movimentação ainda.</p>
+                        <p class="ep-empty__text">Créditos de vendas e saques aparecem neste extrato assim que acontecerem.</p>
+                    </div>
+                </section>
             </div>
 
             <!-- Sidebar ações -->
             <div class="space-y-4">
-                <div class="fin-panel p-5">
-                    <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Ações rápidas</h2>
+                <section class="panel-card p-5" aria-labelledby="fin-acoes">
+                    <h2 id="fin-acoes" class="ep-section-title">Ações rápidas</h2>
                     <p
                         v-if="!canManage"
-                        class="mt-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400"
+                        class="mt-3 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]"
                     >
                         Você pode consultar saldos. Sacar e alterar PIX exigem permissão de gestão financeira.
                     </p>
                     <div v-if="canManage" class="mt-4 space-y-2">
                         <button
                             type="button"
-                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3.5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                            class="ep-btn h-11 w-full"
                             :disabled="!cajupayConnected || maxAvailable < minPayoutReais"
                             @click="showWithdrawForm = !showWithdrawForm"
                         >
-                            <ArrowDownToLine class="h-5 w-5" />
+                            <ArrowDownToLine class="h-4 w-4" :stroke-width="1.75" />
                             Sacar
                         </button>
                         <button
                             type="button"
-                            class="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                            class="ep-btn-secondary w-full"
                             @click="showPixForm = !showPixForm"
                         >
-                            <QrCode class="h-4 w-4" />
+                            <QrCode class="h-4 w-4" :stroke-width="1.75" />
                             {{ pixKey ? 'Alterar chave PIX' : 'Cadastrar chave PIX' }}
                         </button>
                     </div>
 
-                    <div v-if="canManage && showWithdrawForm && cajupayConnected" class="mt-4 space-y-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                        <p class="text-xs font-medium text-zinc-500">
-                            Sacar de {{ walletLabels[selectedWallet] }} · {{ formatBRL(maxAvailable) }} disponível
+                    <div v-if="canManage && showWithdrawForm && cajupayConnected" class="mt-4 space-y-3 border-t border-[var(--ep-line)] pt-4">
+                        <p class="text-[12px] tabular-nums text-[var(--ep-text-3)]">
+                            Sacar de {{ walletLabels[selectedWallet] }} · <span class="font-medium text-[var(--ep-text)]">{{ formatBRL(maxAvailable) }}</span> disponível
                         </p>
                         <div
                             v-if="withdrawPixDestination"
-                            class="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-xs dark:border-zinc-700 dark:bg-zinc-800/50"
+                            class="rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5"
                         >
-                            <p class="font-medium text-zinc-700 dark:text-zinc-300">Transferência PIX para</p>
-                            <p class="mt-1 break-all font-mono text-sm text-zinc-900 dark:text-white">
+                            <p class="text-[11.5px] font-medium text-[var(--ep-text-3)]">Transferência PIX para</p>
+                            <p class="mt-1 break-all font-mono text-[13px] text-[var(--ep-text)]">
                                 {{ withdrawPixDestination }}
                             </p>
                         </div>
                         <p
                             v-else
-                            class="rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200"
+                            class="flex items-start gap-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-warn)_30%,transparent)] bg-[var(--ep-warn-bg)] px-3 py-2 text-[12px] text-[var(--ep-warn)]"
                         >
+                            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
                             Cadastre uma chave PIX abaixo antes de confirmar o saque.
                         </p>
-                        <label class="flex items-center gap-2 text-sm">
-                            <input v-model="withdrawAll" type="checkbox" class="rounded border-zinc-300" />
+                        <label class="flex items-center gap-2 text-[13px] text-[var(--ep-text-2)]">
+                            <input v-model="withdrawAll" type="checkbox" class="h-4 w-4 rounded border-[var(--ep-input-border)] accent-[var(--ep-accent)]" />
                             Sacar tudo
                         </label>
                         <input
@@ -533,7 +559,8 @@ selectWallet('pix');
                             step="0.01"
                             :min="minPayoutReais"
                             :max="maxAvailable"
-                            class="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                            aria-label="Valor do saque"
+                            class="ep-input tabular-nums"
                         />
                         <Button
                             type="button"
@@ -545,17 +572,19 @@ selectWallet('pix');
                         </Button>
                     </div>
 
-                    <div v-if="canManage && showPixForm" class="mt-4 space-y-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                    <div v-if="canManage && showPixForm" class="mt-4 space-y-3 border-t border-[var(--ep-line)] pt-4">
                         <input
                             v-model="pixForm.pix_key"
                             type="text"
                             placeholder="Chave PIX"
-                            class="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                            aria-label="Chave PIX"
+                            class="ep-input"
                         />
                         <div class="relative">
                             <select
                                 v-model="pixForm.pix_key_type"
-                                class="w-full appearance-none rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                                aria-label="Tipo de chave PIX"
+                                class="ep-input appearance-none pr-9"
                             >
                                 <option value="email">E-mail</option>
                                 <option value="cpf">CPF</option>
@@ -563,142 +592,113 @@ selectWallet('pix');
                                 <option value="phone">Telefone</option>
                                 <option value="random">Aleatória (EVP)</option>
                             </select>
-                            <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                            <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" />
                         </div>
                         <input
                             v-if="needsOwnerDocument"
                             v-model="pixForm.pix_owner_document"
                             type="text"
                             placeholder="CPF/CNPJ do titular"
-                            class="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                            aria-label="CPF/CNPJ do titular"
+                            class="ep-input"
                         />
                         <Button type="button" class="w-full" :disabled="saving" @click="savePix">
                             {{ saving ? 'Salvando…' : 'Salvar' }}
                         </Button>
                     </div>
-                </div>
+                </section>
 
-                <div class="fin-panel p-5">
-                    <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Resumo da carteira</h2>
-                    <ul class="mt-4 space-y-3 text-sm">
-                        <li class="flex justify-between">
-                            <span class="text-zinc-500">Disponível</span>
-                            <span class="font-medium text-emerald-600">{{ formatBRL(metrics.available) }}</span>
+                <section class="panel-card p-5" aria-labelledby="fin-resumo">
+                    <h2 id="fin-resumo" class="ep-section-title">Resumo da carteira</h2>
+                    <div class="mt-4 flex h-2 w-full gap-[3px] overflow-hidden rounded-full bg-[var(--ep-active)]" aria-hidden="true">
+                        <span class="h-full rounded-full bg-[var(--ep-pos)]" :style="{ width: `${(metrics.available / Math.max(0.01, metrics.available + metrics.pending + metrics.reserved)) * 100}%` }" />
+                        <span class="h-full rounded-full bg-[var(--ep-accent)]" :style="{ width: `${(metrics.pending / Math.max(0.01, metrics.available + metrics.pending + metrics.reserved)) * 100}%` }" />
+                        <span class="h-full rounded-full bg-[var(--ep-warn)]" :style="{ width: `${(metrics.reserved / Math.max(0.01, metrics.available + metrics.pending + metrics.reserved)) * 100}%` }" />
+                    </div>
+                    <ul class="mt-4 space-y-2.5 text-[13px]">
+                        <li class="flex items-center gap-2.5">
+                            <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                            <span class="flex-1 text-[var(--ep-text-3)]">Disponível</span>
+                            <span class="font-medium tabular-nums text-[var(--ep-text)]">{{ formatBRL(metrics.available) }}</span>
                         </li>
-                        <li class="flex justify-between">
-                            <span class="text-zinc-500">A liberar</span>
-                            <span class="font-medium text-zinc-800 dark:text-zinc-200">{{ formatBRL(metrics.pending) }}</span>
+                        <li class="flex items-center gap-2.5">
+                            <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                            <span class="flex-1 text-[var(--ep-text-3)]">A liberar</span>
+                            <span class="font-medium tabular-nums text-[var(--ep-text)]">{{ formatBRL(metrics.pending) }}</span>
                         </li>
-                        <li class="flex justify-between">
-                            <span class="text-zinc-500">Em saque</span>
-                            <span class="font-medium text-violet-600">{{ formatBRL(metrics.reserved) }}</span>
+                        <li class="flex items-center gap-2.5">
+                            <span class="h-2 w-2 shrink-0 rounded-full bg-[var(--ep-warn)]" aria-hidden="true" />
+                            <span class="flex-1 text-[var(--ep-text-3)]">Em saque</span>
+                            <span class="font-medium tabular-nums text-[var(--ep-text)]">{{ formatBRL(metrics.reserved) }}</span>
                         </li>
-                        <li class="flex justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
-                            <span class="font-medium text-zinc-700 dark:text-zinc-300">Total (todas carteiras)</span>
-                            <span class="font-bold text-zinc-900 dark:text-white">{{ formatBRL(metrics.totalAvailable) }}</span>
+                        <li class="flex items-center justify-between gap-3 border-t border-[var(--ep-line)] pt-3">
+                            <span class="font-medium text-[var(--ep-text-2)]">Total (todas carteiras)</span>
+                            <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ formatBRL(metrics.totalAvailable) }}</span>
                         </li>
                     </ul>
-                </div>
+                </section>
 
-                <div v-if="metrics.paidOut > 0" class="fin-panel p-5">
-                    <div class="flex items-center gap-2 text-xs text-zinc-500">
-                        <Lock class="h-3.5 w-3.5" />
-                        Já recebido nesta carteira
+                <div v-if="metrics.paidOut > 0" class="panel-card ep-kpi">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="ep-kpi__label">Já recebido nesta carteira</span>
+                        <span class="ep-kpi__icon" aria-hidden="true"><Lock class="h-4 w-4" :stroke-width="1.75" /></span>
                     </div>
-                    <p class="mt-1 text-lg font-semibold text-zinc-900 dark:text-white">{{ formatBRL(metrics.paidOut) }}</p>
+                    <MoneyAmount :value="metrics.paidOut" size="lg" class="block" />
                 </div>
             </div>
         </div>
 
         <p
             v-if="payoutMsg"
-            class="rounded-lg px-4 py-2 text-sm"
-            :class="payoutMsg.includes('sucesso') || payoutMsg.includes('salva') ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 text-red-700 dark:text-red-400'"
+            class="flex items-start gap-2 rounded-xl border px-4 py-2.5 text-[13px]"
+            :class="payoutMsg.includes('sucesso') || payoutMsg.includes('salva')
+                ? 'border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'
+                : 'border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]'"
+            role="status"
         >
+            <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
             {{ payoutMsg }}
         </p>
 
-        <div v-if="showCommissionsTable && commissions.length" class="fin-panel overflow-hidden">
-            <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Comissões</h2>
+        <section v-if="showCommissionsTable && commissions.length" class="panel-card ep-data overflow-hidden" aria-labelledby="fin-comissoes">
+            <div class="px-5 pb-3 pt-5">
+                <h2 id="fin-comissoes" class="ep-section-title">Comissões</h2>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[520px] text-left text-sm">
-                    <thead class="bg-zinc-50/80 text-xs uppercase text-zinc-500 dark:bg-zinc-900/50">
+                <table class="ep-table min-w-[560px]">
+                    <thead>
                         <tr>
-                            <th class="px-5 py-3 font-medium">Produto</th>
-                            <th class="px-5 py-3 font-medium">Carteira</th>
-                            <th class="px-5 py-3 font-medium">Valor</th>
-                            <th class="px-5 py-3 font-medium">Status</th>
-                            <th class="px-5 py-3 font-medium">Data</th>
+                            <th>Produto</th>
+                            <th>Carteira</th>
+                            <th class="ep-num">Valor</th>
+                            <th>Status</th>
+                            <th>Data</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                        <tr v-for="c in commissions" :key="c.id" class="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30">
-                            <td class="px-5 py-3 text-zinc-800 dark:text-zinc-200">{{ c.product_name || '—' }}</td>
-                            <td class="px-5 py-3 text-zinc-500">{{ walletLabels[c.wallet_bucket] || c.wallet_bucket }}</td>
-                            <td class="px-5 py-3 font-medium">{{ formatBRL(c.commission_amount) }}</td>
-                            <td class="px-5 py-3">
-                                <span class="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs dark:bg-zinc-800">
+                    <tbody>
+                        <tr v-for="c in commissions" :key="c.id">
+                            <td class="font-medium">{{ c.product_name || '—' }}</td>
+                            <td class="text-[var(--ep-text-3)]">{{ walletLabels[c.wallet_bucket] || c.wallet_bucket }}</td>
+                            <td class="ep-num font-medium">{{ formatBRL(c.commission_amount) }}</td>
+                            <td>
+                                <span
+                                    class="ep-chip"
+                                    :class="{
+                                        'ep-chip--pos': ['paid', 'available', 'completed', 'settled_externally'].includes(c.status),
+                                        'ep-chip--warn': ['pending', 'pending_approval', 'awaiting_payout', 'processing'].includes(c.status),
+                                        'ep-chip--accent': c.status === 'reserved',
+                                        'ep-chip--neg': c.status === 'failed' || c.status === 'cancelled',
+                                    }"
+                                >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                     {{ statusLabels[c.status] || c.status }}
                                 </span>
                             </td>
-                            <td class="px-5 py-3 text-zinc-500">{{ formatDate(c.created_at) }}</td>
+                            <td class="whitespace-nowrap text-[var(--ep-text-3)]">{{ formatDate(c.created_at) }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </template>
-
-<style scoped>
-.fin-metric-card {
-    border-radius: 1rem;
-    border: 1px solid rgb(228 228 231 / 0.8);
-    background: white;
-    padding: 1rem;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-:root.dark .fin-metric-card,
-.dark .fin-metric-card {
-    border-color: rgb(39 39 42);
-    background: rgb(24 24 27 / 0.8);
-}
-.fin-panel {
-    overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid rgb(228 228 231 / 0.8);
-    background: white;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-:root.dark .fin-panel,
-.dark .fin-panel {
-    border-color: rgb(39 39 42);
-    background: rgb(24 24 27 / 0.8);
-}
-.fin-metric-icon {
-    display: flex;
-    height: 2.5rem;
-    width: 2.5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-}
-.fin-metric-icon--primary {
-    background: color-mix(in srgb, var(--color-primary) 15%, transparent);
-    color: var(--color-primary);
-}
-.fin-metric-icon--green {
-    background: rgb(16 185 129 / 0.15);
-    color: rgb(5 150 105);
-}
-.fin-metric-icon--red {
-    background: rgb(239 68 68 / 0.15);
-    color: rgb(220 38 38);
-}
-.fin-metric-icon--violet {
-    background: rgb(139 92 246 / 0.15);
-    color: rgb(124 58 237);
-}
-</style>

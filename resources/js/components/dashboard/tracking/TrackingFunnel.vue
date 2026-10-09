@@ -32,59 +32,63 @@ const abandonment = computed(() => props.funnel?.abandono ?? 0);
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full flex-col">
+    <section class="panel-card flex h-full min-w-0 flex-col p-5" aria-labelledby="trk-funil">
         <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-                <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <div class="dash-metric-icon-sm">
-                        <Filter class="h-4 w-4" />
-                    </div>
+            <div class="min-w-0">
+                <h2 id="trk-funil" class="flex items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                    <Filter class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     Funil de checkout
                 </h2>
-                <p class="mt-1 text-xs text-zinc-500">Jornada da visita até a conversão</p>
+                <p class="mt-1 text-[12px] text-[var(--ep-text-4)]">Jornada da visita até a conversão</p>
             </div>
-            <div class="flex gap-2">
-                <div class="rounded-xl bg-[var(--color-primary)]/12 px-2.5 py-1.5 text-center">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-[var(--color-primary)]/80">Conversão</p>
-                    <p class="text-sm font-bold text-[var(--color-primary)]">{{ conversionRate }}%</p>
+            <dl class="flex gap-2">
+                <div class="rounded-xl border border-[color-mix(in_oklab,var(--ep-accent)_30%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)] px-3 py-1.5 text-right">
+                    <dt class="text-[11px] font-medium text-[var(--ep-text-3)]">Conversão</dt>
+                    <dd class="text-[15px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-accent)]">{{ conversionRate }}%</dd>
                 </div>
-                <div class="rounded-xl bg-red-500/10 px-2.5 py-1.5 text-center">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-red-600/80 dark:text-red-400/80">Abandono</p>
-                    <p class="text-sm font-bold text-red-600 dark:text-red-400">{{ abandonment }}</p>
+                <div class="rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-1.5 text-right">
+                    <dt class="text-[11px] font-medium text-[var(--ep-text-3)]">Abandono</dt>
+                    <dd class="text-[15px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-neg)]">{{ abandonment }}</dd>
                 </div>
-            </div>
+            </dl>
         </div>
 
-        <div class="mt-4 space-y-2.5">
-            <div
+        <ol class="mt-5 flex flex-1 flex-col gap-4">
+            <li
                 v-for="step in steps"
                 :key="step.key"
-                class="rounded-xl border border-zinc-200/50 px-3 py-2.5 transition-colors hover:border-zinc-300/80 dark:border-zinc-700/50 dark:hover:border-zinc-600/60"
             >
-                <div class="mb-2 flex items-center gap-2.5">
-                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" :class="step.chip">
-                        <component :is="step.icon" class="h-4 w-4" aria-hidden="true" />
+                <div class="flex items-center gap-3">
+                    <div
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border"
+                        :class="step.key === 'convertidos'
+                            ? 'border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'
+                            : 'border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--ep-text-3)]'"
+                    >
+                        <component :is="step.icon" class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                     </div>
                     <div class="min-w-0 flex-1">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-medium text-zinc-800 dark:text-zinc-200">{{ step.label }}</span>
-                            <span class="shrink-0 text-sm font-bold tabular-nums text-zinc-900 dark:text-white">
+                        <div class="flex items-baseline justify-between gap-2">
+                            <span class="truncate text-[13px] font-medium text-[var(--ep-text)]">{{ step.label }}</span>
+                            <span class="shrink-0 text-[15px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]">
                                 {{ step.value }}
                             </span>
                         </div>
-                        <p v-if="step.convFromPrev != null" class="mt-0.5 text-[10px] text-zinc-500">
+                        <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--ep-active)]">
+                            <div
+                                class="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                                :class="step.key === 'convertidos'
+                                    ? 'bg-[linear-gradient(90deg,var(--ep-accent),var(--ep-pos))]'
+                                    : 'bg-gradient-to-r from-[var(--ep-accent)] to-[var(--ep-accent-2)]'"
+                                :style="{ width: `${Math.max(step.percent, step.value ? 8 : 0)}%` }"
+                            />
+                        </div>
+                        <p v-if="step.convFromPrev != null" class="mt-1 text-[11.5px] tabular-nums text-[var(--ep-text-4)]">
                             {{ step.convFromPrev }}% da etapa anterior
                         </p>
                     </div>
                 </div>
-                <div class="h-2 overflow-hidden rounded-full bg-zinc-200/80 dark:bg-zinc-700/80">
-                    <div
-                        class="h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out"
-                        :class="step.bar"
-                        :style="{ width: `${Math.max(step.percent, step.value ? 8 : 0)}%` }"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
+            </li>
+        </ol>
+    </section>
 </template>

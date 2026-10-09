@@ -74,54 +74,52 @@ function isPendingAffiliate() {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <Link href="/parceiro/produtos" class="text-sm font-medium text-[var(--color-primary)] hover:underline">
+    <div class="space-y-5">
+        <Link href="/parceiro/produtos" class="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--ep-text-3)] transition-colors duration-150 hover:text-[var(--ep-text)]">
             ← Meus produtos
         </Link>
 
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ produto.name }}</h1>
-                <p class="mt-1 text-sm text-zinc-500">
-                    Modo: {{ partner_type }} · somente leitura
-                    <span v-if="commission_percent != null"> · {{ commission_percent }}% comissão (líquido)</span>
+        <header class="flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="text-[22px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]">{{ produto.name }}</h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
+                    Modo: <span class="capitalize text-[var(--ep-text-2)]">{{ partner_type }}</span> · somente leitura
+                    <span v-if="commission_percent != null"> · <span class="tabular-nums text-[var(--ep-text-2)]">{{ commission_percent }}%</span> comissão (líquido)</span>
                 </p>
             </div>
             <span
                 v-if="affiliate_status"
-                class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
-                :class="
-                    affiliate_status === 'approved'
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
-                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
-                "
+                class="ep-chip"
+                :class="affiliate_status === 'approved' ? 'ep-chip--pos' : 'ep-chip--warn'"
             >
+                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                 {{ affiliate_status === 'approved' ? 'Aprovado' : 'Aguardando aprovação' }}
             </span>
-        </div>
+        </header>
 
         <div
             v-if="isPendingAffiliate()"
-            class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-200"
+            class="panel-card flex flex-col items-start gap-3 px-4 py-3 text-[13px] leading-relaxed text-[var(--ep-text-2)] sm:flex-row"
+            role="status"
         >
-            Sua afiliação está aguardando aprovação do produtor. Após aprovar, você poderá copiar links e configurar pixels.
+            <span class="ep-chip ep-chip--warn shrink-0">
+                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                Pendente
+            </span>
+            <p>Sua afiliação está aguardando aprovação do produtor. Após aprovar, você poderá copiar links e configurar pixels.</p>
         </div>
 
         <HorizontalScrollTabs
             aria-label="Abas do produto"
-            nav-class="gap-1 border-b border-zinc-200 dark:border-zinc-700"
+            nav-class="ep-tabs"
             :bleed="false"
         >
             <button
                 v-for="t in tabs"
                 :key="t.id"
                 type="button"
-                class="shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium transition"
-                :class="
-                    activeTab === t.id
-                        ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
-                        : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'
-                "
+                class="ep-tab shrink-0"
+                :class="activeTab === t.id ? 'ep-tab--active' : ''"
                 @click="activeTab = t.id"
             >
                 {{ t.label }}
@@ -129,88 +127,99 @@ function isPendingAffiliate() {
         </HorizontalScrollTabs>
 
         <!-- Visão geral -->
-        <div v-show="activeTab === 'overview'" class="panel-card-lg overflow-hidden">
+        <div v-show="activeTab === 'overview'" class="panel-card overflow-hidden p-6">
             <div class="grid gap-6 md:grid-cols-[240px_1fr]">
                 <div
                     v-if="produto.image_url"
-                    class="aspect-square overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 md:max-w-[240px]"
+                    class="aspect-square overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] shadow-[var(--ep-glass-highlight)] md:max-w-[240px]"
                 >
                     <img :src="produto.image_url" :alt="produto.name" class="h-full w-full object-cover" />
                 </div>
                 <div
                     v-else
-                    class="flex aspect-square max-h-48 items-center justify-center rounded-xl bg-zinc-100 text-4xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600 md:max-w-[240px]"
+                    class="flex aspect-square max-h-48 items-center justify-center rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-4xl font-semibold text-[var(--ep-text-4)] shadow-[var(--ep-glass-highlight)] md:max-w-[240px]"
                 >
                     {{ produto.name?.charAt(0) }}
                 </div>
-                <div class="min-w-0 space-y-4">
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Preço</p>
-                        <p class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <dl class="min-w-0 divide-y divide-[var(--ep-line)]">
+                    <div class="pb-4">
+                        <dt class="text-[12.5px] font-medium text-[var(--ep-text-3)]">Preço</dt>
+                        <dd class="mt-1 text-[24px] font-semibold tabular-nums tracking-[-0.03em] text-[var(--ep-text)]">
                             {{ priceLabel || '—' }}
-                        </p>
+                        </dd>
                     </div>
-                    <div v-if="affiliate?.affiliate_code && can_use_links">
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Seu código (ref)</p>
-                        <p class="font-mono text-sm text-[var(--color-primary)]">{{ affiliate.affiliate_code }}</p>
+                    <div v-if="affiliate?.affiliate_code && can_use_links" class="py-4">
+                        <dt class="text-[12.5px] font-medium text-[var(--ep-text-3)]">Seu código (ref)</dt>
+                        <dd class="mt-1.5">
+                            <span class="ep-chip ep-chip--accent font-mono">{{ affiliate.affiliate_code }}</span>
+                        </dd>
                     </div>
-                    <div v-if="produto.description">
-                        <p class="text-xs font-medium uppercase tracking-wide text-zinc-500">Descrição</p>
-                        <p class="mt-1 whitespace-pre-line text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    <div v-if="produto.description" class="pt-4">
+                        <dt class="text-[12.5px] font-medium text-[var(--ep-text-3)]">Descrição</dt>
+                        <dd class="mt-1.5 whitespace-pre-line text-[13.5px] leading-relaxed text-[var(--ep-text-2)]">
                             {{ produto.description }}
-                        </p>
+                        </dd>
                     </div>
-                </div>
+                </dl>
             </div>
         </div>
 
         <!-- Links -->
         <div v-show="activeTab === 'links'">
-            <div v-if="!can_use_links" class="panel-card-lg text-sm text-zinc-600 dark:text-zinc-400">
-                Links disponíveis após aprovação da afiliação.
+            <div v-if="!can_use_links" class="panel-card ep-empty">
+                <p class="ep-empty__title">Links bloqueados</p>
+                <p class="ep-empty__text">Links disponíveis após aprovação da afiliação.</p>
             </div>
-            <div v-else-if="links.length" class="panel-card-lg space-y-4">
-                <h2 class="font-semibold text-zinc-900 dark:text-white">Links de divulgação</h2>
-                <p class="text-sm text-zinc-500">Use estes links nas suas campanhas. O parâmetro <code class="text-xs">ref</code> identifica suas vendas.</p>
-                <ul class="space-y-3">
+            <div v-else-if="links.length" class="panel-card ep-data overflow-hidden">
+                <div class="px-5 py-4">
+                    <h2 class="text-[13px] font-medium text-[var(--ep-text-2)]">Links de divulgação</h2>
+                    <p class="mt-0.5 text-[12.5px] text-[var(--ep-text-3)]">Use estes links nas suas campanhas. O parâmetro <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">ref</code> identifica suas vendas.</p>
+                </div>
+                <ul class="divide-y divide-[var(--ep-line)] border-t border-[var(--ep-line)]">
                     <li
                         v-for="(l, i) in links"
                         :key="i"
-                        class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700"
+                        class="flex flex-col gap-3 px-5 py-4 transition-colors duration-150 hover:bg-[var(--ep-hover)] sm:flex-row sm:items-center"
                     >
-                        <p class="text-sm font-medium text-zinc-900 dark:text-white">{{ l.label }}</p>
-                        <p class="mt-1 break-all font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ l.url }}</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <Button type="button" variant="outline" size="sm" class="gap-1.5" @click="copyUrl(l.url, i)">
-                                <Check v-if="copiedIndex === i" class="h-4 w-4 text-emerald-600" />
-                                <Copy v-else class="h-4 w-4" />
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[13px] font-medium text-[var(--ep-text)]">{{ l.label }}</p>
+                            <p class="mt-1 break-all font-mono text-[12px] text-[var(--ep-text-3)]">{{ l.url }}</p>
+                        </div>
+                        <div class="flex shrink-0 flex-wrap gap-2">
+                            <button type="button" class="ep-btn-secondary !h-8 !px-3" @click="copyUrl(l.url, i)">
+                                <Check v-if="copiedIndex === i" class="h-4 w-4 text-[var(--ep-pos)]" :stroke-width="1.75" aria-hidden="true" />
+                                <Copy v-else class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                                 {{ copiedIndex === i ? 'Copiado' : 'Copiar' }}
-                            </Button>
+                            </button>
                             <a
                                 :href="l.url"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                class="ep-btn-ghost !h-8 !px-3"
                             >
-                                <ExternalLink class="h-4 w-4" />
+                                <ExternalLink class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                                 Abrir
                             </a>
                         </div>
                     </li>
                 </ul>
             </div>
-            <div v-else class="panel-card-lg text-sm text-zinc-500">Nenhum link adicional configurado para este produto.</div>
+            <div v-else class="panel-card ep-empty">
+                <p class="ep-empty__title">Sem links adicionais</p>
+                <p class="ep-empty__text">Nenhum link adicional configurado para este produto.</p>
+            </div>
         </div>
 
         <!-- Pixels -->
         <div v-show="activeTab === 'pixels'">
-            <div v-if="!can_edit_pixels" class="panel-card-lg text-sm text-zinc-600 dark:text-zinc-400">
-                Configuração de pixels disponível após aprovação da afiliação.
+            <div v-if="!can_edit_pixels" class="panel-card ep-empty">
+                <p class="ep-empty__title">Pixels bloqueados</p>
+                <p class="ep-empty__text">Configuração de pixels disponível após aprovação da afiliação.</p>
             </div>
-            <div v-else class="panel-card-lg space-y-4">
+            <div v-else class="panel-card space-y-5 p-6">
                 <div>
-                    <h2 class="font-semibold text-zinc-900 dark:text-white">Pixels de conversão</h2>
-                    <p class="mt-1 text-sm text-zinc-500">
+                    <h2 class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">Pixels de conversão</h2>
+                    <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
                         Seus pixels substituem os do produtor no checkout acessado com seu link de afiliado.
                     </p>
                 </div>
@@ -219,9 +228,11 @@ function isPendingAffiliate() {
                     :allow-custom-script="false"
                     :allow-gtm="false"
                 />
-                <Button variant="primary" :disabled="pixelsForm.processing" @click="savePixels">
-                    Salvar pixels
-                </Button>
+                <div class="flex justify-end border-t border-[var(--ep-line)] pt-5">
+                    <Button variant="primary" :disabled="pixelsForm.processing" @click="savePixels">
+                        Salvar pixels
+                    </Button>
+                </div>
             </div>
         </div>
     </div>

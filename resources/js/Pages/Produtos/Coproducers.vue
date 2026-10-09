@@ -33,10 +33,10 @@ const coproducerRows = computed(() =>
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Co-produtores</h1>
-            <p class="mt-1 text-sm text-zinc-500">Visão geral de todos os co-produtores da conta.</p>
+            <h1 class="ep-page-heading">Co-produtores</h1>
+            <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">Visão geral de todos os co-produtores da conta.</p>
         </div>
         <ProdutosTabs />
         <ProductPartnersTable
@@ -48,7 +48,7 @@ const coproducerRows = computed(() =>
                 <Link
                     v-if="row?.product_id"
                     :href="`/produtos/${row.product_id}/edit?tab=coproducao`"
-                    class="flex w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    class="flex w-full rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                     @click="close()"
                 >
                     Gerenciar no produto

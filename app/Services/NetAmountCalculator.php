@@ -73,14 +73,21 @@ class NetAmountCalculator
         ];
     }
 
+    /** @var array<string, GatewayFeeSetting|false> Taxa configurada por tenant|gateway|método (vive só nesta instância). */
+    private array $feeSettingCache = [];
+
     public function estimateFee(int $tenantId, string $gatewaySlug, string $method, float $gross): float
     {
         $setting = null;
         if ($gatewaySlug !== '') {
-            $setting = GatewayFeeSetting::forTenant($tenantId)
-                ->where('gateway_slug', $gatewaySlug)
-                ->where('method', $method)
-                ->first();
+            $key = $tenantId.'|'.$gatewaySlug.'|'.$method;
+            if (! array_key_exists($key, $this->feeSettingCache)) {
+                $this->feeSettingCache[$key] = GatewayFeeSetting::forTenant($tenantId)
+                    ->where('gateway_slug', $gatewaySlug)
+                    ->where('method', $method)
+                    ->first() ?? false;
+            }
+            $setting = $this->feeSettingCache[$key] ?: null;
         }
 
         if ($setting) {

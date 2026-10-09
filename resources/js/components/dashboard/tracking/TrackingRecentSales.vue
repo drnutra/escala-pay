@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { Zap } from 'lucide-vue-next';
 import { formatBRL, countryFlag, timeAgo } from '@/composables/useTrackingPanel';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 
 const props = defineProps({
     sales: { type: Array, default: () => [] },
@@ -19,59 +20,60 @@ function displayAmount(value) {
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full min-w-0 max-w-full flex-col overflow-hidden">
-        <div class="flex min-w-0 items-start justify-between gap-3">
-            <div>
-                <h2 class="flex min-w-0 flex-wrap items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <div class="dash-metric-icon-sm">
-                        <Zap class="h-4 w-4" />
-                    </div>
+    <section class="panel-card ep-data flex h-full min-w-0 max-w-full flex-col overflow-hidden" aria-labelledby="trk-recentes">
+        <div class="flex min-w-0 items-start justify-between gap-3 px-5 pt-5">
+            <div class="min-w-0">
+                <h2 id="trk-recentes" class="flex min-w-0 flex-wrap items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                    <Zap class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     Vendas recentes
-                    <span class="inline-flex h-2 w-2 animate-pulse rounded-full bg-[var(--color-primary)]" aria-hidden="true" />
+                    <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--ep-pos)] opacity-60" />
+                        <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" />
+                    </span>
                 </h2>
-                <p v-if="summary.count" class="mt-1 text-xs text-zinc-500">
+                <p v-if="summary.count" class="mt-1 text-[12px] tabular-nums text-[var(--ep-text-4)]">
                     {{ summary.count }} últimas · {{ displayAmount(summary.total) }}
                 </p>
             </div>
         </div>
 
-        <ul v-if="sales.length" class="mt-4 max-h-[340px] min-w-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pr-0.5">
+        <ul v-if="sales.length" class="mt-3 max-h-[380px] min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
             <li
                 v-for="(sale, idx) in sales"
                 :key="sale.id"
-                class="group relative min-w-0 overflow-hidden rounded-xl border border-zinc-200/60 bg-gradient-to-r from-zinc-50/90 to-white px-3 py-2.5 transition-all hover:border-[var(--color-primary)]/25 hover:shadow-sm dark:border-zinc-700/50 dark:from-zinc-800/50 dark:to-zinc-900/30"
+                class="relative flex min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
             >
-                <div class="flex min-w-0 items-center gap-2 sm:gap-3">
-                    <div class="relative shrink-0">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xl shadow-sm ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:ring-zinc-700">
-                            {{ countryFlag(sale.country_code) }}
-                        </span>
-                        <span
-                            class="absolute -left-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white dark:bg-zinc-700"
-                        >
-                            {{ idx + 1 }}
-                        </span>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-medium text-zinc-900 dark:text-white">
-                            {{ sale.product_name }}
-                        </p>
-                        <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
-                            <span class="rounded-md bg-zinc-100 px-1.5 py-0.5 font-medium dark:bg-zinc-800">
-                                {{ sale.payment_label }}
-                            </span>
-                            <span>{{ timeAgo(sale.created_at) }}</span>
-                        </div>
-                    </div>
-                    <span class="max-w-[38%] shrink-0 truncate text-right text-xs font-bold tabular-nums text-[var(--color-primary)] sm:max-w-none sm:text-sm">
-                        {{ displayAmount(sale.amount) }}
+                <div class="relative shrink-0">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] text-lg leading-none shadow-[var(--ep-glass-highlight)]">
+                        {{ countryFlag(sale.country_code) }}
                     </span>
+                    <span
+                        class="absolute -left-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] px-1 text-[9.5px] font-semibold tabular-nums text-[var(--ep-text-2)]"
+                    >
+                        {{ idx + 1 }}
+                    </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-[13px] font-medium text-[var(--ep-text)]">
+                        {{ sale.product_name }}
+                    </p>
+                    <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11.5px] text-[var(--ep-text-3)]">
+                        <span class="truncate">
+                            {{ sale.payment_label }}
+                        </span>
+                        <span class="text-[var(--ep-text-4)]" aria-hidden="true">·</span>
+                        <span class="shrink-0 tabular-nums text-[var(--ep-text-4)]">{{ timeAgo(sale.created_at) }}</span>
+                    </div>
+                </div>
+                <div class="max-w-[42%] shrink-0 truncate text-right">
+                    <MoneyAmount :value="Number(sale.amount) || 0" :hidden="!valuesVisible" size="md" />
                 </div>
             </li>
         </ul>
 
-        <p v-else class="mt-8 flex flex-1 items-center justify-center text-center text-sm text-zinc-500">
-            Nenhuma venda recente
-        </p>
-    </div>
+        <div v-else class="ep-empty flex-1">
+            <p class="ep-empty__title">Nenhuma venda recente</p>
+            <p class="ep-empty__text">As últimas vendas do período aparecem aqui.</p>
+        </div>
+    </section>
 </template>

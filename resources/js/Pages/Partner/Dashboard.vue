@@ -4,6 +4,7 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import VueApexCharts from 'vue3-apexcharts';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import DashboardPeriodFilter from '@/components/dashboard/DashboardPeriodFilter.vue';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 import {
     CircleDollarSign,
     ShoppingCart,
@@ -142,149 +143,208 @@ const chartOptions = computed(() => {
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+    <div class="space-y-5">
+        <header class="min-w-0">
+            <h1 class="text-[22px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]">Dashboard</h1>
+            <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
                 Resumo das suas comissões e vendas como parceiro.
             </p>
-        </div>
+        </header>
 
-        <DashboardPeriodFilter :model-value="period" @update:model-value="setPeriod">
+        <DashboardPeriodFilter class="min-w-0" :model-value="period" @update:model-value="setPeriod">
             <template #trailing>
                 <button
                     type="button"
                     :aria-label="valuesVisible ? 'Ocultar valores' : 'Mostrar valores'"
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-zinc-200/80 bg-zinc-100/90 text-zinc-500 transition-colors hover:text-zinc-800 dark:border-zinc-700/80 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    class="ep-glass flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[var(--ep-text-3)] transition-colors duration-150 hover:text-[var(--ep-text)] active:scale-[0.97]"
                     @click="valuesVisible = !valuesVisible"
                 >
-                    <Eye v-if="valuesVisible" class="h-5 w-5" />
-                    <EyeOff v-else class="h-5 w-5" />
+                    <Eye v-if="valuesVisible" class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
+                    <EyeOff v-else class="h-4 w-4" :stroke-width="1.75" aria-hidden="true" />
                 </button>
             </template>
         </DashboardPeriodFilter>
 
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                    <div class="dash-metric-icon-sm"><CircleDollarSign class="h-4 w-4" /></div>
-                    <span class="text-xs font-medium">Comissões no período</span>
+        <!-- Linha 1: comissões (herói) + gráfico -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-glow-card flex flex-col p-6 lg:col-span-4" aria-labelledby="parceiro-comissoes">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="parceiro-comissoes" class="text-[13px] font-medium text-[var(--ep-text-2)]">Comissões no período</h2>
+                    <span class="ep-kpi__icon" aria-hidden="true">
+                        <CircleDollarSign class="h-4 w-4" :stroke-width="1.75" />
+                    </span>
                 </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(comissao_total) }}</p>
-                <p class="mt-0.5 text-xs text-zinc-500">Ticket médio: {{ displayCurrency(ticket_medio_comissao) }}</p>
-            </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                    <div class="dash-metric-icon-sm"><ShoppingCart class="h-4 w-4" /></div>
-                    <span class="text-xs font-medium">Vendas no período</span>
+
+                <MoneyAmount :value="comissao_total" :hidden="!valuesVisible" size="hero" class="mt-5 block" />
+
+                <p class="mt-4 text-[12.5px] text-[var(--ep-text-3)]">
+                    Ticket médio · <span class="tabular-nums text-[var(--ep-text-2)]">{{ displayCurrency(ticket_medio_comissao) }}</span>
+                </p>
+
+                <dl class="mt-6 grid grid-cols-2 gap-3 border-t border-[var(--ep-line)] pt-5 lg:mt-auto">
+                    <div>
+                        <dt class="text-[11.5px] text-[var(--ep-text-3)]">Vendas</dt>
+                        <dd class="mt-1 text-[17px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]">{{ displayNumber(quantidade_vendas) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-[11.5px] text-[var(--ep-text-3)]">Produtos</dt>
+                        <dd class="mt-1 text-[17px] font-semibold tabular-nums tracking-[-0.02em] text-[var(--ep-text)]">{{ quantidade_produtos }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="panel-card ep-chart flex min-w-0 flex-col p-5 pb-3 lg:col-span-8" aria-labelledby="parceiro-grafico">
+                <div class="flex flex-wrap items-center justify-between gap-3 px-1">
+                    <h2 id="parceiro-grafico" class="text-[13px] font-medium text-[var(--ep-text-2)]">Evolução das comissões</h2>
+                    <span class="flex items-center gap-1.5 text-[12px] text-[var(--ep-text-3)]">
+                        <span class="h-2 w-2 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                        Comissões
+                    </span>
                 </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayNumber(quantidade_vendas) }}</p>
-                <Link href="/parceiro/vendas" class="mt-0.5 inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline">
-                    Ver todas <ArrowRight class="h-3 w-3" />
+                <div v-if="grafico_comissoes.length" class="-mx-1 mt-3 min-h-[260px] flex-1">
+                    <VueApexCharts type="area" height="260" :options="chartOptions" :series="chartSeries" />
+                </div>
+                <div v-else class="ep-empty flex-1">
+                    <svg class="h-10 w-28 text-[var(--ep-line-strong)]" viewBox="0 0 112 40" fill="none" aria-hidden="true">
+                        <path d="M2 34 C 18 34, 22 22, 36 24 S 58 34, 70 20 S 94 8, 110 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 5" />
+                    </svg>
+                    <p class="ep-empty__title mt-2">Nenhuma comissão neste período.</p>
+                    <p class="ep-empty__text">O gráfico aparece a partir da primeira comissão gerada pelas suas vendas.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Linha 2: KPIs subordinados -->
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Vendas no período</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><ShoppingCart class="h-4 w-4" :stroke-width="1.75" /></span>
+                </div>
+                <p class="ep-kpi__value">{{ displayNumber(quantidade_vendas) }}</p>
+                <Link href="/parceiro/vendas" class="ep-kpi__meta inline-flex w-fit items-center gap-1 font-medium text-[var(--ep-text-3)] transition-colors duration-150 hover:text-[var(--ep-text)]">
+                    Ver todas <ArrowRight class="h-3 w-3" :stroke-width="1.75" />
                 </Link>
             </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                    <div class="dash-metric-icon-sm"><Clock class="h-4 w-4" /></div>
-                    <span class="text-xs font-medium">Saldo pendente</span>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Saldo pendente</span>
+                    <span
+                        class="ep-kpi__icon"
+                        style="color: var(--ep-warn); background: var(--ep-warn-bg); border-color: color-mix(in oklab, var(--ep-warn) 28%, transparent); box-shadow: none"
+                        aria-hidden="true"
+                    ><Clock class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(saldo_pendente) }}</p>
-                <p class="mt-0.5 text-xs text-zinc-500">Aguardando liberação</p>
+                <MoneyAmount :value="saldo_pendente" :hidden="!valuesVisible" size="lg" class="block" />
+                <span class="ep-kpi__meta">Aguardando liberação</span>
             </div>
-            <div class="panel-card-md">
-                <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                    <div class="dash-metric-icon-sm"><Wallet class="h-4 w-4" /></div>
-                    <span class="text-xs font-medium">Saldo disponível</span>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Saldo disponível</span>
+                    <span
+                        class="ep-kpi__icon"
+                        style="color: var(--ep-pos); background: var(--ep-pos-bg); border-color: color-mix(in oklab, var(--ep-pos) 28%, transparent); box-shadow: none"
+                        aria-hidden="true"
+                    ><Wallet class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-xl font-bold text-zinc-900 dark:text-white">{{ displayCurrency(saldo_disponivel) }}</p>
-                <Link href="/parceiro/financeiro" class="mt-0.5 inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline">
-                    Sacar <ArrowRight class="h-3 w-3" />
+                <MoneyAmount :value="saldo_disponivel" :hidden="!valuesVisible" size="lg" class="block" />
+                <Link href="/parceiro/financeiro" class="ep-kpi__meta inline-flex w-fit items-center gap-1 font-medium text-[var(--ep-accent)] transition-opacity duration-150 hover:opacity-80">
+                    Sacar <ArrowRight class="h-3 w-3" :stroke-width="1.75" />
                 </Link>
             </div>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-3">
-            <div class="panel-card-md lg:col-span-2">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Comissões no período</h2>
-                <div v-if="grafico_comissoes.length" class="mt-4 -mx-1">
-                    <VueApexCharts type="area" height="260" :options="chartOptions" :series="chartSeries" />
+        <!-- Linha 3: vendas recentes + atalhos -->
+        <div class="grid gap-4 lg:grid-cols-12">
+            <section class="panel-card ep-data flex min-w-0 flex-col overflow-hidden lg:col-span-8" aria-labelledby="parceiro-recentes">
+                <div class="flex items-center justify-between gap-3 px-5 py-4">
+                    <h2 id="parceiro-recentes" class="text-[13px] font-medium text-[var(--ep-text-2)]">Vendas recentes</h2>
+                    <Link href="/parceiro/vendas" class="flex items-center gap-1 text-[12px] font-medium text-[var(--ep-text-3)] transition-colors duration-150 hover:text-[var(--ep-text)]">
+                        Ver todas <ArrowRight class="h-3.5 w-3.5" :stroke-width="1.75" />
+                    </Link>
                 </div>
-                <p v-else class="mt-6 py-8 text-center text-sm text-zinc-500">Nenhuma comissão neste período.</p>
-            </div>
+                <div v-if="vendas_recentes.length" class="overflow-x-auto">
+                    <table class="ep-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th class="hidden md:table-cell">Data</th>
+                                <th>Status</th>
+                                <th class="ep-num">Comissão</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="v in vendas_recentes" :key="v.id">
+                                <td class="max-w-[280px]">
+                                    <p class="truncate font-medium text-[var(--ep-text)]">{{ v.product_name || 'Produto' }}</p>
+                                    <p v-if="v.buyer_name || v.buyer_email" class="truncate text-[12px] text-[var(--ep-text-3)]">
+                                        {{ v.buyer_name || v.buyer_email }}
+                                        <span v-if="v.buyer_masked" class="text-[var(--ep-text-4)]"> (mascarado)</span>
+                                    </p>
+                                    <p class="text-[11.5px] tabular-nums text-[var(--ep-text-4)] md:hidden">{{ formatDate(v.created_at) }}</p>
+                                </td>
+                                <td class="hidden whitespace-nowrap text-[12.5px] tabular-nums text-[var(--ep-text-3)] md:table-cell">{{ formatDate(v.created_at) }}</td>
+                                <td>
+                                    <span
+                                        class="ep-chip"
+                                        :class="v.commission_status === 'paid' ? 'ep-chip--pos' : v.commission_status === 'available' ? 'ep-chip--accent' : v.commission_status === 'pending' ? 'ep-chip--warn' : ''"
+                                    >
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                        {{ commissionStatusLabel(v.commission_status) }}
+                                    </span>
+                                </td>
+                                <td class="ep-num font-medium tabular-nums text-[var(--ep-text)]">{{ displayCurrency(v.commission_amount) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-else class="ep-empty flex-1 border-t border-[var(--ep-line)]">
+                    <p class="ep-empty__title">Nenhuma venda registrada ainda.</p>
+                    <p class="ep-empty__text">Suas vendas como parceiro aparecem aqui assim que o primeiro pedido for aprovado.</p>
+                </div>
+            </section>
 
-            <div class="panel-card-md flex flex-col">
-                <div class="flex items-center justify-between gap-2">
-                    <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Atalhos</h2>
-                </div>
-                <ul class="mt-4 space-y-2">
+            <section class="panel-card flex flex-col p-5 lg:col-span-4" aria-labelledby="parceiro-atalhos">
+                <h2 id="parceiro-atalhos" class="text-[13px] font-medium text-[var(--ep-text-2)]">Atalhos</h2>
+                <ul class="-mx-2 mt-3 space-y-0.5">
                     <li>
                         <Link
                             href="/parceiro/produtos"
-                            class="flex items-center justify-between rounded-lg border border-zinc-200/80 px-3 py-2.5 text-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800/80"
+                            class="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[13px] transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                         >
-                            <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                                <Package class="h-4 w-4 text-[var(--color-primary)]" />
+                            <span class="flex items-center gap-2.5 font-medium text-[var(--ep-text)]">
+                                <Package class="h-4 w-4 text-[var(--ep-accent)]" :stroke-width="1.75" />
                                 Meus produtos
                             </span>
-                            <span class="font-medium text-zinc-900 dark:text-white">{{ quantidade_produtos }}</span>
+                            <span class="ep-chip tabular-nums">{{ quantidade_produtos }}</span>
                         </Link>
                     </li>
                     <li>
                         <Link
                             href="/parceiro/vendas"
-                            class="flex items-center justify-between rounded-lg border border-zinc-200/80 px-3 py-2.5 text-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800/80"
+                            class="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[13px] transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                         >
-                            <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                                <ShoppingCart class="h-4 w-4 text-[var(--color-primary)]" />
+                            <span class="flex items-center gap-2.5 font-medium text-[var(--ep-text)]">
+                                <ShoppingCart class="h-4 w-4 text-[var(--ep-accent)]" :stroke-width="1.75" />
                                 Vendas
                             </span>
-                            <ArrowRight class="h-4 w-4 text-zinc-400" />
+                            <ArrowRight class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-[var(--ep-text-2)]" :stroke-width="1.75" />
                         </Link>
                     </li>
                     <li>
                         <Link
                             href="/parceiro/financeiro"
-                            class="flex items-center justify-between rounded-lg border border-zinc-200/80 px-3 py-2.5 text-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800/80"
+                            class="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[13px] transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                         >
-                            <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                                <Wallet class="h-4 w-4 text-[var(--color-primary)]" />
+                            <span class="flex items-center gap-2.5 font-medium text-[var(--ep-text)]">
+                                <Wallet class="h-4 w-4 text-[var(--ep-accent)]" :stroke-width="1.75" />
                                 Financeiro
                             </span>
-                            <ArrowRight class="h-4 w-4 text-zinc-400" />
+                            <ArrowRight class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-[var(--ep-text-2)]" :stroke-width="1.75" />
                         </Link>
                     </li>
                 </ul>
-            </div>
-        </div>
-
-        <div class="panel-card-md">
-            <div class="flex items-center justify-between gap-2">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Vendas recentes</h2>
-                <Link href="/parceiro/vendas" class="text-xs font-medium text-[var(--color-primary)] hover:underline">
-                    Ver todas
-                </Link>
-            </div>
-            <ul v-if="vendas_recentes.length" class="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">
-                <li
-                    v-for="v in vendas_recentes"
-                    :key="v.id"
-                    class="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0"
-                >
-                    <div class="min-w-0">
-                        <p class="truncate text-sm font-medium text-zinc-900 dark:text-white">{{ v.product_name || 'Produto' }}</p>
-                        <p v-if="v.buyer_name || v.buyer_email" class="truncate text-xs text-zinc-500">
-                            {{ v.buyer_name || v.buyer_email }}
-                            <span v-if="v.buyer_masked" class="text-zinc-400"> (mascarado)</span>
-                        </p>
-                        <p class="text-xs text-zinc-500">{{ formatDate(v.created_at) }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ displayCurrency(v.commission_amount) }}</p>
-                        <p class="text-[11px] text-zinc-500">{{ commissionStatusLabel(v.commission_status) }}</p>
-                    </div>
-                </li>
-            </ul>
-            <p v-else class="mt-6 py-6 text-center text-sm text-zinc-500">Nenhuma venda registrada ainda.</p>
+            </section>
         </div>
     </div>
 </template>

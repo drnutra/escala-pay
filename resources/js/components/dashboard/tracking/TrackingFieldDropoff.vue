@@ -33,76 +33,77 @@ function dropoffStyle(percent) {
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full flex-col">
+    <section class="panel-card flex h-full min-w-0 flex-col p-5" aria-labelledby="trk-campos">
         <div class="flex items-start justify-between gap-3">
-            <div>
-                <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <div class="dash-metric-icon-sm">
-                        <MousePointerClick class="h-4 w-4" />
-                    </div>
+            <div class="min-w-0">
+                <h2 id="trk-campos" class="flex items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                    <MousePointerClick class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     Abandono por campo
                 </h2>
-                <p class="mt-1 text-xs text-zinc-500">Onde os compradores desistem no checkout</p>
+                <p class="mt-1 text-[12px] text-[var(--ep-text-4)]">Onde os compradores desistem no checkout</p>
             </div>
             <div
                 v-if="enriched.worst && enriched.worst.dropoff_percent > 0"
-                class="hidden shrink-0 rounded-xl bg-red-500/10 px-2.5 py-1.5 text-right sm:block"
+                class="ep-chip ep-chip--neg hidden shrink-0 tabular-nums sm:inline-flex"
             >
-                <p class="text-[10px] font-semibold uppercase tracking-wide text-red-600/80 dark:text-red-400/80">Pior campo</p>
-                <p class="text-sm font-bold text-red-600 dark:text-red-400">{{ enriched.worst.dropoff_percent }}%</p>
+                <span class="text-[10.5px] font-medium opacity-80">Pior campo</span>
+                <span class="font-semibold">{{ enriched.worst.dropoff_percent }}%</span>
             </div>
         </div>
 
-        <div v-if="enriched.items.length" class="mt-4 space-y-3">
+        <div v-if="enriched.items.length" class="mt-4 space-y-4">
             <div
                 v-if="enriched.worst && enriched.worst.dropoff_percent > 0"
-                class="relative overflow-hidden rounded-xl border border-red-200/50 bg-gradient-to-br from-red-50/80 to-white p-3 dark:border-red-900/30 dark:from-red-950/20 dark:to-zinc-900/40"
+                class="relative overflow-hidden rounded-2xl border border-[color-mix(in_oklab,var(--ep-neg)_28%,transparent)] bg-[var(--ep-neg-bg)] p-3.5"
             >
-                <div class="relative flex items-start gap-2.5">
-                    <AlertTriangle class="mt-0.5 h-4 w-4 shrink-0 text-red-500" aria-hidden="true" />
-                    <div>
-                        <p class="text-xs font-semibold text-zinc-900 dark:text-white">{{ enriched.worst.label }}</p>
-                        <p class="mt-0.5 text-[11px] text-zinc-500">
-                            {{ enriched.worst.reached }} alcançaram · {{ enriched.worst.dropoff_percent }}% abandonaram
+                <div class="pointer-events-none absolute -left-6 -top-8 h-24 w-24 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--ep-neg)_35%,transparent),transparent)] blur-xl" aria-hidden="true" />
+                <div class="relative flex items-start gap-3">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[color-mix(in_oklab,var(--ep-neg)_14%,transparent)] text-[var(--ep-neg)]">
+                        <AlertTriangle class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="truncate text-[13px] font-semibold text-[var(--ep-text)]">{{ enriched.worst.label }}</p>
+                        <p class="mt-0.5 text-[12px] tabular-nums text-[var(--ep-text-3)]">
+                            {{ enriched.worst.reached }} alcançaram · <span class="font-medium text-[var(--ep-neg)]">{{ enriched.worst.dropoff_percent }}% abandonaram</span>
                         </p>
                     </div>
                 </div>
             </div>
 
-            <ul class="space-y-3">
+            <ul class="space-y-3.5">
                 <li
                     v-for="field in enriched.items"
                     :key="field.field_key"
-                    class="rounded-xl px-1 py-0.5 transition-colors hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30"
+                    :style="{ '--dc': field.dropoff_percent >= 40 ? 'var(--ep-neg)' : field.dropoff_percent >= 20 ? 'var(--ep-warn)' : 'var(--ep-accent)' }"
                 >
-                    <div class="mb-1.5 flex items-center justify-between gap-2">
-                        <span class="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                    <div class="flex items-center justify-between gap-2 text-[13px]">
+                        <span class="min-w-0 truncate font-medium text-[var(--ep-text)]">
                             {{ field.label }}
                         </span>
                         <span
-                            class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums"
-                            :class="dropoffStyle(field.dropoff_percent).chip"
+                            class="ep-chip shrink-0 tabular-nums"
+                            :class="field.dropoff_percent >= 40 ? 'ep-chip--neg' : field.dropoff_percent >= 20 ? 'ep-chip--warn' : 'ep-chip--accent'"
                         >
                             {{ field.dropoff_percent }}% drop
                         </span>
                     </div>
-                    <div class="mb-1 flex justify-between text-[10px] text-zinc-500">
-                        <span>{{ field.reached }} alcançaram</span>
-                        <span>{{ field.completed_percent }}% concluíram</span>
-                    </div>
-                    <div class="h-1.5 overflow-hidden rounded-full bg-zinc-200/80 dark:bg-zinc-700/80">
+                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--ep-active)]">
                         <div
-                            class="h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out"
-                            :class="dropoffStyle(field.dropoff_percent).bar"
+                            class="h-full rounded-full bg-[linear-gradient(90deg,color-mix(in_oklab,var(--dc)_60%,transparent),var(--dc))] transition-[width] duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
                             :style="{ width: `${Math.max(field.completed_percent, field.reached ? 4 : 0)}%` }"
                         />
+                    </div>
+                    <div class="mt-1 flex justify-between text-[11.5px] tabular-nums text-[var(--ep-text-4)]">
+                        <span>{{ field.reached }} alcançaram</span>
+                        <span>{{ field.completed_percent }}% concluíram</span>
                     </div>
                 </li>
             </ul>
         </div>
 
-        <p v-else class="mt-8 flex flex-1 items-center justify-center text-center text-sm text-zinc-500">
-            Dados serão coletados conforme novos checkouts
-        </p>
-    </div>
+        <div v-else class="ep-empty flex-1">
+            <p class="ep-empty__title">Dados serão coletados conforme novos checkouts</p>
+            <p class="ep-empty__text">Cada campo preenchido ou abandonado entra aqui automaticamente.</p>
+        </div>
+    </section>
 </template>

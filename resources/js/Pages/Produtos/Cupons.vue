@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button.vue';
 import ProdutosTabs from '@/components/produtos/ProdutosTabs.vue';
 import CupomSidebar from '@/components/produtos/CupomSidebar.vue';
 import { Pencil, Trash2, Ticket } from 'lucide-vue-next';
+import { Plus, TicketPercent } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -66,98 +67,117 @@ function usosText(c) {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
         <ProdutosTabs />
-        <div class="flex justify-end">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-[12.5px] text-[var(--ep-text-3)]">
+                <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ cupons.length }}</span>
+                {{ cupons.length === 1 ? 'cupom' : 'cupons' }} ·
+                <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ cupons.filter((c) => c.is_active).length }}</span>
+                {{ cupons.filter((c) => c.is_active).length === 1 ? 'ativo' : 'ativos' }} ·
+                <span class="font-semibold tabular-nums text-[var(--ep-text)]">{{ cupons.reduce((acc, c) => acc + (Number(c.used_count) || 0), 0) }}</span>
+                {{ cupons.reduce((acc, c) => acc + (Number(c.used_count) || 0), 0) === 1 ? 'uso' : 'usos' }}
+            </p>
             <Button @click="openNew">
+                <Plus class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
                 Novo cupom
             </Button>
         </div>
 
-        <div class="panel-table">
+        <section class="panel-card ep-data overflow-hidden" aria-labelledby="cupons-title">
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pb-3.5 pt-4">
+                <h2 id="cupons-title" class="ep-section-title">Cupons de desconto</h2>
+                <span class="text-[12px] text-[var(--ep-text-4)]">Aplicados no checkout pelo código</span>
+            </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                    <thead class="bg-zinc-50 dark:bg-zinc-800/80">
+                <table class="ep-table min-w-full">
+                    <thead>
                         <tr>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col">
                                 Código
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col">
                                 Tipo
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col" class="ep-num">
                                 Valor
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col">
                                 Produto
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col" class="ep-num">
                                 Usos
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col">
                                 Validade
                             </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                            <th scope="col">
                                 Ativo
                             </th>
-                            <th scope="col" class="relative px-4 py-3">
+                            <th scope="col" class="relative w-[88px]">
                                 <span class="sr-only">Ações</span>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                    <tbody>
                         <tr
                             v-for="c in cupons"
                             :key="c.id"
-                            class="bg-white dark:bg-zinc-800"
+                            class="group"
                         >
-                            <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">
-                                {{ c.code }}
+                            <td class="whitespace-nowrap">
+                                <span class="inline-flex items-center gap-2 font-mono text-[12.5px] font-medium tracking-[0.02em] text-[var(--ep-text)]">
+                                    <TicketPercent class="h-4 w-4 shrink-0 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                                    {{ c.code }}
+                                </span>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-                                {{ c.type === 'percent' ? 'Percentual' : 'Fixo' }}
+                            <td class="whitespace-nowrap">
+                                <span class="ep-chip">
+                                    {{ c.type === 'percent' ? 'Percentual' : 'Fixo' }}
+                                </span>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-900 dark:text-white">
+                            <td class="ep-num font-semibold tracking-[-0.01em] text-[var(--ep-text)]">
                                 {{ formatValor(c) }}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                            <td class="max-w-[240px] truncate whitespace-nowrap text-[var(--ep-text-2)]">
                                 {{ c.product_name ?? 'Todos' }}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                            <td class="ep-num text-[var(--ep-text-2)]">
                                 {{ usosText(c) }}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                            <td class="whitespace-nowrap tabular-nums text-[12.5px] text-[var(--ep-text-3)]">
                                 {{ formatDate(c.valid_from) }} – {{ formatDate(c.valid_until) }}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3">
+                            <td class="whitespace-nowrap">
                                 <span
                                     :class="[
-                                        'inline-block rounded px-2 py-0.5 text-xs font-medium',
+                                        'ep-chip',
                                         c.is_active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+                                            ? 'ep-chip--pos'
+                                            : 'text-[var(--ep-text-3)]',
                                     ]"
                                 >
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                     {{ c.is_active ? 'Sim' : 'Não' }}
                                 </span>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3">
-                                <div class="flex items-center gap-1">
+                            <td class="whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-0.5">
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] text-[var(--ep-text-3)]"
                                         aria-label="Editar cupom"
                                         @click="openEdit(c)"
                                     >
-                                        <Pencil class="h-4 w-4" />
+                                        <Pencil class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-lg p-2 text-zinc-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                                        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] text-[var(--ep-text-3)] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                                         aria-label="Excluir cupom"
                                         @click="openDeleteModal(c)"
                                     >
-                                        <Trash2 class="h-4 w-4" />
+                                        <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                     </button>
                                 </div>
                             </td>
@@ -167,15 +187,19 @@ function usosText(c) {
             </div>
             <div
                 v-if="!cupons.length"
-                class="flex flex-col items-center justify-center py-16"
+                class="ep-empty border-t border-[var(--ep-line)] py-14"
             >
-                <Ticket class="h-14 w-14 text-zinc-400 dark:text-zinc-500" />
-                <p class="mt-3 text-zinc-600 dark:text-zinc-400">Nenhum cupom ainda.</p>
-                <Button class="mt-4" @click="openNew">
+                <span class="ep-kpi__icon mb-2 h-10 w-10 rounded-[12px]" aria-hidden="true">
+                    <Ticket class="h-5 w-5" :stroke-width="1.75" />
+                </span>
+                <p class="ep-empty__title">Nenhum cupom ainda.</p>
+                <p class="ep-empty__text">Crie um código de desconto percentual ou de valor fixo e defina para quais produtos ele vale.</p>
+                <Button class="mt-3" @click="openNew">
+                    <Plus class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
                     Criar primeiro cupom
                 </Button>
             </div>
-        </div>
+        </section>
     </div>
 
     <!-- Modal de confirmação de exclusão -->
@@ -188,22 +212,25 @@ function usosText(c) {
             aria-labelledby="delete-cupom-title"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/60 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="closeDeleteModal"
             />
             <div
-                class="relative w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                class="ep-modal relative w-full max-w-sm p-6"
             >
-                <h2 id="delete-cupom-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
+                <span class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]" aria-hidden="true">
+                    <Trash2 class="h-[18px] w-[18px]" :stroke-width="1.75" />
+                </span>
+                <h2 id="delete-cupom-title" class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                     Excluir cupom?
                 </h2>
-                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                     Tem certeza que deseja excluir o cupom
-                    <strong class="text-zinc-900 dark:text-white">"{{ couponToDelete?.code }}"</strong>?
+                    <strong class="font-mono font-medium text-[var(--ep-text)]">"{{ couponToDelete?.code }}"</strong>?
                     Esta ação não pode ser desfeita.
                 </p>
-                <div class="mt-5 flex gap-3 justify-end">
+                <div class="mt-6 flex justify-end gap-2">
                     <Button variant="outline" @click="closeDeleteModal">
                         Cancelar
                     </Button>

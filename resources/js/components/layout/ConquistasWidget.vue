@@ -41,12 +41,55 @@ const totalLabel = computed(() => {
     return formatCompactCurrency(total);
 });
 
+const compactBR = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+const totalBR = computed(() => compactBR.format(progress.value?.total_valid_sales ?? 0));
+const nextBR = computed(() => {
+    const next = progress.value?.next_achievement;
+    return next ? compactBR.format(next.threshold ?? 0) : null;
+});
+const remainingBR = computed(() => {
+    const next = progress.value?.next_achievement;
+    if (!next) return null;
+    return compactBR.format(Math.max(0, (next.threshold ?? 0) - (progress.value?.total_valid_sales ?? 0)));
+});
+
 const panelNavPrefetch = ['hover', 'click'];
 </script>
 
 <template>
+    <!-- Card da jornada (sidebar e dashboard mobile) -->
     <Link
-        v-if="progress"
+        v-if="progress && (props.variant === 'sidebar' || props.variant === 'dashboard')"
+        href="/conquistas"
+        :prefetch="panelNavPrefetch"
+        class="group block rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card)] px-3 py-2.5 shadow-[var(--ep-highlight)] transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
+        title="Conquistas"
+    >
+        <div class="flex items-center gap-2">
+            <span
+                class="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden"
+                :class="{ 'opacity-50 grayscale': isLocked }"
+            >
+                <img v-if="iconUrl" :src="iconUrl" alt="" class="h-5 w-5 object-contain" />
+            </span>
+            <span class="text-[12px] font-medium text-[var(--ep-text-2)]">Jornada de faturamento</span>
+        </div>
+        <div class="mt-2.5 flex items-baseline justify-between gap-2 tabular-nums">
+            <span class="text-[13px] font-semibold text-[var(--ep-text)]">R$ {{ totalBR }}</span>
+            <span v-if="nextBR" class="text-[11.5px] text-[var(--ep-text-4)]">meta R$ {{ nextBR }}</span>
+        </div>
+        <div class="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-[var(--ep-active)]">
+            <div
+                class="h-full rounded-full bg-[var(--color-primary)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                :style="{ width: `${Math.max(progressPercent, progressPercent > 0 ? 2 : 0)}%` }"
+            />
+        </div>
+        <p v-if="remainingBR" class="mt-1.5 text-[11.5px] text-[var(--ep-text-4)]">
+            Faltam R$ {{ remainingBR }} para a próxima placa
+        </p>
+    </Link>
+    <Link
+        v-else-if="progress"
         href="/conquistas"
         :prefetch="panelNavPrefetch"
         class="group flex shrink-0 items-center gap-3 rounded-full px-2 py-1.5 transition-opacity hover:opacity-90"

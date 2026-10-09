@@ -167,65 +167,75 @@ async function runExport() {
             class="fixed inset-0 z-[100001] flex items-center justify-center p-4"
             aria-modal="true"
             role="dialog"
+            aria-labelledby="product-package-title"
         >
-            <div class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60" @click="close" />
+            <div class="ep-scrim fixed inset-0" aria-hidden="true" @click="close" />
             <div
-                class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+                class="ep-modal relative w-full max-w-md p-6"
             >
                 <div class="mb-5 flex items-start justify-between gap-3">
-                    <div>
-                        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ title }}</h3>
-                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                            <template v-if="mode === 'export'">
-                                Gera um pacote <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">.getfy-product</code>
-                                com checkout, ofertas/planos e área de membros.
-                            </template>
-                            <template v-else>
-                                Cria um produto novo a partir de um pacote exportado.
-                            </template>
-                        </p>
+                    <div class="flex min-w-0 items-start gap-3.5">
+                        <span class="ep-kpi__icon mt-0.5 h-10 w-10 shrink-0 rounded-[12px]" aria-hidden="true">
+                            <Package class="h-[18px] w-[18px]" :stroke-width="1.75" />
+                        </span>
+                        <div class="min-w-0">
+                            <h3 id="product-package-title" class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">{{ title }}</h3>
+                            <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
+                                <template v-if="mode === 'export'">
+                                    Gera um pacote <code class="rounded-[6px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">.getfy-product</code>
+                                    com checkout, ofertas/planos e área de membros.
+                                </template>
+                                <template v-else>
+                                    Cria um produto novo a partir de um pacote exportado.
+                                </template>
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"
-                        class="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 -mt-1 !h-8 !w-8 shrink-0 !rounded-[10px] text-[var(--ep-text-3)]"
+                        aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div v-if="mode === 'export'" class="space-y-4">
-                    <p class="text-sm text-zinc-700 dark:text-zinc-300">
-                        Produto: <strong>{{ product?.name }}</strong>
-                    </p>
-                    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                        <input v-model="includeMedia" type="checkbox" class="mt-1" />
-                        <span class="text-sm text-zinc-700 dark:text-zinc-300">
-                            <span class="font-medium text-zinc-900 dark:text-white">Incluir imagens e arquivos</span>
-                            <span class="mt-0.5 block text-xs text-zinc-500">
+                <div v-if="mode === 'export'" class="space-y-3">
+                    <div class="flex items-center justify-between gap-3 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3">
+                        <span class="text-[12.5px] text-[var(--ep-text-3)]">Produto</span>
+                        <strong class="min-w-0 truncate text-[13px] font-medium text-[var(--ep-text)]">{{ product?.name }}</strong>
+                    </div>
+                    <label class="flex cursor-pointer items-start gap-3 rounded-[14px] border border-[var(--ep-line)] p-3.5 transition-colors duration-150 hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]">
+                        <input v-model="includeMedia" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded-[5px] accent-[var(--ep-accent)]" />
+                        <span class="text-[13px] text-[var(--ep-text-2)]">
+                            <span class="font-medium text-[var(--ep-text)]">Incluir imagens e arquivos</span>
+                            <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                 Capa, banners do checkout, thumbnails, PDFs e mídias da área de membros. Vídeos externos (YouTube etc.) permanecem como link.
                             </span>
                         </span>
                     </label>
                 </div>
 
-                <div v-else class="space-y-4">
+                <div v-else class="space-y-3">
                     <div>
-                        <label class="text-xs font-medium uppercase tracking-wide text-zinc-500">Arquivo</label>
-                        <input
-                            type="file"
-                            accept=".zip,.getfy-product,application/zip"
-                            class="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                            @change="onFileChange"
-                        />
-                        <p v-if="file" class="mt-1 text-xs text-zinc-500">{{ file.name }}</p>
+                        <label class="ep-label">Arquivo</label>
+                        <div class="rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] p-3">
+                            <input
+                                type="file"
+                                accept=".zip,.getfy-product,application/zip"
+                                class="block w-full cursor-pointer text-[12.5px] text-[var(--ep-text-3)] file:mr-3 file:h-8 file:cursor-pointer file:rounded-[10px] file:border file:border-solid file:border-[var(--ep-glass-border)] file:bg-[var(--ep-glass-strong)] file:px-3 file:text-[12.5px] file:font-medium file:text-[var(--ep-text)] hover:file:border-[var(--ep-line-strong)]"
+                                @change="onFileChange"
+                            />
+                        </div>
+                        <p v-if="file" class="mt-1.5 truncate text-[12px] text-[var(--ep-text-2)]">{{ file.name }}</p>
                     </div>
 
-                    <div v-if="preview?.summary" class="rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/50">
-                        <p class="font-medium text-zinc-900 dark:text-white">
+                    <div v-if="preview?.summary" class="rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3">
+                        <p class="text-[13px] font-medium text-[var(--ep-text)]">
                             {{ preview.summary.name || 'Produto' }}
                         </p>
-                        <p class="mt-1 text-xs text-zinc-500">
+                        <p class="mt-1 text-[12px] tabular-nums text-[var(--ep-text-3)]">
                             {{ preview.summary.type }} ·
                             {{ preview.summary.sections || 0 }} seções ·
                             {{ preview.summary.modules || 0 }} módulos ·
@@ -239,14 +249,14 @@ async function runExport() {
 
                 <p
                     v-if="error"
-                    class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                    class="mt-4 rounded-[12px] border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] px-3 py-2 text-[12.5px] text-[var(--ep-neg)]"
                 >
                     {{ error }}
                 </p>
 
                 <ul
                     v-if="warnings.length"
-                    class="mt-3 max-h-28 space-y-1 overflow-y-auto rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+                    class="mt-3 max-h-28 space-y-1 overflow-y-auto rounded-[12px] border border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] bg-[var(--ep-warn-bg)] px-3 py-2 text-[12px] text-[var(--ep-warn)]"
                 >
                     <li v-for="(w, i) in warnings" :key="i">{{ w }}</li>
                 </ul>
@@ -255,17 +265,17 @@ async function runExport() {
                     <Button variant="outline" :disabled="busy" @click="close">Cancelar</Button>
                     <template v-if="mode === 'export'">
                         <Button variant="primary" :disabled="busy" @click="runExport">
-                            <Download class="h-4 w-4" />
+                            <Download class="h-4 w-4" :stroke-width="1.75" />
                             {{ busy ? 'Gerando…' : 'Baixar pacote' }}
                         </Button>
                     </template>
                     <template v-else>
                         <Button variant="outline" :disabled="busy || !file" @click="runPreview">
-                            <Package class="h-4 w-4" />
+                            <Package class="h-4 w-4" :stroke-width="1.75" />
                             Pré-visualizar
                         </Button>
                         <Button variant="primary" :disabled="busy || !file" @click="runImport">
-                            <Upload class="h-4 w-4" />
+                            <Upload class="h-4 w-4" :stroke-width="1.75" />
                             {{ busy ? 'Importando…' : 'Importar' }}
                         </Button>
                     </template>

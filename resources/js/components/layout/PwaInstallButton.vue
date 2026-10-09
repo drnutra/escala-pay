@@ -49,34 +49,34 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="canShowInstallButton" class="space-y-1">
+    <div v-if="canShowInstallButton" class="space-y-1.5">
         <button
             type="button"
             class="menu-item group w-full justify-start menu-item-inactive"
             @click="handleInstallClick"
         >
             <span class="shrink-0 menu-item-icon-inactive">
-                <Smartphone class="h-5 w-5" aria-hidden="true" />
+                <Smartphone class="h-[17px] w-[17px]" :stroke-width="1.75" aria-hidden="true" />
             </span>
             <span class="truncate">Instalar App</span>
         </button>
         <!-- Android (ou outro mobile) sem prompt nativo: instruções para instalar pelo menu -->
         <p
             v-if="showHttpsWarning"
-            class="px-4 py-2 text-xs text-zinc-500 dark:text-zinc-400"
+            class="mx-2 rounded-xl border border-[color-mix(in_oklab,var(--ep-warn)_30%,transparent)] bg-[var(--ep-warn-bg)] px-3 py-2.5 text-[12px] leading-relaxed text-[var(--ep-text-2)] [&_strong]:font-semibold [&_strong]:text-[var(--ep-text)]"
         >
             Para instalar como app no Android, abra em <strong>HTTPS</strong> (cadeado na barra). Em HTTP, o Chrome cria apenas atalho e não exibe o prompt nativo de instalação.
         </p>
         <p
             v-else-if="showFallbackMessage && isAndroid"
-            class="px-4 py-2 text-xs text-zinc-500 dark:text-zinc-400"
+            class="mx-2 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] leading-relaxed text-[var(--ep-text-3)] shadow-[var(--ep-glass-highlight)] [&_strong]:font-semibold [&_strong]:text-[var(--ep-text)]"
         >
             No Chrome, toque no menu (⋮) e escolha <strong>Instalar app</strong>. Se aparecer apenas <strong>Adicionar à tela inicial</strong>, o navegador ainda não considerou a página instalável.
         </p>
         <!-- Fallback genérico (outros casos) -->
         <p
             v-else-if="showFallbackMessage"
-            class="px-4 py-2 text-xs text-zinc-500 dark:text-zinc-400"
+            class="mx-2 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 text-[12px] leading-relaxed text-[var(--ep-text-3)] shadow-[var(--ep-glass-highlight)] [&_strong]:font-semibold [&_strong]:text-[var(--ep-text)]"
         >
             Use o menu (⋮) do navegador e escolha <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong> para colocar o app na sua tela inicial.
         </p>

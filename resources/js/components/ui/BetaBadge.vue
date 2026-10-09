@@ -7,7 +7,7 @@ defineProps({
 
 <template>
     <span
-        class="inline-flex shrink-0 items-center rounded font-semibold uppercase tracking-wide text-zinc-400 ring-1 ring-zinc-200/70 dark:text-zinc-500 dark:ring-zinc-600/60"
+        class="inline-flex shrink-0 items-center rounded-[5px] font-semibold uppercase tracking-wide text-[var(--ep-accent)] ring-1 ring-[color-mix(in_oklab,var(--ep-accent)_35%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)]"
         :class="size === 'xs' ? 'px-0.5 py-px text-[8px] leading-none' : 'px-1 py-px text-[9px] leading-tight'"
         title="Funcionalidade em beta"
     >

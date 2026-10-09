@@ -23,21 +23,21 @@ function toggle() {
             :aria-checked="modelValue"
             :aria-label="label || (modelValue ? 'Ativo' : 'Inativo')"
             :class="[
-                'relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 dark:focus:ring-offset-zinc-900',
+                'relative inline-flex h-6 w-11 shrink-0 rounded-full border border-[var(--ep-line-strong)] transition-[background-color,box-shadow] duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ep-accent)]',
                 modelValue
-                    ? 'bg-[var(--color-primary)]'
-                    : 'bg-zinc-200 dark:bg-zinc-600',
+                    ? 'bg-[var(--ep-accent)]'
+                    : 'bg-[var(--ep-active)]',
             ]"
             @click="toggle"
         >
             <span
                 :class="[
-                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition',
-                    modelValue ? 'translate-x-5' : 'translate-x-0.5',
+                    'pointer-events-none mt-px inline-block h-5 w-5 transform rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.35)] ring-0 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
+                    modelValue ? 'translate-x-[21px]' : 'translate-x-px',
                 ]"
             />
         </button>
-        <label v-if="label" class="text-sm font-medium text-zinc-700 dark:text-zinc-300" @click="toggle">
+        <label v-if="label" class="text-[13px] font-medium text-[var(--ep-text-2)]" @click="toggle">
             {{ label }}
         </label>
     </div>

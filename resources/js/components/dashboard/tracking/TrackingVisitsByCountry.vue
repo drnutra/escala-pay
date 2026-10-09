@@ -27,69 +27,64 @@ const leader = computed(() => summary.value.items[0] ?? null);
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full flex-col">
+    <section class="panel-card flex h-full min-w-0 flex-col p-5" aria-labelledby="trk-visitas">
         <div class="flex items-start justify-between gap-3">
-            <div>
-                <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                    <div class="dash-metric-icon-sm">
-                        <Globe class="h-4 w-4" />
-                    </div>
+            <div class="min-w-0">
+                <h2 id="trk-visitas" class="flex items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                    <Globe class="h-4 w-4 text-[var(--ep-text-3)]" :stroke-width="1.75" aria-hidden="true" />
                     Visitas por país
                 </h2>
-                <p v-if="summary.items.length" class="mt-1 text-xs text-zinc-500">
+                <p v-if="summary.items.length" class="mt-1 text-[12px] tabular-nums text-[var(--ep-text-4)]">
                     {{ summary.total }} visitas · {{ summary.items.length }} países
                 </p>
             </div>
             <div
                 v-if="leader"
-                class="hidden shrink-0 rounded-xl bg-[var(--color-primary)]/12 px-2.5 py-1.5 text-right text-[var(--color-primary)] sm:block"
+                class="ep-chip ep-chip--accent hidden shrink-0 tabular-nums sm:inline-flex"
             >
-                <p class="text-[10px] font-semibold uppercase tracking-wide opacity-80">Top</p>
-                <p class="text-sm font-bold">{{ leader.percent }}%</p>
+                <span class="text-[10.5px] font-medium opacity-80">Top</span>
+                <span class="font-semibold">{{ leader.percent }}%</span>
             </div>
         </div>
 
         <div v-if="summary.items.length" class="mt-4 flex flex-1 flex-col gap-4">
             <div
                 v-if="leader"
-                class="relative overflow-hidden rounded-xl border border-zinc-200/60 bg-gradient-to-br from-zinc-50 to-white p-4 dark:border-zinc-700/50 dark:from-zinc-800/80 dark:to-zinc-900/40"
+                class="relative overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4 shadow-[var(--ep-glass-highlight)]"
             >
-                <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-[var(--color-primary)]/15 blur-2xl" />
+                <div class="pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--ep-accent)_40%,transparent),transparent)] blur-xl" aria-hidden="true" />
                 <div class="relative flex items-center gap-3">
-                    <span class="text-3xl leading-none">{{ countryFlag(leader.country_code) }}</span>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] text-2xl leading-none shadow-[var(--ep-glass-highlight)]">{{ countryFlag(leader.country_code) }}</span>
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ leader.country_name }}</p>
-                        <p class="text-xs text-zinc-500">{{ leader.count }} visitas</p>
+                        <p class="truncate text-[13.5px] font-semibold text-[var(--ep-text)]">{{ leader.country_name }}</p>
+                        <p class="text-[12px] tabular-nums text-[var(--ep-text-3)]">{{ leader.count }} visitas</p>
                     </div>
-                    <p class="text-lg font-bold tabular-nums text-[var(--color-primary)]">{{ leader.percent }}%</p>
+                    <p class="shrink-0 text-[22px] font-semibold tabular-nums tracking-[-0.03em] text-[var(--ep-text)]">
+                        {{ leader.percent }}<span class="ml-0.5 text-[13px] font-medium text-[var(--ep-text-3)]">%</span>
+                    </p>
                 </div>
             </div>
 
-            <ul class="space-y-3">
+            <ul class="space-y-3.5">
                 <li
                     v-for="v in summary.items"
                     :key="v.country_code ?? v.country_name"
-                    class="rounded-xl px-1 py-0.5 transition-colors hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30"
                 >
-                    <div class="mb-1.5 flex items-center gap-2.5">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-lg leading-none dark:bg-zinc-800">
+                    <div class="flex items-center gap-2.5 text-[13px]">
+                        <span class="w-5 shrink-0 text-center text-base leading-none">
                             {{ countryFlag(v.country_code) }}
                         </span>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                                    {{ v.country_name }}
-                                </span>
-                                <span class="shrink-0 rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                                    {{ v.percent }}%
-                                </span>
-                            </div>
-                            <p class="mt-0.5 text-[11px] tabular-nums text-zinc-500">{{ v.count }} visitas</p>
-                        </div>
+                        <span class="min-w-0 flex-1 truncate font-medium text-[var(--ep-text)]">
+                            {{ v.country_name }}
+                        </span>
+                        <span class="shrink-0 text-[12px] tabular-nums text-[var(--ep-text-4)]">{{ v.count }} visitas</span>
+                        <span class="w-12 shrink-0 text-right font-medium tabular-nums text-[var(--ep-text)]">
+                            {{ v.percent }}%
+                        </span>
                     </div>
-                    <div class="h-1.5 overflow-hidden rounded-full bg-zinc-200/80 dark:bg-zinc-700/80">
+                    <div class="ml-[30px] mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--ep-active)]">
                         <div
-                            class="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)]/70 to-[var(--color-primary)] transition-all duration-500 ease-out"
+                            class="h-full rounded-full bg-gradient-to-r from-[var(--ep-accent)] to-[var(--ep-accent-2)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
                             :style="{ width: `${Math.max(v.percent, v.count ? 4 : 0)}%` }"
                         />
                     </div>
@@ -97,8 +92,9 @@ const leader = computed(() => summary.value.items[0] ?? null);
             </ul>
         </div>
 
-        <p v-else class="mt-8 flex flex-1 items-center justify-center text-center text-sm text-zinc-500">
-            Sem visitas no período
-        </p>
-    </div>
+        <div v-else class="ep-empty flex-1">
+            <p class="ep-empty__title">Sem visitas no período</p>
+            <p class="ep-empty__text">As visitas aparecem conforme os checkouts recebem acessos com país identificado.</p>
+        </div>
+    </section>
 </template>

@@ -13,29 +13,35 @@ const isAssinaturas = computed(() => page.url.startsWith('/vendas/assinaturas'))
 </script>
 
 <template>
-    <HorizontalScrollTabs aria-label="Abas de vendas">
+    <HorizontalScrollTabs aria-label="Abas de vendas" nav-class="ep-tabs">
         <Link
             href="/vendas"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                isVendas
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                'ep-tab border',
+                isVendas ? 'ep-tab--active' : 'border-transparent',
             ]"
         >
-            <CircleDollarSign class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <CircleDollarSign
+                class="h-4 w-4 shrink-0"
+                :class="isVendas ? 'text-[var(--ep-accent)]' : ''"
+                :stroke-width="1.75"
+                aria-hidden="true"
+            />
             Vendas
         </Link>
         <Link
             href="/vendas/assinaturas"
             :class="[
-                'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                isAssinaturas
-                    ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                'ep-tab border',
+                isAssinaturas ? 'ep-tab--active' : 'border-transparent',
             ]"
         >
-            <Repeat class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Repeat
+                class="h-4 w-4 shrink-0"
+                :class="isAssinaturas ? 'text-[var(--ep-accent)]' : ''"
+                :stroke-width="1.75"
+                aria-hidden="true"
+            />
             Assinaturas
         </Link>
     </HorizontalScrollTabs>

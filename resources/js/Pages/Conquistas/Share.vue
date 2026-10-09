@@ -42,61 +42,66 @@ function copyLink() {
 </script>
 
 <template>
-    <div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-950/20 via-zinc-50 to-amber-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-emerald-950/20">
-        <!-- Background pattern -->
+    <div class="relative min-h-screen overflow-hidden bg-[var(--ep-canvas)]">
+        <!-- Aurora: a luz atrás do vidro -->
+        <div class="ep-aurora" aria-hidden="true" />
         <div
-            class="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
-            style="background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0); background-size: 40px 40px;"
+            class="pointer-events-none absolute inset-0 opacity-[0.035]"
+            style="background-image: radial-gradient(circle at 1px 1px, var(--ep-text) 1px, transparent 0); background-size: 40px 40px;"
             aria-hidden
         />
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--tw-gradient-stops))] from-emerald-400/15 to-transparent dark:from-emerald-500/10" aria-hidden />
 
-        <div class="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-16">
+        <div class="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-16">
             <!-- Card principal -->
             <div
-                class="w-full max-w-sm overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/90 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-800/95 dark:shadow-zinc-950/50"
+                class="panel-card ep-glow-card w-full max-w-sm !rounded-[28px]"
             >
-                <div class="relative px-10 pt-12 pb-10">
-                    <!-- Badge com glow -->
+                <div class="relative px-10 pb-10 pt-12">
+                    <!-- Placa com brilho da marca -->
                     <div class="relative mx-auto flex h-36 w-36 items-center justify-center">
                         <div
-                            class="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-amber-500/20 blur-2xl dark:from-emerald-500/20 dark:to-amber-600/15"
+                            class="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--ep-accent)_55%,transparent),color-mix(in_oklab,var(--ep-accent-2)_25%,transparent)_60%,transparent)] blur-2xl"
                             aria-hidden
                         />
                         <div
-                            class="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-50 ring-2 ring-zinc-200/60 dark:from-zinc-800 dark:to-zinc-900 dark:ring-zinc-600/40"
+                            class="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-[22px] border border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] bg-[linear-gradient(180deg,var(--ep-glass-strong),var(--ep-glass))]"
                         >
                             <img
                                 v-if="achievement.image"
                                 :src="achievement.image"
                                 :alt="achievement.name"
-                                class="h-20 w-20 object-contain drop-shadow-sm"
+                                class="h-20 w-20 object-contain drop-shadow-[0_6px_16px_rgba(0,0,0,0.3)]"
                             />
                         </div>
                     </div>
 
                     <!-- Valor -->
-                    <p class="mt-6 text-center text-sm font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                        R$ {{ formatCompactCurrency(achievement.threshold ?? 0) }} em vendas
+                    <p class="mt-7 flex justify-center">
+                        <span class="ep-chip ep-chip--accent tabular-nums">
+                            <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                            R$ {{ formatCompactCurrency(achievement.threshold ?? 0) }} em vendas
+                        </span>
                     </p>
 
                     <!-- Nome da conquista -->
-                    <h1 class="mt-2 text-center text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                    <h1 class="mt-3 text-center text-[26px] font-semibold tracking-[-0.035em] text-[var(--ep-text)] [text-shadow:0_2px_24px_color-mix(in_oklab,var(--ep-glow)_55%,transparent)]">
                         {{ achievement.name }}
                     </h1>
 
                     <!-- Usuário -->
-                    <p v-if="displayUsername" class="mt-4 text-center text-base text-zinc-600 dark:text-zinc-300">
+                    <p v-if="displayUsername" class="mt-3 text-center text-[14px] text-[var(--ep-text-2)]">
                         {{ displayUsername }} conquistou
                     </p>
-                    <p v-else class="mt-4 text-center text-base text-zinc-500 dark:text-zinc-400">
+                    <p v-else class="mt-3 text-center text-[14px] text-[var(--ep-text-3)]">
                         Conquista desbloqueada
                     </p>
 
                     <!-- Brand -->
-                    <p class="mt-8 text-center text-xs font-medium tracking-wider text-zinc-400 dark:text-zinc-500">
-                        Getfy
-                    </p>
+                    <div class="mt-8 border-t border-[var(--ep-line)] pt-5">
+                        <p class="text-center text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ep-text-4)]">
+                            Getfy
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -107,14 +112,14 @@ function copyLink() {
                 leave-active-class="transition duration-150 ease-in"
                 leave-to-class="opacity-0"
             >
-                <div v-if="!copied" class="mt-12">
+                <div v-if="!copied" class="mt-10">
                     <Button
                         variant="outline"
                         size="sm"
                         class="gap-2 rounded-full px-6"
                         @click="copyLink"
                     >
-                        <Copy class="h-4 w-4" />
+                        <Copy class="h-4 w-4" :stroke-width="1.75" />
                         Copiar link
                     </Button>
                 </div>

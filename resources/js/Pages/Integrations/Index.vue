@@ -16,7 +16,7 @@ import PixelXSidebar from '@/components/integrations/PixelXSidebar.vue';
 import ConversionPixelsSidebar from '@/components/integrations/ConversionPixelsSidebar.vue';
 import GatewayCard from '@/components/settings/GatewayCard.vue';
 import GatewayConfigSidebar from '@/components/settings/GatewayConfigSidebar.vue';
-import { CreditCard, Zap } from 'lucide-vue-next';
+import { CreditCard, Zap, X } from 'lucide-vue-next';
 
 defineOptions({ layout: LayoutInfoprodutor });
 
@@ -402,33 +402,43 @@ watch(() => page.url, () => syncGatewayFromQuery());
 
 <template>
     <div class="space-y-6">
-        <HorizontalScrollTabs aria-label="Abas de integrações">
-            <button
-                v-for="tab in TABS"
-                :key="tab.id"
-                type="button"
-                :class="[
-                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-                    currentTab === tab.id
-                        ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                        : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                ]"
-                @click="setTab(tab.id)"
-            >
-                <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                {{ tab.label }}
-            </button>
-        </HorizontalScrollTabs>
+        <!-- Cabeçalho da tela -->
+        <header class="flex flex-wrap items-end justify-between gap-4">
+            <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <span class="ep-chip tabular-nums">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                        {{ APPS.filter((a) => a.status === 'active').length }} de {{ APPS.length }} conectados
+                    </span>
+                </div>
+                <p class="mt-2 text-[13px] text-[var(--ep-text-3)]">
+                    Configure webhooks, gateways e apps para conectar sua operação.
+                </p>
+            </div>
+            <HorizontalScrollTabs aria-label="Abas de integrações" nav-class="ep-tabs" wrapper-class="sm:!w-auto">
+                <button
+                    v-for="tab in TABS"
+                    :key="tab.id"
+                    type="button"
+                    :class="['ep-tab', currentTab === tab.id ? 'ep-tab--active' : 'border border-transparent']"
+                    @click="setTab(tab.id)"
+                >
+                    <component :is="tab.icon" class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                    {{ tab.label }}
+                </button>
+            </HorizontalScrollTabs>
+        </header>
 
         <!-- Aba Apps -->
         <template v-if="currentTab === 'apps'">
-            <section>
-                <h2 class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
-                    Integrações
-                </h2>
-                <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
-                    Configure webhooks, gateways e apps para conectar sua operação.
-                </p>
+            <section aria-labelledby="int-apps-title">
+                <div class="mb-3 flex items-baseline justify-between gap-3 px-1">
+                    <h2 id="int-apps-title" class="ep-section-title">
+                        Galeria de apps
+                        <span class="ml-1 text-[12px] font-normal tabular-nums text-[var(--ep-text-4)]">{{ APPS.length }} disponíveis</span>
+                    </h2>
+                    <span class="hidden text-[12px] text-[var(--ep-text-4)] sm:inline">Clique em um app para configurar</span>
+                </div>
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     <template v-for="app in APPS" :key="app.id">
                         <ConversionPixelsAppCard
@@ -449,13 +459,18 @@ watch(() => page.url, () => syncGatewayFromQuery());
         <!-- Aba Gateways -->
         <template v-if="currentTab === 'gateways'">
             <section class="space-y-6">
-                <div class="panel-card-lg">
-                    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                        Gateways de pagamento
-                    </h2>
-                    <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
-                        Configure os gateways que deseja usar no checkout. Clique em um card para configurar credenciais e testar a conexão.
-                    </p>
+                <div class="panel-card p-6" aria-labelledby="int-gateways-title">
+                    <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h2 id="int-gateways-title" class="ep-section-title">
+                                Gateways de pagamento
+                                <span class="ml-1 text-[12px] font-normal tabular-nums text-[var(--ep-text-4)]">{{ gateways.length }} disponíveis</span>
+                            </h2>
+                            <p class="mt-1 max-w-2xl text-[12.5px] text-[var(--ep-text-3)]">
+                                Configure os gateways que deseja usar no checkout. Clique em um card para configurar credenciais e testar a conexão.
+                            </p>
+                        </div>
+                    </div>
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <GatewayCard
                             v-for="g in gateways"
@@ -464,8 +479,10 @@ watch(() => page.url, () => syncGatewayFromQuery());
                             @click="openGatewaySidebar(g.slug)"
                         />
                     </div>
-                    <div v-if="gateways.length === 0" class="rounded-xl border border-dashed border-zinc-300 py-8 text-center text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
-                        Nenhum gateway disponível.
+                    <div v-if="gateways.length === 0" class="ep-empty rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)]">
+                        <CreditCard class="mb-1 h-5 w-5 text-[var(--ep-text-4)]" :stroke-width="1.75" aria-hidden="true" />
+                        <p class="ep-empty__title">Nenhum gateway disponível.</p>
+                        <p class="ep-empty__text">Instale ou ative um plugin de gateway em Plugins para ele aparecer aqui.</p>
                     </div>
                 </div>
             </section>
@@ -546,48 +563,57 @@ watch(() => page.url, () => syncGatewayFromQuery());
             >
                 <div
                     v-if="pluginSidebarOpen"
-                    class="fixed inset-0 z-[100000] bg-black/30"
+                    class="ep-scrim fixed inset-0 z-[100000]"
                     aria-hidden="true"
                     @click="closePluginSidebar"
                 />
             </Transition>
             <Transition
-                enter-active-class="transition-transform duration-300 ease-out"
+                enter-active-class="transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
                 enter-from-class="translate-x-full"
                 enter-to-class="translate-x-0"
-                leave-active-class="transition-transform duration-300 ease-in"
+                leave-active-class="transition-transform duration-200 ease-in"
                 leave-from-class="translate-x-0"
                 leave-to-class="translate-x-full"
             >
                 <aside
                     v-if="pluginSidebarOpen"
-                    class="fixed top-0 right-0 z-[100001] flex h-full w-full max-w-md flex-col bg-white shadow-2xl dark:bg-zinc-900"
+                    class="ep-drawer fixed right-0 top-0 z-[100001] flex h-full w-full max-w-md flex-col"
                     role="dialog"
                     aria-label="Configuração da integração"
                     @click.stop
                 >
-                    <div class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
-                        <div class="text-lg font-semibold text-zinc-900 dark:text-white">
-                            {{ selectedPluginAppName || 'Integração' }}
+                    <div class="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4">
+                        <div class="flex min-w-0 items-center gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] text-[var(--ep-accent)] shadow-[var(--ep-glass-highlight),0_8px_22px_-12px_var(--ep-glow)]">
+                                <Zap class="h-[18px] w-[18px]" :stroke-width="1.75" aria-hidden="true" />
+                            </span>
+                            <div class="min-w-0">
+                                <div class="truncate text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                                    {{ selectedPluginAppName || 'Integração' }}
+                                </div>
+                                <p class="text-[12px] text-[var(--ep-text-3)]">Configuração do plugin</p>
+                            </div>
                         </div>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                            class="ep-btn-ghost ep-btn-icon shrink-0"
                             aria-label="Fechar"
                             @click="closePluginSidebar"
                         >
-                            ✕
+                            <X class="h-[18px] w-[18px]" :stroke-width="1.75" aria-hidden="true" />
                         </button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-4">
+                    <div class="flex-1 overflow-y-auto px-6 py-5">
                         <component
                             v-if="selectedPluginSlot && resolvePluginComponent(selectedPluginSlot)"
                             :is="resolvePluginComponent(selectedPluginSlot)"
                             @saved="router.reload()"
                             @close="closePluginSidebar"
                         />
-                        <div v-else class="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-                            Não foi possível carregar o painel desta integração do plugin.
+                        <div v-else class="ep-empty rounded-[14px] border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)]">
+                            <p class="ep-empty__title">Não foi possível carregar o painel desta integração do plugin.</p>
+                            <p class="ep-empty__text">Verifique se o plugin está ativo em Plugins e recarregue a página.</p>
                         </div>
                     </div>
                 </aside>

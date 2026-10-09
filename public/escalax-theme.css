@@ -1,0 +1,16 @@
+/*
+ * Demo local: ajustes de marca EscalaX no painel do Getfy.
+ * Paleta, tipografia e superfícies agora vivem em resources/css/escala-pay.css (pipeline do Vite).
+ * Aqui ficam só os ajustes de imagem da marca e dos emblemas de conquistas.
+ */
+
+/* Conquistas: emblemas EscalaX maiores (o original usa quadro de 80px com imagem de 56px). */
+html.panel-app .h-20.w-20:has(> img[src^="/images/conquistas-escalax/"]) {
+    width: 8.5rem;
+    height: 8.5rem;
+    background: transparent;
+}
+html.panel-app img.h-14.w-14[src^="/images/conquistas-escalax/"] {
+    width: 8rem;
+    height: 8rem;
+}

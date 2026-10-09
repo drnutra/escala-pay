@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import LayoutInfoprodutor from '@/Layouts/LayoutInfoprodutor.vue';
 import Button from '@/components/ui/Button.vue';
+import { ChevronLeft, TriangleAlert, Users } from 'lucide-vue-next';
 import axios from 'axios';
 
 defineOptions({ layout: LayoutInfoprodutor });
@@ -54,96 +55,132 @@ async function previewRecipients() {
 </script>
 
 <template>
-    <div class="mx-auto max-w-4xl space-y-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Nova campanha</h1>
-            <Link href="/email-marketing" class="text-sm text-zinc-600 hover:underline dark:text-zinc-400">Voltar</Link>
-        </div>
+    <div class="mx-auto max-w-6xl space-y-5">
+        <header class="min-w-0">
+            <Link
+                href="/email-marketing"
+                class="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--ep-text-3)] transition-colors duration-150 hover:text-[var(--ep-text)]"
+            >
+                <ChevronLeft class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                Voltar
+            </Link>
+            <h1 class="ep-page-heading mt-2">Nova campanha</h1>
+            <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">Escreva o e-mail, escolha os destinatários e salve como rascunho.</p>
+        </header>
 
         <div
             v-if="!email_configured"
-            class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30"
+            class="panel-card flex items-start gap-3 !border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] p-4"
+            role="status"
         >
-            <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
-                Configure o e-mail em <Link href="/configuracoes" class="underline">Configurações &gt; E-mail</Link> antes
+            <TriangleAlert class="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--ep-warn)]" :stroke-width="1.75" aria-hidden="true" />
+            <p class="text-[13px] text-[var(--ep-text-2)]">
+                Configure o e-mail em <Link href="/configuracoes" class="font-medium text-[var(--ep-accent)] underline-offset-4 hover:underline">Configurações &gt; E-mail</Link> antes
                 de disparar.
             </p>
         </div>
 
-        <form class="panel-card-lg space-y-6" @submit.prevent="form.post('/email-marketing')">
-            <div>
-                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome da campanha</label>
-                <input
-                    v-model="form.name"
-                    type="text"
-                    required
-                    class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2"
-                />
-                <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Assunto do e-mail</label>
-                <input
-                    v-model="form.subject"
-                    type="text"
-                    required
-                    class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2"
-                />
-                <p v-if="form.errors.subject" class="mt-1 text-sm text-red-600">{{ form.errors.subject }}</p>
-            </div>
-            <div>
-                <div class="flex items-center justify-between">
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Corpo do e-mail (HTML)</label>
-                    <Button type="button" variant="secondary" size="sm" @click="useDefaultTemplate">Usar template padrão</Button>
+        <form class="grid items-start gap-4 lg:grid-cols-12" @submit.prevent="form.post('/email-marketing')">
+            <!-- Conteúdo -->
+            <section class="panel-card space-y-5 p-6 lg:col-span-8" aria-labelledby="em-conteudo">
+                <h2 id="em-conteudo" class="ep-section-title">Conteúdo</h2>
+                <div>
+                    <label class="ep-label">Nome da campanha</label>
+                    <input
+                        v-model="form.name"
+                        type="text"
+                        required
+                        class="ep-input"
+                    />
+                    <p v-if="form.errors.name" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ form.errors.name }}</p>
                 </div>
-                <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Use {nome} e {email} para personalizar.</p>
-                <textarea
-                    v-model="form.body_html"
-                    rows="14"
-                    required
-                    class="mt-1 block w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 font-mono text-sm"
-                />
-                <p v-if="form.errors.body_html" class="mt-1 text-sm text-red-600">{{ form.errors.body_html }}</p>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Destinatários</label>
-                <div class="mt-2 space-y-2">
-                    <label class="flex items-center gap-2">
-                        <input v-model="form.filter_config.all_customers" type="radio" :value="true" class="h-4 w-4" />
-                        <span class="text-sm">Todos os compradores</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input v-model="form.filter_config.all_customers" type="radio" :value="false" class="h-4 w-4" />
-                        <span class="text-sm">Compradores de produto(s) específico(s)</span>
-                    </label>
-                    <div v-if="form.filter_config.all_customers === false" class="ml-6 mt-2">
-                        <select
-                            v-model="form.filter_config.product_ids"
-                            multiple
-                            class="block w-full max-w-md rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
-                        >
-                            <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
-                        </select>
+                <div>
+                    <label class="ep-label">Assunto do e-mail</label>
+                    <input
+                        v-model="form.subject"
+                        type="text"
+                        required
+                        class="ep-input"
+                    />
+                    <p v-if="form.errors.subject" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ form.errors.subject }}</p>
+                </div>
+                <div>
+                    <div class="mb-1.5 flex items-end justify-between gap-3">
+                        <div class="min-w-0">
+                            <label class="ep-label !mb-0">Corpo do e-mail (HTML)</label>
+                            <p class="mt-0.5 text-[12px] text-[var(--ep-text-4)]">
+                                Use <code class="rounded-md bg-[var(--ep-active)] px-1 font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome}</code>
+                                e <code class="rounded-md bg-[var(--ep-active)] px-1 font-mono text-[11.5px] text-[var(--ep-text-2)]">{email}</code> para personalizar.
+                            </p>
+                        </div>
+                        <Button type="button" variant="secondary" size="sm" class="shrink-0" @click="useDefaultTemplate">Usar template padrão</Button>
                     </div>
+                    <textarea
+                        v-model="form.body_html"
+                        rows="14"
+                        required
+                        spellcheck="false"
+                        class="ep-input !h-auto min-h-[320px] resize-y py-3 font-mono !text-[12.5px] leading-5"
+                    />
+                    <p v-if="form.errors.body_html" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">{{ form.errors.body_html }}</p>
                 </div>
-                <div class="mt-3">
-                    <Button type="button" variant="secondary" size="sm" :disabled="loadingRecipients" @click="previewRecipients">
-                        {{ loadingRecipients ? 'Carregando...' : 'Ver destinatários' }}
-                    </Button>
-                    <span v-if="recipientCount !== null" class="ml-2 text-sm text-zinc-600 dark:text-zinc-400">
-                        {{ recipientCount }} destinatário(s)
-                    </span>
-                    <ul v-if="recipientSample.length" class="mt-2 list-inside list-disc text-xs text-zinc-500 dark:text-zinc-400">
-                        <li v-for="(r, i) in recipientSample" :key="i">{{ r.email }} ({{ r.name }})</li>
-                    </ul>
+            </section>
+
+            <!-- Destinatários + ações -->
+            <aside class="space-y-4 lg:sticky lg:top-24 lg:col-span-4">
+                <section class="panel-card p-5" aria-labelledby="em-destinatarios">
+                    <h2 id="em-destinatarios" class="ep-section-title">Destinatários</h2>
+                    <div class="mt-3 space-y-2">
+                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)]">
+                            <input v-model="form.filter_config.all_customers" type="radio" :value="true" class="h-4 w-4 shrink-0 accent-[var(--ep-accent)]" />
+                            <span class="text-[13px] font-medium text-[var(--ep-text)]">Todos os compradores</span>
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)]">
+                            <input v-model="form.filter_config.all_customers" type="radio" :value="false" class="h-4 w-4 shrink-0 accent-[var(--ep-accent)]" />
+                            <span class="text-[13px] font-medium text-[var(--ep-text)]">Compradores de produto(s) específico(s)</span>
+                        </label>
+                        <div v-if="form.filter_config.all_customers === false" class="pt-1">
+                            <select
+                                v-model="form.filter_config.product_ids"
+                                multiple
+                                class="ep-input !h-auto min-h-[132px] py-2 !text-[13px]"
+                            >
+                                <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
+                            </select>
+                            <p class="ep-help">Segure Ctrl (ou ⌘) para selecionar mais de um.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 border-t border-[var(--ep-line)] pt-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <Button type="button" variant="secondary" size="sm" :disabled="loadingRecipients" @click="previewRecipients">
+                                <Users class="h-3.5 w-3.5" :stroke-width="1.75" aria-hidden="true" />
+                                {{ loadingRecipients ? 'Carregando...' : 'Ver destinatários' }}
+                            </Button>
+                            <span v-if="recipientCount !== null" class="text-[12.5px] text-[var(--ep-text-3)]">
+                                <span class="text-[20px] font-semibold tabular-nums tracking-[-0.03em] text-[var(--ep-text)]">{{ recipientCount }}</span>
+                                destinatário(s)
+                            </span>
+                        </div>
+                        <ul v-if="recipientSample.length" class="-mx-2 mt-3 space-y-0.5">
+                            <li v-for="(r, i) in recipientSample" :key="i" class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]">
+                                <span v-avatar="r.name || r.email" class="ep-avatar !h-6 !w-6 shrink-0 !text-[10px]" aria-hidden="true">{{ (r.name || r.email || '?').charAt(0).toUpperCase() }}</span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-[12.5px] text-[var(--ep-text)]">{{ r.email }}</p>
+                                    <p class="truncate text-[11.5px] text-[var(--ep-text-4)]">{{ r.name }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <div class="panel-card space-y-2 p-5">
+                    <Button type="submit" variant="primary" class="w-full" :disabled="form.processing">Salvar rascunho</Button>
+                    <Link href="/email-marketing" class="block">
+                        <Button type="button" variant="outline" class="w-full">Cancelar</Button>
+                    </Link>
+                    <p class="ep-help text-center">O disparo é feito depois, pela lista de campanhas.</p>
                 </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-700">
-                <Button type="submit" variant="primary" :disabled="form.processing">Salvar rascunho</Button>
-                <Link href="/email-marketing">
-                    <Button type="button" variant="outline">Cancelar</Button>
-                </Link>
-            </div>
+            </aside>
         </form>
     </div>
 </template>

@@ -29,24 +29,29 @@ function onReload() {
 </script>
 
 <template>
-    <div class="space-y-2">
-        <div class="mb-2">
-            <h1 class="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                Financeiro
-                <BetaBadge />
-            </h1>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Acompanhe suas comissões e solicite saques via PIX.
-            </p>
-            <FinanceiroCajupayHint v-if="cajupay_connected" variant="partner" class="mt-3" />
-        </div>
+    <div class="space-y-5">
+        <header class="flex flex-wrap items-end justify-between gap-3">
+            <div class="min-w-0">
+                <h1 class="flex flex-wrap items-center gap-2 text-[22px] font-semibold tracking-[-0.025em] text-[var(--ep-text)]">
+                    Financeiro
+                    <BetaBadge />
+                </h1>
+                <p class="mt-1 text-[13px] text-[var(--ep-text-3)]">
+                    Acompanhe suas comissões e solicite saques via PIX.
+                </p>
+            </div>
+            <FinanceiroCajupayHint v-if="cajupay_connected" variant="partner" />
+        </header>
 
         <div
             v-if="!cajupay_connected"
-            class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/25 dark:text-amber-100"
+            class="panel-card flex flex-col items-start gap-3 px-4 py-3 text-[13px] text-[var(--ep-text-2)] sm:flex-row"
             role="status"
         >
-            <span class="mt-0.5 shrink-0 font-semibold">Saques pausados</span>
+            <span class="ep-chip ep-chip--warn shrink-0">
+                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                Saques pausados
+            </span>
             <p class="leading-relaxed">
                 O produtor ainda não conectou a CajuPay. Você pode ver comissões e histórico, mas solicitar
                 saque via PIX ficará indisponível até a integração ser ativada.

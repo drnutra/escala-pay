@@ -102,10 +102,7 @@ watch(
 </script>
 
 <template>
-    <div class="w-full max-w-full lg:w-fit">
-        <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-            Período
-        </p>
+    <div class="w-full max-w-full">
 
         <!-- Mobile: dropdown -->
         <div class="flex items-center gap-2 lg:hidden">
@@ -113,21 +110,21 @@ watch(
                 <SelectTrigger
                     type="button"
                     aria-label="Período"
-                    class="flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 rounded-2xl border border-zinc-200/80 bg-zinc-100/90 px-4 py-2 text-left text-sm font-medium transition hover:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:ring-offset-0 dark:border-zinc-700/80 dark:bg-zinc-800/50 dark:text-white dark:hover:border-zinc-600"
+                    class="flex h-9 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card)] px-3 text-left text-[13px] font-medium text-[var(--ep-text)] shadow-[var(--ep-highlight)] transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                 >
-                    <span class="flex min-w-0 items-center gap-2 truncate text-zinc-900 dark:text-white">
+                    <span class="flex min-w-0 items-center gap-2 truncate">
                         <component
                             :is="activeOption.icon"
-                            class="h-4 w-4 shrink-0 text-[var(--color-primary)]"
+                            class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]"
                             aria-hidden="true"
                         />
                         <SelectValue :placeholder="activeOption.label" />
                     </span>
-                    <ChevronDown class="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
+                    <ChevronDown class="h-4 w-4 shrink-0 text-[var(--ep-text-4)]" aria-hidden="true" />
                 </SelectTrigger>
                 <SelectPortal to="body">
                     <SelectContent
-                        class="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-zinc-200 bg-white py-1 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                        class="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card)] shadow-[var(--ep-shadow-pop)]"
                         :side-offset="6"
                         position="popper"
                         :avoid-collisions="true"
@@ -137,12 +134,12 @@ watch(
                                 v-for="opt in periodOptions"
                                 :key="opt.value"
                                 :value="opt.value"
-                                class="relative flex cursor-pointer select-none items-center gap-2 rounded-xl py-2.5 pl-3 pr-10 text-sm outline-none transition data-[highlighted]:bg-[var(--color-primary)]/10 data-[highlighted]:text-[var(--color-primary)] data-[state=checked]:bg-[var(--color-primary)]/10 data-[state=checked]:text-[var(--color-primary)] dark:data-[highlighted]:bg-[var(--color-primary)]/20 dark:data-[state=checked]:bg-[var(--color-primary)]/20"
+                                class="relative flex cursor-pointer select-none items-center gap-2 rounded-lg py-2 pl-2.5 pr-9 text-[13px] text-[var(--ep-text-2)] outline-none data-[highlighted]:bg-[var(--ep-hover)] data-[highlighted]:text-[var(--ep-text)] data-[state=checked]:font-medium data-[state=checked]:text-[var(--ep-text)]"
                             >
                                 <component :is="opt.icon" class="h-4 w-4 shrink-0 opacity-70" aria-hidden="true" />
                                 <SelectItemText>{{ opt.label }}</SelectItemText>
                                 <SelectItemIndicator class="absolute right-3 flex h-4 w-4 items-center justify-center">
-                                    <Check class="h-4 w-4 text-[var(--color-primary)]" />
+                                    <Check class="h-4 w-4 text-[var(--ep-text)]" />
                                 </SelectItemIndicator>
                             </SelectItem>
                         </SelectViewport>
@@ -153,15 +150,15 @@ watch(
         </div>
 
         <!-- Desktop: barra segmentada -->
-        <div class="hidden items-center gap-2 lg:flex">
+        <div class="hidden w-full items-center gap-2 lg:flex">
             <div
                 ref="trackRef"
-                class="relative inline-flex w-max items-center gap-0.5 rounded-2xl border border-zinc-200/80 bg-zinc-100/90 p-1 dark:border-zinc-700/80 dark:bg-zinc-800/50"
+                class="relative inline-flex h-9 w-max items-center gap-0.5 rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-[3px]"
                 role="tablist"
                 aria-label="Período do dashboard"
             >
                 <div
-                    class="pointer-events-none absolute top-1 bottom-1 z-0 rounded-xl bg-white shadow-sm ring-1 ring-zinc-200/80 transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.34,1.2,0.64,1)] dark:bg-zinc-700 dark:shadow-none dark:ring-zinc-600/80"
+                    class="pointer-events-none absolute top-[3px] bottom-[3px] z-0 rounded-md bg-[var(--ep-card)] shadow-[0_1px_2px_rgba(0,0,0,0.08)] ring-1 ring-[var(--ep-line-strong)] transition-[left,width,opacity] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] dark:bg-[#202227]"
                     :style="{
                         left: `${indicator.left}px`,
                         width: `${indicator.width}px`,
@@ -173,7 +170,7 @@ watch(
                 <template v-for="(opt, index) in periodOptions" :key="opt.value">
                     <div
                         v-if="index === 3"
-                        class="mx-0.5 h-7 w-px shrink-0 self-center bg-gradient-to-b from-transparent via-zinc-300 to-transparent dark:via-zinc-600"
+                        class="mx-0.5 h-4 w-px shrink-0 self-center bg-[var(--ep-line-strong)]"
                         aria-hidden="true"
                     />
                     <button
@@ -181,23 +178,17 @@ watch(
                         type="button"
                         role="tab"
                         :aria-selected="modelValue === opt.value"
-                        class="relative z-10 flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors duration-200"
+                        class="relative z-10 flex h-full shrink-0 items-center rounded-md px-3 text-[13px] font-medium transition-colors duration-150"
                         :class="modelValue === opt.value
-                            ? 'text-[var(--color-primary)]'
-                            : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'"
+                            ? 'text-[var(--ep-text)]'
+                            : 'text-[var(--ep-text-3)] hover:text-[var(--ep-text)]'"
                         @click="select(opt.value)"
                     >
-                        <component
-                            :is="opt.icon"
-                            class="h-4 w-4 shrink-0 transition-transform duration-200"
-                            :class="modelValue === opt.value ? 'scale-110' : 'opacity-70'"
-                            aria-hidden="true"
-                        />
                         <span class="whitespace-nowrap">{{ opt.label }}</span>
                     </button>
                 </template>
             </div>
-            <slot name="trailing" />
+            <div class="ml-auto flex items-center gap-2"><slot name="trailing" /></div>
         </div>
     </div>
 </template>

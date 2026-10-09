@@ -651,40 +651,40 @@ function truncateUrl(url, max = 40) {
             role="dialog"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative flex h-full w-full max-w-4xl flex-col rounded-l-2xl bg-white shadow-2xl dark:bg-zinc-900"
+                class="ep-drawer relative flex h-full w-full max-w-4xl flex-col"
             >
-                <div
-                    class="flex items-center justify-between gap-3 rounded-tl-2xl bg-zinc-50/80 px-5 py-4 dark:bg-zinc-800/50"
+                <header
+                    class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4"
                 >
                     <div class="flex min-w-0 items-center gap-2">
                         <button
                             v-if="currentView !== 'hub'"
                             type="button"
-                            class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+                            class="ep-btn-ghost ep-btn-icon -ml-2 shrink-0"
                             title="Voltar"
                             @click="currentView === 'logs' ? backToHub() : cancelEdit()"
                         >
-                            <ArrowLeft class="h-5 w-5" />
+                            <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                         </button>
                         <div class="min-w-0">
-                            <h2 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">
+                            <h2 class="truncate text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                                 {{ headerTitle }}
                             </h2>
                             <p
                                 v-if="currentView === 'hub'"
-                                class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400"
+                                class="mt-0.5 flex items-center gap-1.5 text-[12.5px] text-[var(--ep-text-3)]"
                             >
-                                <Clock class="h-3 w-3" />
+                                <Clock class="h-3.5 w-3.5" :stroke-width="1.75" />
                                 Dados das últimas 24 horas
                             </p>
                             <p
                                 v-else-if="currentView === 'logs' && logsWebhook"
-                                class="truncate text-xs text-zinc-500 dark:text-zinc-400"
+                                class="mt-0.5 truncate font-mono text-[12px] text-[var(--ep-text-3)]"
                                 :title="logsWebhook.url"
                             >
                                 {{ truncateUrl(logsWebhook.url, 56) }}
@@ -693,24 +693,24 @@ function truncateUrl(url, max = 40) {
                     </div>
                     <button
                         type="button"
-                        class="shrink-0 rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
-                </div>
+                </header>
 
                 <div class="flex flex-1 flex-col overflow-y-auto">
                     <!-- Hub: dashboard + lista -->
                     <template v-if="currentView === 'hub'">
-                        <div class="space-y-4 p-4">
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        <div class="space-y-5 px-6 pt-5">
+                            <p class="max-w-2xl text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                                 Envie eventos da plataforma para a URL configurada. O POST inclui
-                                <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">event</code>,
-                                <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">payload</code>
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">event</code>,
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">payload</code>
                                 (pedido, produto, oferta, cliente em texto claro) e
-                                <code class="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">timestamp</code>.
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">timestamp</code>.
                             </p>
 
                             <WebhookKpiStrip
@@ -720,100 +720,106 @@ function truncateUrl(url, max = 40) {
                             />
 
                             <div class="flex flex-wrap gap-2">
-                                <Button class="bg-emerald-600 hover:bg-emerald-700" @click="startNew">
-                                    <Plus class="mr-2 h-4 w-4" />
+                                <Button @click="startNew">
+                                    <Plus class="h-4 w-4" :stroke-width="1.75" />
                                     Novo webhook
                                 </Button>
                                 <Button variant="outline" @click="openPayloadDocs">
-                                    <BookOpen class="mr-2 h-4 w-4" />
+                                    <BookOpen class="h-4 w-4" :stroke-width="1.75" />
                                     Ver payloads
                                 </Button>
                             </div>
                         </div>
 
-                        <div class="flex-1 px-4 pb-6">
-                            <h3 class="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                Meus webhooks ({{ webhooks.length }})
+                        <div class="flex-1 px-6 pb-6 pt-6">
+                            <h3 class="ep-section-title mb-3 flex items-center gap-2">
+                                Meus webhooks
+                                <span class="ep-chip tabular-nums">{{ webhooks.length }}</span>
                             </h3>
-                            <ul v-if="webhooks.length > 0" class="space-y-3">
+                            <ul
+                                v-if="webhooks.length > 0"
+                                class="panel-card ep-data divide-y divide-[var(--ep-line)] overflow-hidden"
+                            >
                                 <li
                                     v-for="w in webhooks"
                                     :key="w.id"
-                                    class="rounded-2xl border border-zinc-200/80 bg-zinc-50/80 shadow-sm transition-shadow hover:shadow dark:border-zinc-700/60 dark:bg-zinc-800/60"
+                                    class="transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
-                                    <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                                         <div class="min-w-0 flex-1">
                                             <div class="flex flex-wrap items-center gap-2">
-                                                <span class="font-medium text-zinc-900 dark:text-white">
+                                                <span class="text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                                                     {{ w.name }}
                                                 </span>
                                                 <span
-                                                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                                    class="ep-chip"
                                                     :class="
                                                         w.is_active
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                            ? 'ep-chip--pos'
+                                                            : 'ep-chip--warn'
                                                     "
                                                 >
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                                     {{ w.is_active ? 'Ativo' : 'Inativo' }}
                                                 </span>
                                             </div>
                                             <div
-                                                class="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400"
+                                                class="mt-1 truncate font-mono text-[12px] text-[var(--ep-text-3)]"
                                                 :title="w.url"
                                             >
                                                 {{ truncateUrl(w.url, 52) }}
                                             </div>
-                                            <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                                <span>{{ formatRelativeTime(statsForWebhook(w).last_sent_at) }}</span>
-                                                <span>
+                                            <div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--ep-text-4)]">
+                                                <span class="tabular-nums">{{ formatRelativeTime(statsForWebhook(w).last_sent_at) }}</span>
+                                                <span class="tabular-nums">
                                                     Taxa de sucesso:
                                                     <strong
+                                                        class="font-semibold text-[var(--ep-text-2)]"
                                                         :class="
                                                             statsForWebhook(w).success_rate >= 80
-                                                                ? 'text-emerald-600 dark:text-emerald-400'
+                                                                ? '!text-[var(--ep-pos)]'
                                                                 : statsForWebhook(w).sent > 0
-                                                                  ? 'text-red-600 dark:text-red-400'
+                                                                  ? '!text-[var(--ep-neg)]'
                                                                   : ''
                                                         "
                                                     >{{ statsForWebhook(w).success_rate }}%</strong>
                                                     ({{ statsForWebhook(w).sent }} envios)
                                                 </span>
-                                                <span>{{ (w.events || []).length }} evento(s)</span>
+                                                <span class="tabular-nums">{{ (w.events || []).length }} evento(s)</span>
                                             </div>
                                         </div>
                                         <div class="flex shrink-0 flex-wrap items-center gap-1">
                                             <template v-if="confirmingDeleteId === w.id">
-                                                <span class="mr-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Excluir?</span>
+                                                <span class="mr-1 text-[12.5px] font-medium text-[var(--ep-text-2)]">Excluir?</span>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost !h-8 !px-3 text-[12.5px]"
                                                     @click.stop="cancelDelete()"
                                                 >
                                                     Cancelar
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="flex items-center gap-1 rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/60"
+                                                    class="ep-btn-danger !h-8 !gap-1.5 !px-3 text-[12.5px]"
                                                     :disabled="deleting === w.id"
                                                     @click.stop="confirmRemoveWebhook(w)"
                                                 >
-                                                    <Loader2 v-if="deleting === w.id" class="h-3 w-3 animate-spin" />
-                                                    <Trash2 v-else class="h-3 w-3" />
+                                                    <Loader2 v-if="deleting === w.id" class="h-3.5 w-3.5 animate-spin" :stroke-width="1.75" />
+                                                    <Trash2 v-else class="h-3.5 w-3.5" :stroke-width="1.75" />
                                                     {{ deleting === w.id ? 'Excluindo...' : 'Excluir' }}
                                                 </button>
                                             </template>
                                             <template v-else>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost !h-8 !px-3 text-[12.5px]"
                                                     @click.stop="openLogsView(w)"
                                                 >
                                                     Ver logs
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+                                                    class="ep-btn-ghost !h-8 !gap-1.5 !px-3 text-[12.5px] !text-[var(--ep-accent)]"
                                                     title="Disparar evento de teste"
                                                     :disabled="testing === w.id"
                                                     @click.stop="openTestModal(w)"
@@ -821,46 +827,47 @@ function truncateUrl(url, max = 40) {
                                                     <Loader2
                                                         v-if="testing === w.id"
                                                         class="h-3.5 w-3.5 animate-spin"
+                                                        :stroke-width="1.75"
                                                     />
-                                                    <Send v-else class="h-3.5 w-3.5" />
+                                                    <Send v-else class="h-3.5 w-3.5" :stroke-width="1.75" />
                                                     Testar
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+                                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
                                                     title="Configurar"
                                                     @click.stop="editWebhook(w)"
                                                 >
-                                                    <Settings class="h-4 w-4" />
+                                                    <Settings class="h-4 w-4" :stroke-width="1.75" />
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg p-2 text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!text-[var(--ep-neg)]"
                                                     title="Excluir"
                                                     :disabled="deleting === w.id"
                                                     @click.stop="requestDelete(w)"
                                                 >
-                                                    <Trash2 class="h-4 w-4" />
+                                                    <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                                 </button>
                                             </template>
                                         </div>
                                     </div>
                                 </li>
                             </ul>
-                            <p
+                            <div
                                 v-else
-                                class="rounded-2xl bg-zinc-50 py-8 text-center text-sm text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400"
+                                class="panel-card ep-empty"
                             >
-                                Nenhum webhook configurado. Clique em "Novo webhook"
-                                para criar.
-                            </p>
+                                <p class="ep-empty__title">Nenhum webhook configurado</p>
+                                <p class="ep-empty__text">Clique em "Novo webhook" para criar.</p>
+                            </div>
                             <p
                                 v-if="testMessage"
                                 :class="[
-                                    'mt-3 rounded-lg px-3 py-2 text-sm',
+                                    'mt-3 rounded-xl border px-3.5 py-2.5 text-[13px]',
                                     testSuccess
-                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                                        ? 'border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'
+                                        : 'border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]',
                                 ]"
                             >
                                 {{ testMessage }}
@@ -870,28 +877,34 @@ function truncateUrl(url, max = 40) {
 
                     <!-- Logs de um webhook -->
                     <template v-else-if="currentView === 'logs' && logsWebhook">
-                        <div class="space-y-4 p-4">
+                        <div class="space-y-4 px-6 pt-5">
                             <div
                                 v-if="statsForWebhook(logsWebhook).sent > 0"
-                                class="grid grid-cols-3 gap-2 text-center text-xs"
+                                class="grid grid-cols-3 gap-3"
                             >
-                                <div class="rounded-xl bg-zinc-100 px-2 py-2 dark:bg-zinc-800">
-                                    <p class="font-bold text-zinc-900 dark:text-white">{{ statsForWebhook(logsWebhook).sent }}</p>
-                                    <p class="text-zinc-500">Enviados</p>
+                                <div class="panel-card ep-kpi !p-4">
+                                    <p class="ep-kpi__label">Enviados</p>
+                                    <p class="ep-kpi__value !text-[22px]">{{ statsForWebhook(logsWebhook).sent }}</p>
                                 </div>
-                                <div class="rounded-xl bg-emerald-50 px-2 py-2 dark:bg-emerald-900/20">
-                                    <p class="font-bold text-emerald-700 dark:text-emerald-300">{{ statsForWebhook(logsWebhook).delivered }}</p>
-                                    <p class="text-zinc-500">OK</p>
+                                <div class="panel-card ep-kpi !p-4">
+                                    <p class="ep-kpi__label flex items-center gap-1.5">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)]" aria-hidden="true" />
+                                        OK
+                                    </p>
+                                    <p class="ep-kpi__value !text-[22px] !text-[var(--ep-pos)]">{{ statsForWebhook(logsWebhook).delivered }}</p>
                                 </div>
-                                <div class="rounded-xl bg-red-50 px-2 py-2 dark:bg-red-900/20">
-                                    <p class="font-bold text-red-700 dark:text-red-300">{{ statsForWebhook(logsWebhook).failed }}</p>
-                                    <p class="text-zinc-500">Falhas</p>
+                                <div class="panel-card ep-kpi !p-4">
+                                    <p class="ep-kpi__label flex items-center gap-1.5">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--ep-neg)]" aria-hidden="true" />
+                                        Falhas
+                                    </p>
+                                    <p class="ep-kpi__value !text-[22px] !text-[var(--ep-neg)]">{{ statsForWebhook(logsWebhook).failed }}</p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <select
                                     v-model="logFilterStatus"
-                                    class="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input !w-40 shrink-0"
                                 >
                                     <option value="all">Todos</option>
                                     <option value="success">Sucesso</option>
@@ -901,60 +914,61 @@ function truncateUrl(url, max = 40) {
                                     v-model="logSearchQuery"
                                     type="search"
                                     placeholder="Buscar evento..."
-                                    class="min-w-[140px] flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input !w-auto min-w-[140px] flex-1"
                                 />
                             </div>
                         </div>
-                        <div class="flex-1 px-4 pb-6">
+                        <div class="flex-1 px-6 pb-6 pt-4">
                             <div
                                 v-if="loadingLogs === logsWebhook.id"
-                                class="flex items-center justify-center gap-2 py-12 text-sm text-zinc-500"
+                                class="flex items-center justify-center gap-2 py-12 text-[13px] text-[var(--ep-text-3)]"
                             >
-                                <Loader2 class="h-5 w-5 animate-spin" />
+                                <Loader2 class="h-[18px] w-[18px] animate-spin" :stroke-width="1.75" />
                                 Carregando logs...
                             </div>
                             <div
                                 v-else-if="filteredLogs.length === 0"
-                                class="rounded-2xl border border-dashed border-zinc-300 py-12 text-center text-sm text-zinc-500 dark:border-zinc-600"
+                                class="panel-card ep-empty"
                             >
-                                Nenhum registro encontrado.
+                                <p class="ep-empty__title">Nenhum registro encontrado.</p>
+                                <p class="ep-empty__text">Ajuste o filtro de status ou a busca para ver outros envios.</p>
                             </div>
-                            <div v-else class="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700">
-                                <table class="w-full text-left text-xs">
-                                    <thead class="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                            <div v-else class="panel-card ep-data overflow-hidden">
+                                <table class="ep-table">
+                                    <thead>
                                         <tr>
-                                            <th class="px-3 py-2 font-medium">Horário</th>
-                                            <th class="px-3 py-2 font-medium">Evento</th>
-                                            <th class="px-3 py-2 font-medium">Status</th>
-                                            <th class="px-3 py-2 font-medium">Origem</th>
+                                            <th>Horário</th>
+                                            <th>Evento</th>
+                                            <th>Status</th>
+                                            <th>Origem</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr
                                             v-for="log in filteredLogs"
                                             :key="log.id"
-                                            class="cursor-pointer border-t border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/80"
+                                            class="cursor-pointer"
                                             @click="openLogDetail(logsWebhook.id, log.id)"
                                         >
-                                            <td class="whitespace-nowrap px-3 py-2.5 text-zinc-600 dark:text-zinc-400">
+                                            <td class="whitespace-nowrap tabular-nums !text-[var(--ep-text-3)]">
                                                 {{ formatLogDate(log.created_at) }}
                                             </td>
-                                            <td class="px-3 py-2.5 font-medium text-zinc-800 dark:text-zinc-200">
+                                            <td class="font-medium">
                                                 {{ log.event_label || log.event }}
                                             </td>
-                                            <td class="px-3 py-2.5">
+                                            <td>
                                                 <span
-                                                    class="rounded px-1.5 py-0.5 font-medium"
+                                                    class="ep-chip tabular-nums"
                                                     :class="
                                                         log.success
-                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                                            ? 'ep-chip--pos'
+                                                            : 'ep-chip--neg'
                                                     "
                                                 >
                                                     {{ log.success ? (log.response_status || 'OK') : (log.response_status || 'Erro') }}
                                                 </span>
                                             </td>
-                                            <td class="px-3 py-2.5 text-zinc-500">
+                                            <td class="!text-[var(--ep-text-3)]">
                                                 {{ formatLogSource(log.source) }}
                                             </td>
                                         </tr>
@@ -967,74 +981,71 @@ function truncateUrl(url, max = 40) {
                     <!-- Formulário (criar/editar) -->
                     <div
                         v-else-if="currentView === 'form'"
-                        class="flex flex-1 flex-col bg-zinc-50/50 p-4 dark:bg-zinc-800/30"
+                        class="flex flex-1 flex-col gap-4 px-6 py-5"
                     >
                         <div class="space-y-4">
-                            <div>
-                                <label
-                                    class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                                >
-                                    Nome
-                                </label>
-                                <input
-                                    v-model="form.name"
-                                    type="text"
-                                    placeholder="Ex: Minha integração"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
-                            <div>
-                                <label
-                                    class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                                >
-                                    URL
-                                </label>
-                                <input
-                                    v-model="form.url"
-                                    type="url"
-                                    placeholder="https://seu-endpoint.com/webhook"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                            </div>
-                            <div>
-                                <label
-                                    class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                                >
-                                    Bearer token
-                                    <span class="font-normal text-zinc-500"
-                                        >(opcional)</span
+                            <section class="panel-card space-y-4 p-5">
+                                <h3 class="ep-section-title">Destino</h3>
+                                <div>
+                                    <label class="ep-label">
+                                        Nome
+                                    </label>
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        placeholder="Ex: Minha integração"
+                                        class="ep-input"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="ep-label">
+                                        URL
+                                    </label>
+                                    <input
+                                        v-model="form.url"
+                                        type="url"
+                                        placeholder="https://seu-endpoint.com/webhook"
+                                        class="ep-input font-mono !text-[13px]"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="ep-label">
+                                        Bearer token
+                                        <span class="font-normal text-[var(--ep-text-4)]"
+                                            >(opcional)</span
+                                        >
+                                    </label>
+                                    <input
+                                        v-model="form.bearer_token"
+                                        type="password"
+                                        :placeholder="
+                                            editingWebhook ? 'Deixe em branco para manter' : 'Token de autenticação'
+                                        "
+                                        autocomplete="new-password"
+                                        class="ep-input"
+                                    />
+                                    <p class="ep-help">
+                                        Por segurança, o valor do token salvo não é
+                                        exibido neste campo.
+                                    </p>
+                                    <p
+                                        v-if="editingWebhook?.has_bearer_token && !form.bearer_token"
+                                        class="ep-help flex items-center gap-1.5 !text-[var(--ep-pos)]"
                                     >
-                                </label>
-                                <p
-                                    class="mb-1.5 text-xs text-zinc-500 dark:text-zinc-400"
-                                >
-                                    Por segurança, o valor do token salvo não é
-                                    exibido neste campo.
-                                </p>
-                                <input
-                                    v-model="form.bearer_token"
-                                    type="password"
-                                    :placeholder="
-                                        editingWebhook ? 'Deixe em branco para manter' : 'Token de autenticação'
-                                    "
-                                    autocomplete="new-password"
-                                    class="block w-full rounded-xl bg-white px-4 py-2.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder-zinc-400 transition focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:ring-offset-0 dark:bg-zinc-800 dark:ring-zinc-600 dark:text-white dark:placeholder-zinc-500"
-                                />
-                                <p
-                                    v-if="editingWebhook?.has_bearer_token && !form.bearer_token"
-                                    class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"
-                                >
-                                    Token já está salvo. Deixe em branco para manter.
-                                </p>
-                            </div>
-                            <div>
-                                <label
-                                    class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                                >
-                                    Eventos
-                                </label>
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                        Token já está salvo. Deixe em branco para manter.
+                                    </p>
+                                </div>
+                            </section>
+                            <section class="panel-card p-5">
+                                <div class="mb-3 flex items-center justify-between gap-3">
+                                    <label class="ep-section-title">
+                                        Eventos
+                                    </label>
+                                    <span class="ep-chip tabular-nums">{{ form.events.length }}</span>
+                                </div>
                                 <div
-                                    class="max-h-40 space-y-2 overflow-y-auto rounded-xl bg-white p-3 shadow-sm ring-1 ring-zinc-200/80 dark:ring-zinc-600 dark:bg-zinc-800/50"
+                                    class="max-h-48 space-y-2.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5"
                                 >
                                     <Checkbox
                                         v-for="[eventClass, label] in eventEntries"
@@ -1047,18 +1058,16 @@ function truncateUrl(url, max = 40) {
                                         "
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label
-                                    class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                                >
+                            </section>
+                            <section class="panel-card p-5">
+                                <label class="ep-section-title mb-3 block">
                                     Produtos
-                                    <span class="font-normal text-zinc-500">
+                                    <span class="font-normal text-[var(--ep-text-4)]">
                                         (opcional - deixe vazio para todos)
                                     </span>
                                 </label>
                                 <div
-                                    class="max-h-40 space-y-2 overflow-y-auto rounded-xl bg-white p-3 shadow-sm ring-1 ring-zinc-200/80 dark:ring-zinc-600 dark:bg-zinc-800/50"
+                                    class="max-h-48 space-y-2.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-3.5"
                                 >
                                     <template v-if="products.length > 0">
                                         <Checkbox
@@ -1072,28 +1081,28 @@ function truncateUrl(url, max = 40) {
                                     </template>
                                     <p
                                         v-else
-                                        class="py-2 text-center text-xs text-zinc-500 dark:text-zinc-400"
+                                        class="py-2 text-center text-[12.5px] text-[var(--ep-text-4)]"
                                     >
                                         Nenhum produto cadastrado
                                     </p>
                                 </div>
-                            </div>
-                            <div>
+                            </section>
+                            <section class="panel-card px-5 py-4">
                                 <Toggle
                                     v-model="form.is_active"
                                     label="Ativo"
                                 />
-                            </div>
+                            </section>
                         </div>
 
                         <p
                             v-if="errorMessage"
-                            class="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                            class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                         >
                             {{ errorMessage }}
                         </p>
 
-                        <div class="mt-4 flex gap-2">
+                        <div class="mt-auto flex justify-end gap-2 border-t border-[var(--ep-line)] pt-4">
                             <Button
                                 variant="outline"
                                 :disabled="saving"
@@ -1111,27 +1120,27 @@ function truncateUrl(url, max = 40) {
                 <!-- Modal: escolher evento para teste -->
                 <div
                     v-if="showTestModal && testTargetWebhook"
-                    class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/40 p-4 dark:bg-zinc-950/60"
+                    class="ep-scrim absolute inset-0 z-10 flex items-center justify-center p-4"
                     @click.self="closeTestModal"
                 >
                     <div
-                        class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl dark:bg-zinc-800"
+                        class="ep-modal w-full max-w-sm p-6"
                         role="dialog"
                         aria-labelledby="test-modal-title"
                     >
-                        <h3 id="test-modal-title" class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">
+                        <h3 id="test-modal-title" class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                             Enviar evento de teste
                         </h3>
-                        <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+                        <p class="mb-5 mt-1 truncate text-[12.5px] text-[var(--ep-text-3)]">
                             {{ testTargetWebhook.name }}
                         </p>
-                        <div class="mb-4">
-                            <label class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                        <div class="mb-5">
+                            <label class="ep-label">
                                 Evento
                             </label>
                             <select
                                 v-model="selectedTestEvent"
-                                class="block w-full rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-900 ring-1 ring-zinc-200/80 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 dark:bg-zinc-700 dark:ring-zinc-600 dark:text-white"
+                                class="ep-input"
                             >
                                 <option
                                     v-for="[eventClass, label] in eventEntries"
@@ -1156,86 +1165,87 @@ function truncateUrl(url, max = 40) {
                 <!-- Modal: detalhe do log (payload, resposta, etc.) -->
                 <div
                     v-if="logDetailModal"
-                    class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/40 p-4 dark:bg-zinc-950/60"
+                    class="ep-scrim absolute inset-0 z-10 flex items-center justify-center p-4"
                     @click.self="closeLogDetail"
                 >
                     <div
-                        class="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl dark:bg-zinc-800"
+                        class="ep-modal flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden"
                         role="dialog"
                         aria-labelledby="log-detail-title"
                     >
-                        <div class="flex items-center justify-between bg-zinc-50/80 px-5 py-3 dark:bg-zinc-800/80">
-                            <h3 id="log-detail-title" class="text-sm font-semibold text-zinc-900 dark:text-white">
+                        <div class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4">
+                            <h3 id="log-detail-title" class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                                 Detalhe do envio
                             </h3>
                             <button
                                 type="button"
-                                class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                class="ep-btn-ghost ep-btn-icon -mr-2"
                                 aria-label="Fechar"
                                 @click="closeLogDetail"
                             >
-                                <X class="h-5 w-5" />
+                                <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                             </button>
                         </div>
-                        <div class="flex-1 overflow-y-auto p-4">
+                        <div class="flex-1 overflow-y-auto px-6 py-5">
                             <div v-if="loadingLogDetail" class="flex items-center justify-center py-12">
-                                <Loader2 class="h-8 w-8 animate-spin text-zinc-400" />
+                                <Loader2 class="h-6 w-6 animate-spin text-[var(--ep-text-3)]" :stroke-width="1.75" />
                             </div>
                             <template v-else-if="selectedLogDetail">
-                                <div class="mb-4 flex flex-wrap items-center gap-2">
-                                    <span class="font-medium text-zinc-700 dark:text-zinc-300">
+                                <div class="mb-5 flex flex-wrap items-center gap-2">
+                                    <span class="mr-1 text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                                         {{ selectedLogDetail.event_label || selectedLogDetail.event }}
                                     </span>
                                     <span
                                         :class="[
-                                            'rounded px-2 py-0.5 text-xs font-medium',
+                                            'ep-chip tabular-nums',
                                             selectedLogDetail.success
-                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                                : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                                                ? 'ep-chip--pos'
+                                                : 'ep-chip--neg',
                                         ]"
                                     >
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                         {{ selectedLogDetail.success ? 'Sucesso' : 'Falha' }}
                                         <span v-if="selectedLogDetail.response_status != null">
                                             (HTTP {{ selectedLogDetail.response_status }})
                                         </span>
                                     </span>
-                                    <span class="rounded bg-zinc-200 px-2 py-0.5 text-xs dark:bg-zinc-600">
+                                    <span class="ep-chip">
                                         {{ formatLogSource(selectedLogDetail.source) }}
                                     </span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[12px] tabular-nums text-[var(--ep-text-4)]">
                                         {{ formatLogDate(selectedLogDetail.created_at) }}
                                     </span>
                                 </div>
                                 <p
                                     v-if="selectedLogDetail.error_message"
-                                    class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                                    class="mb-4 rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
                                 >
                                     {{ selectedLogDetail.error_message }}
                                 </p>
                                 <p
                                     v-if="resendMessage"
-                                    class="mb-4 rounded-lg px-3 py-2 text-sm"
+                                    class="mb-4 rounded-xl border px-3.5 py-2.5 text-[13px]"
                                     :class="
                                         resendSuccess
-                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
-                                            : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                                            ? 'border-[color-mix(in_oklab,var(--ep-pos)_30%,transparent)] bg-[var(--ep-pos-bg)] text-[var(--ep-pos)]'
+                                            : 'border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)]'
                                     "
                                 >
                                     {{ resendMessage }}
                                 </p>
-                                <div class="space-y-4">
+                                <div class="space-y-5">
                                     <div>
-                                        <div class="mb-1 flex items-center justify-between">
-                                            <span class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                        <div class="mb-2 flex items-center justify-between">
+                                            <span class="ep-section-title">
                                                 Payload enviado (request)
                                             </span>
                                             <button
                                                 type="button"
-                                                class="rounded px-2 py-1 text-xs font-medium transition"
+                                                class="ep-btn-ghost !h-7 !px-2.5 text-[12px]"
                                                 :class="
                                                     logCopyFeedback === 'payload'
-                                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                                        : 'text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-300'
+                                                        ? '!text-[var(--ep-pos)]'
+                                                        : ''
                                                 "
                                                 @click.stop="copyLogRequest"
                                             >
@@ -1244,45 +1254,45 @@ function truncateUrl(url, max = 40) {
                                         </div>
                                         <pre
                                             ref="logRequestPreRef"
-                                            class="max-h-64 overflow-auto rounded-xl bg-zinc-50 p-4 text-xs leading-relaxed text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+                                            class="max-h-64 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-4 font-mono text-[12px] leading-relaxed text-[var(--ep-text-2)]"
                                         >{{ formatPayload(selectedLogDetail.request_payload) }}</pre>
                                     </div>
                                     <div>
-                                        <div class="mb-1 flex items-center justify-between">
-                                            <span class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                        <div class="mb-2 flex items-center justify-between">
+                                            <span class="ep-section-title">
                                                 Resposta do servidor (response)
                                             </span>
                                             <button
                                                 type="button"
-                                                class="rounded px-2 py-1 text-xs font-medium transition"
+                                                class="ep-btn-ghost !h-7 !px-2.5 text-[12px]"
                                                 :class="
                                                     logCopyFeedback === 'response'
-                                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                                        : 'text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-300'
+                                                        ? '!text-[var(--ep-pos)]'
+                                                        : ''
                                                 "
                                                 @click.stop="copyLogResponse"
                                             >
                                                 {{ logCopyFeedback === 'response' ? 'Copiado!' : 'Copiar' }}
                                             </button>
                                         </div>
-                                        <p v-if="selectedLogDetail.response_status != null" class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">
+                                        <p v-if="selectedLogDetail.response_status != null" class="mb-2 text-[12px] tabular-nums text-[var(--ep-text-3)]">
                                             Status: {{ selectedLogDetail.response_status }}
                                         </p>
                                         <pre
                                             ref="logResponsePreRef"
-                                            class="max-h-64 overflow-auto rounded-xl bg-zinc-50 p-4 text-xs leading-relaxed text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+                                            class="max-h-64 overflow-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-4 font-mono text-[12px] leading-relaxed text-[var(--ep-text-2)]"
                                         >{{ formatPayload(selectedLogDetail.response_body) }}</pre>
                                     </div>
                                 </div>
                             </template>
                         </div>
-                        <div class="flex flex-col-reverse gap-2 bg-zinc-50/80 px-5 py-3 sm:flex-row sm:justify-end dark:bg-zinc-800/80">
+                        <div class="flex flex-col-reverse gap-2 border-t border-[var(--ep-line)] px-6 py-4 sm:flex-row sm:justify-end">
                             <Button variant="outline" size="sm" class="w-full sm:w-auto" :disabled="resendingLog" @click="closeLogDetail">
                                 Fechar
                             </Button>
                             <Button size="sm" class="w-full sm:w-auto" :disabled="resendingLog || !selectedLogDetail" @click="resendSelectedLog">
-                                <Loader2 v-if="resendingLog" class="mr-2 h-4 w-4 animate-spin" />
-                                <Send v-else class="mr-2 h-4 w-4" />
+                                <Loader2 v-if="resendingLog" class="h-4 w-4 animate-spin" :stroke-width="1.75" />
+                                <Send v-else class="h-4 w-4" :stroke-width="1.75" />
                                 {{ resendingLog ? 'Reenviando…' : 'Reenviar webhook' }}
                             </Button>
                         </div>

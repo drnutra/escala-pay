@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
-import { MoreVertical } from 'lucide-vue-next';
+import { MoreVertical, Users } from 'lucide-vue-next';
 
 const props = defineProps({
     rows: { type: Array, default: () => [] },
@@ -140,127 +140,130 @@ defineExpose({ closeMenu });
 </script>
 
 <template>
-    <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900/40">
+    <div class="panel-card ep-data overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                <thead class="bg-zinc-50 dark:bg-zinc-800/80">
+            <table class="ep-table min-w-full">
+                <thead>
                     <tr>
-                        <th v-if="selectable" class="w-10 px-3 py-3">
+                        <th v-if="selectable" class="w-10 !pr-0">
                             <input
                                 type="checkbox"
-                                class="rounded border-zinc-300 dark:border-zinc-600"
+                                class="h-4 w-4 cursor-pointer rounded-[5px] align-middle accent-[var(--ep-accent)] disabled:cursor-not-allowed disabled:opacity-40"
                                 :checked="allSelected"
                                 :disabled="!rows.length"
                                 aria-label="Selecionar todos"
                                 @change="toggleSelectAll"
                             />
                         </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-                        >
+                        <th class="whitespace-nowrap">
                             Data
                         </th>
-                        <th
-                            class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-                        >
+                        <th class="min-w-[180px]">
                             Nome
                         </th>
-                        <th
-                            class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-                        >
+                        <th>
                             E-mail
                         </th>
                         <th
                             v-if="showProductColumn"
-                            class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
                         >
                             Produto
                         </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-                        >
+                        <th class="ep-num">
                             Comissão
                         </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-                        >
+                        <th class="whitespace-nowrap">
                             Status
                         </th>
-                        <th class="relative w-12 px-2 py-3">
+                        <th class="w-12 !px-2">
                             <span class="sr-only">Ações</span>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                <tbody>
                     <tr
                         v-for="row in rows"
                         :key="row.id"
-                        class="transition hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40"
+                        :class="selectedIds.has(row.id) ? 'bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]' : ''"
                     >
-                        <td v-if="selectable" class="px-3 py-3">
+                        <td v-if="selectable" class="!pr-0">
                             <input
                                 type="checkbox"
-                                class="rounded border-zinc-300 dark:border-zinc-600"
+                                class="h-4 w-4 cursor-pointer rounded-[5px] align-middle accent-[var(--ep-accent)]"
                                 :checked="selectedIds.has(row.id)"
                                 :aria-label="`Selecionar ${row.name || row.email}`"
                                 @change="toggleRow(row.id)"
                             />
                         </td>
-                        <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                        <td class="whitespace-nowrap !text-[12.5px] tabular-nums !text-[var(--ep-text-3)]">
                             {{ formatDate(row.created_at) }}
                         </td>
-                        <td class="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">
-                            {{ row.name || '—' }}
+                        <td>
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span v-avatar="row.name || row.email" class="ep-avatar shrink-0 !h-8 !w-8" aria-hidden="true">
+                                    {{ String(row.name || row.email || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || '?' }}
+                                </span>
+                                <span class="truncate text-[13px] font-medium text-[var(--ep-text)]">
+                                    {{ row.name || '—' }}
+                                </span>
+                            </div>
                         </td>
-                        <td class="max-w-[200px] truncate px-4 py-3 text-sm">
+                        <td class="max-w-[220px] truncate">
                             <a
                                 v-if="row.email"
                                 :href="`mailto:${row.email}`"
-                                class="text-[var(--color-primary)] hover:underline"
+                                class="text-[12.5px] text-[var(--ep-text-2)] transition-colors duration-150 hover:text-[var(--ep-accent)]"
                                 :title="row.email"
                             >
                                 {{ row.email }}
                             </a>
-                            <span v-else class="text-zinc-500">—</span>
+                            <span v-else class="text-[var(--ep-text-4)]">—</span>
                         </td>
                         <td
                             v-if="showProductColumn"
-                            class="max-w-[180px] truncate px-4 py-3 text-sm text-zinc-800 dark:text-zinc-200"
+                            class="max-w-[200px] truncate !text-[var(--ep-text-2)]"
                             :title="row.product_name"
                         >
                             {{ row.product_name || '—' }}
                         </td>
-                        <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">
-                            {{ formatCommission(row.commission_percent) }}
+                        <td class="ep-num">
+                            <span class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">{{ formatCommission(row.commission_percent) }}</span>
                         </td>
-                        <td class="whitespace-nowrap px-4 py-3">
+                        <td class="whitespace-nowrap">
                             <span
-                                class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                                :class="statusClass(row.status)"
+                                class="ep-chip"
+                                :class="statusBadgeClasses[row.status] ?? ({ approved: 'ep-chip--pos', active: 'ep-chip--pos', pending: 'ep-chip--warn', rejected: 'ep-chip--neg' })[row.status]"
                             >
+                                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                                 {{ statusLabel(row.status) }}
                             </span>
                         </td>
-                        <td class="relative whitespace-nowrap px-2 py-3 text-right">
+                        <td class="whitespace-nowrap !px-2 text-right">
                             <div class="relative inline-flex" :data-partner-menu="row.id">
                                 <button
                                     type="button"
-                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                                    class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] aria-expanded:bg-[var(--ep-active)] aria-expanded:text-[var(--ep-text)]"
                                     aria-label="Abrir menu de ações"
                                     :aria-expanded="openMenuId === row.id"
                                     @click="toggleMenu(row.id, $event)"
                                 >
-                                    <MoreVertical class="h-4 w-4" />
+                                    <MoreVertical class="h-4 w-4" stroke-width="1.75" aria-hidden="true" />
                                 </button>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="!rows.length">
+                    <tr v-if="!rows.length" class="hover:!bg-transparent">
                         <td
                             :colspan="selectable ? (showProductColumn ? 8 : 7) : (showProductColumn ? 7 : 6)"
-                            class="px-4 py-12 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                            class="!p-0"
                         >
-                            {{ emptyLabel }}
+                            <div class="ep-empty">
+                                <span class="ep-kpi__icon mb-1.5" aria-hidden="true">
+                                    <Users class="h-4 w-4" stroke-width="1.75" />
+                                </span>
+                                <p class="ep-empty__title">{{ emptyLabel }}</p>
+                                <p class="ep-empty__text">Assim que alguém entrar, aparece aqui com comissão e status.</p>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -271,7 +274,7 @@ defineExpose({ closeMenu });
             <div
                 v-if="openMenuId != null"
                 ref="menuEl"
-                class="fixed z-[100000] w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+                class="fixed z-[100000] w-48 overflow-hidden rounded-[14px] border border-[var(--ep-glass-border)] border-t-[var(--ep-glass-border-top)] bg-[var(--ep-drawer)] p-1 text-[13px] shadow-[var(--ep-shadow-pop)] backdrop-blur-2xl backdrop-saturate-150 [&>button]:rounded-[9px]"
                 :style="{ top: `${menuPos.top}px`, left: `${menuPos.left}px` }"
                 role="menu"
             >

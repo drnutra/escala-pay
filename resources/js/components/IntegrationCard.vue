@@ -16,25 +16,29 @@ const ariaPressed = computed(() => (props.selected ? 'true' : 'false'));
 
 <template>
   <div
-    class="relative flex items-stretch rounded-xl border transition-all"
-    :class="props.selected ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/20 bg-[var(--color-primary)]/5' : 'border-zinc-200 dark:border-zinc-700'"
+    class="group relative flex items-stretch rounded-[16px] border transition-[border-color,box-shadow,background-color] duration-200 ease-[var(--ep-ease-out)]"
+    :class="props.selected
+      ? 'border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_9%,var(--ep-card-2))] shadow-[var(--ep-glass-highlight),0_0_0_3px_color-mix(in_oklab,var(--ep-accent)_16%,transparent),0_12px_30px_-14px_var(--ep-glow)]'
+      : 'border-[var(--ep-line)] bg-[var(--ep-card-2)] hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]'"
   >
     <button
       type="button"
-      class="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl py-5 text-center transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--color-primary)]/30 min-w-0"
+      class="flex min-w-0 flex-1 flex-col items-center justify-center gap-2 rounded-[16px] py-5 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)]"
       :class="selected ? 'px-10' : 'px-4'"
       :aria-pressed="ariaPressed"
       @click="$emit('select')"
     >
-      <img :src="logo" alt="" class="h-10 w-auto rounded-lg object-contain" />
-      <div class="text-sm font-semibold text-zinc-800 dark:text-white">{{ title }}</div>
-      <div v-if="description" class="text-xs text-zinc-500 dark:text-zinc-400">{{ description }}</div>
+      <span class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[14px] border border-[var(--ep-glass-border)] bg-[var(--ep-glass-strong)] p-[3px] shadow-[var(--ep-glass-highlight),0_8px_22px_-12px_var(--ep-glow)]">
+        <img :src="logo" alt="" class="size-full rounded-[11px] object-contain" />
+      </span>
+      <div class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">{{ title }}</div>
+      <div v-if="description" class="text-[12.5px] leading-[1.45] text-[var(--ep-text-3)]">{{ description }}</div>
       <div
         v-if="configured"
-        class="mt-1 inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400"
+        class="ep-chip ep-chip--pos mt-1"
         title="Configurado"
       >
-        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
         </svg>
         Configurado
@@ -47,11 +51,12 @@ const ariaPressed = computed(() => (props.selected ? 'true' : 'false'));
     >
       <button
         type="button"
-        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 transition-colors"
+        class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px]"
         title="Configurar provedor"
+        aria-label="Configurar provedor"
         @click.stop.prevent="$emit('configure')"
       >
-        <Settings class="h-4 w-4" />
+        <Settings class="h-4 w-4" :stroke-width="1.75" />
       </button>
     </div>
   </div>

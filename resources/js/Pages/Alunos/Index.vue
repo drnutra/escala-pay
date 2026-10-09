@@ -272,79 +272,66 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-5">
         <ProdutosTabs />
 
-        <!-- Cards de métricas -->
+        <!-- Métricas -->
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div
-                class="panel-card-md"
-            >
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <Users class="h-5 w-5" />
-                    <span class="text-sm font-medium">Total de alunos</span>
+            <div class="panel-card ep-glow-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Total de alunos</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><Users class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
-                    {{ displayNumber(stats.total_alunos) }}
-                </p>
+                <p class="ep-kpi__value !text-[28px]">{{ displayNumber(stats.total_alunos) }}</p>
+                <span class="ep-kpi__meta">com acesso à área de membros</span>
             </div>
-            <div
-                class="panel-card-md"
-            >
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <BookOpen class="h-5 w-5" />
-                    <span class="text-sm font-medium">Total de inscrições</span>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Total de inscrições</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><BookOpen class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
-                    {{ displayNumber(stats.total_inscricoes) }}
-                </p>
+                <p class="ep-kpi__value">{{ displayNumber(stats.total_inscricoes) }}</p>
+                <span class="ep-kpi__meta">acessos somando todos os produtos</span>
             </div>
-            <div
-                class="panel-card-md"
-            >
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <Package class="h-5 w-5" />
-                    <span class="text-sm font-medium">Produtos com alunos</span>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Produtos com alunos</span>
+                    <span class="ep-kpi__icon" aria-hidden="true"><Package class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
-                    {{ displayNumber(stats.produtos_ativos) }}
-                </p>
+                <p class="ep-kpi__value">{{ displayNumber(stats.produtos_ativos) }}</p>
+                <span class="ep-kpi__meta">com ao menos um aluno</span>
             </div>
-            <div
-                class="panel-card-md"
-            >
-                <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                    <UserPlus class="h-5 w-5" />
-                    <span class="text-sm font-medium">Novos (30 dias)</span>
+            <div class="panel-card ep-kpi">
+                <div class="flex items-start justify-between gap-3">
+                    <span class="ep-kpi__label">Novos (30 dias)</span>
+                    <span
+                        class="ep-kpi__icon"
+                        style="color: var(--ep-pos); background: var(--ep-pos-bg); border-color: color-mix(in oklab, var(--ep-pos) 28%, transparent); box-shadow: none"
+                        aria-hidden="true"
+                    ><UserPlus class="h-4 w-4" :stroke-width="1.75" /></span>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
-                    {{ displayNumber(stats.alunos_novos_30dias) }}
-                </p>
+                <p class="ep-kpi__value">{{ displayNumber(stats.alunos_novos_30dias) }}</p>
+                <span class="ep-kpi__meta">cadastrados no último mês</span>
             </div>
         </div>
 
         <!-- Abas de filtro + Filtro por produto + Novo aluno -->
         <div class="flex min-w-0 flex-wrap items-start justify-between gap-3">
             <div class="flex min-w-0 max-w-full flex-col flex-wrap gap-3 sm:flex-row sm:flex-nowrap sm:items-center">
-                <HorizontalScrollTabs aria-label="Filtrar alunos">
+                <HorizontalScrollTabs aria-label="Filtrar alunos" nav-class="ep-tabs">
                     <button
                         v-for="opt in filterOptions"
                         :key="opt.value"
                         type="button"
                         :aria-current="filter === opt.value ? 'true' : undefined"
-                        :class="[
-                            'rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                            filter === opt.value
-                                ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                        ]"
+                        :class="['ep-tab shrink-0', filter === opt.value ? 'ep-tab--active' : '']"
                         @click="setFilter(opt.value)"
                     >
                         {{ opt.label }}
                     </button>
                 </HorizontalScrollTabs>
                 <div class="relative w-full sm:w-72">
-                    <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                    <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ep-text-4)]" :stroke-width="1.75" />
                     <input
                         v-model="search"
                         type="text"
@@ -353,51 +340,51 @@ onUnmounted(() => {
                         autocapitalize="off"
                         autocorrect="off"
                         spellcheck="false"
-                        class="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-10 text-sm text-zinc-900 shadow-sm transition focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        class="ep-input !pl-9 !pr-9"
                         placeholder="Buscar aluno por nome ou e-mail..."
                         @input="onSearchInput"
                     />
                     <button
                         v-if="search"
                         type="button"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                        class="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--ep-text-4)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                         aria-label="Limpar busca"
                         @click="search = ''; applyQuery()"
                     >
-                        <X class="h-4 w-4" />
+                        <X class="h-4 w-4" :stroke-width="1.75" />
                     </button>
                 </div>
                 <div class="relative shrink-0" data-product-filter>
                     <button
                         type="button"
-                        class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                        :class="product_ids_filter?.length ? 'border-[var(--color-primary)] text-[var(--color-primary)] dark:border-[var(--color-primary)] dark:text-[var(--color-primary)]' : ''"
+                        class="ep-btn-secondary"
+                        :class="product_ids_filter?.length ? '!border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] !text-[var(--ep-accent)]' : ''"
                         aria-expanded="productFilterOpen"
                         @click="productFilterOpen = !productFilterOpen"
                     >
-                        <Package class="h-4 w-4 shrink-0" />
+                        <Package class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" :stroke-width="1.75" />
                         Produtos
-                        <span v-if="product_ids_filter?.length" class="ml-1 rounded-full bg-[var(--color-primary)]/20 px-1.5 py-0.5 text-xs">
+                        <span v-if="product_ids_filter?.length" class="ep-chip ep-chip--accent !h-[18px] min-w-[18px] justify-center !px-1.5 text-[10.5px] tabular-nums">
                             {{ product_ids_filter.length }}
                         </span>
-                        <ChevronDown class="h-4 w-4 shrink-0" :class="productFilterOpen && 'rotate-180'" />
+                        <ChevronDown class="h-4 w-4 shrink-0 text-[var(--ep-text-4)] transition-transform duration-200" :class="productFilterOpen && 'rotate-180'" :stroke-width="1.75" />
                     </button>
                     <div
                         v-show="productFilterOpen"
-                        class="absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white py-1 text-left shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+                        class="absolute left-0 top-full z-50 mt-2 max-h-64 w-64 overflow-y-auto rounded-2xl border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] p-1.5 text-left shadow-[var(--ep-shadow-pop)] backdrop-blur-2xl"
                     >
-                        <div v-for="p in produtos" :key="p.id" class="px-2 py-1">
-                            <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/80">
+                        <div v-for="p in produtos" :key="p.id">
+                            <label class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)]">
                                 <span class="shrink-0 w-fit">
                                     <Checkbox
                                         :model-value="product_ids_filter?.includes(p.id)"
                                         @update:model-value="toggleProductFilter(p.id)"
                                     />
                                 </span>
-                                <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">{{ p.name }}</span>
+                                <span class="flex-1 truncate text-left text-[13px] text-[var(--ep-text)]">{{ p.name }}</span>
                             </label>
                         </div>
-                        <p v-if="!produtos.length" class="px-3 py-2 text-sm text-zinc-500">
+                        <p v-if="!produtos.length" class="px-3 py-2 text-[12.5px] text-[var(--ep-text-4)]">
                             Nenhum produto
                         </p>
                     </div>
@@ -406,119 +393,128 @@ onUnmounted(() => {
                     <span
                         v-for="p in selectedProdutosLabels"
                         :key="p.id"
-                        class="inline-flex items-center gap-1 rounded-lg bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300"
+                        class="ep-chip ep-chip--accent !pr-1"
                     >
                         {{ p.name }}
                         <button
                             type="button"
-                            class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600"
+                            class="flex h-4 w-4 items-center justify-center rounded-full transition-colors duration-150 hover:bg-[color-mix(in_oklab,var(--ep-accent)_22%,transparent)]"
                             aria-label="Remover filtro"
                             @click="removeProductFilter(p.id)"
                         >
-                            <X class="h-3 w-3" />
+                            <X class="h-3 w-3" :stroke-width="2" />
                         </button>
                     </span>
                 </div>
             </div>
             <div class="flex gap-2">
                 <Button variant="outline" @click="openImportModal">
-                    <Upload class="h-4 w-4" />
+                    <Upload class="h-4 w-4" :stroke-width="1.75" />
                     Importar
                 </Button>
                 <Button variant="primary" @click="openNovoAluno">
-                    <Plus class="h-4 w-4" />
+                    <Plus class="h-4 w-4" :stroke-width="1.75" />
                     Novo aluno
                 </Button>
             </div>
         </div>
 
-        <!-- Tabela de alunos -->
-        <div v-if="alunosList.length" class="sm:hidden space-y-3">
+        <!-- Lista de alunos (mobile) -->
+        <div v-if="alunosList.length" class="panel-card ep-data overflow-hidden sm:hidden">
             <div
                 v-for="a in alunosList"
                 :key="a.id"
-                class="panel-card-sm transition hover:opacity-95 dark:hover:opacity-95"
+                class="flex cursor-pointer items-center gap-3 border-b border-[var(--ep-line)] px-4 py-3 transition-colors duration-150 last:border-b-0 hover:bg-[var(--ep-hover)]"
                 role="button"
                 tabindex="0"
                 @click="openDetail(a)"
                 @keydown.enter.prevent="openDetail(a)"
                 @keydown.space.prevent="openDetail(a)"
             >
-                <div class="flex items-start justify-between gap-3">
-                    <div class="min-w-0">
-                        <p class="break-words text-sm font-semibold leading-snug text-zinc-900 dark:text-white">
-                            {{ a.name }}
-                        </p>
-                        <p class="mt-0.5 break-words text-xs leading-snug text-zinc-500 dark:text-zinc-400">
-                            {{ a.email }}
-                        </p>
-                    </div>
-                    <div class="shrink-0 text-right">
-                        <p class="text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                            Produtos
-                        </p>
-                        <p class="mt-1 text-base font-semibold tabular-nums text-zinc-900 dark:text-white">
-                            {{ a.products_count ?? 0 }}
-                        </p>
-                    </div>
+                <span v-avatar="a.name" class="ep-avatar shrink-0" aria-hidden="true">{{ (a.name || '?').trim().charAt(0).toUpperCase() }}</span>
+                <div class="min-w-0 flex-1">
+                    <p class="break-words text-[13px] font-medium leading-snug text-[var(--ep-text)]">
+                        {{ a.name }}
+                    </p>
+                    <p class="mt-0.5 break-words text-[12px] leading-snug text-[var(--ep-text-3)]">
+                        {{ a.email }}
+                    </p>
+                </div>
+                <div class="shrink-0 text-right">
+                    <p class="text-[15px] font-semibold tabular-nums text-[var(--ep-text)]">
+                        {{ a.products_count ?? 0 }}
+                    </p>
+                    <p class="text-[11px] text-[var(--ep-text-4)]">
+                        Produtos
+                    </p>
                 </div>
             </div>
         </div>
 
+        <!-- Tabela de alunos -->
         <div
-            class="hidden panel-table sm:block"
+            class="panel-card ep-data hidden overflow-hidden sm:block"
         >
-            <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                <thead class="bg-zinc-50 dark:bg-zinc-800">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                            Nome
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                            E-mail
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                            Produtos
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
-                    <tr
-                        v-for="a in alunosList"
-                        :key="a.id"
-                        class="cursor-pointer transition hover:bg-zinc-100/80 dark:hover:bg-zinc-700/50"
-                        @click="openDetail(a)"
-                    >
-                        <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900 dark:text-white">
-                            {{ a.name }}
-                        </td>
-                        <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">
-                            {{ a.email }}
-                        </td>
-                        <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300">
-                            {{ a.products_count ?? 0 }}
-                        </td>
-                    </tr>
-                    <tr v-if="!alunosList.length" class="dark:bg-zinc-800/60">
-                        <td colspan="3" class="px-4 py-12 text-center text-zinc-500 dark:text-zinc-400">
-                            Nenhum aluno com acesso ainda.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="ep-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            <th>
+                                E-mail
+                            </th>
+                            <th class="ep-num">
+                                Produtos
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="a in alunosList"
+                            :key="a.id"
+                            class="cursor-pointer"
+                            @click="openDetail(a)"
+                        >
+                            <td class="whitespace-nowrap">
+                                <span class="flex items-center gap-3">
+                                    <span v-avatar="a.name" class="ep-avatar shrink-0" aria-hidden="true">{{ (a.name || '?').trim().charAt(0).toUpperCase() }}</span>
+                                    <span class="font-medium text-[var(--ep-text)]">{{ a.name }}</span>
+                                </span>
+                            </td>
+                            <td class="whitespace-nowrap text-[var(--ep-text-2)]">
+                                {{ a.email }}
+                            </td>
+                            <td class="ep-num">
+                                <span class="ep-chip tabular-nums">{{ a.products_count ?? 0 }}</span>
+                            </td>
+                        </tr>
+                        <tr v-if="!alunosList.length" class="hover:!bg-transparent">
+                            <td colspan="3" class="!p-0">
+                                <div class="ep-empty">
+                                    <p class="ep-empty__title">Nenhum aluno com acesso ainda.</p>
+                                    <p class="ep-empty__text">Cadastre um aluno ou importe um CSV para liberar o acesso aos seus produtos.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div
             v-if="!alunosList.length"
-            class="sm:hidden panel-card px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400"
+            class="panel-card ep-empty sm:hidden"
         >
-            Nenhum aluno com acesso ainda.
+            <p class="ep-empty__title">Nenhum aluno com acesso ainda.</p>
+            <p class="ep-empty__text">Cadastre um aluno ou importe um CSV para liberar o acesso.</p>
         </div>
 
         <!-- Paginação -->
         <nav
             v-if="alunos?.links?.length > 3"
-            class="flex items-center justify-center gap-2"
+            class="flex flex-wrap items-center justify-center gap-1"
             aria-label="Paginação"
         >
             <a
@@ -528,12 +524,12 @@ onUnmounted(() => {
                 :aria-current="link.active ? 'page' : undefined"
                 :aria-disabled="!link.url"
                 :class="[
-                    'relative inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition',
+                    'relative inline-flex h-9 min-w-9 items-center justify-center rounded-xl border px-3 text-[13px] font-medium tabular-nums transition-colors duration-150',
                     link.active
-                        ? 'z-10 bg-[var(--color-primary)] text-white'
+                        ? 'z-10 border-[var(--ep-line-strong)] bg-[var(--ep-active)] text-[var(--ep-text)] shadow-[var(--ep-glass-highlight)]'
                         : link.url
-                          ? 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700'
-                          : 'cursor-not-allowed text-zinc-400 dark:text-zinc-500',
+                          ? 'border-transparent text-[var(--ep-text-3)] hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]'
+                          : 'cursor-not-allowed border-transparent text-[var(--ep-text-4)] opacity-60',
                 ]"
                 v-html="link.label"
                 @click.prevent="link.url && router.visit(link.url, { preserveState: true })"
@@ -559,18 +555,19 @@ onUnmounted(() => {
                 role="dialog"
             >
                 <div
-                    class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60"
+                    class="ep-scrim fixed inset-0"
                     @click="closeNovoAluno"
                 />
                 <div
-                    class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+                    class="ep-modal relative w-full max-w-md p-6"
                 >
-                    <h3 class="mb-5 text-lg font-semibold text-zinc-900 dark:text-white">
+                    <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                         Cadastrar novo aluno
                     </h3>
+                    <p class="mb-5 mt-1 text-[12.5px] text-[var(--ep-text-3)]">O aluno recebe acesso imediato aos produtos selecionados.</p>
                     <div class="space-y-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        <div>
+                            <label class="ep-label">
                                 Nome
                             </label>
                             <input
@@ -581,12 +578,12 @@ onUnmounted(() => {
                                 autocapitalize="words"
                                 autocorrect="off"
                                 spellcheck="false"
-                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                class="ep-input"
                                 placeholder="Nome do aluno"
                             />
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        <div>
+                            <label class="ep-label">
                                 E-mail
                             </label>
                             <input
@@ -597,12 +594,12 @@ onUnmounted(() => {
                                 autocapitalize="off"
                                 autocorrect="off"
                                 spellcheck="false"
-                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                class="ep-input"
                                 placeholder="email@exemplo.com"
                             />
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        <div>
+                            <label class="ep-label">
                                 Senha
                             </label>
                             <input
@@ -610,27 +607,27 @@ onUnmounted(() => {
                                 type="password"
                                 name="novo_aluno_password"
                                 autocomplete="new-password"
-                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                class="ep-input"
                                 placeholder="Mínimo 6 caracteres"
                             />
                         </div>
-                        <div class="space-y-2">
-                            <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left">
+                        <div>
+                            <label class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)] -mx-2">
                                 <span class="shrink-0 w-fit">
                                     <Checkbox :model-value="novoAlunoForm.send_access_email" @update:model-value="novoAlunoForm.send_access_email = $event" />
                                 </span>
-                                <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">Enviar e-mail de acesso ao criar</span>
+                                <span class="flex-1 text-left text-[13px] text-[var(--ep-text)]">Enviar e-mail de acesso ao criar</span>
                             </label>
                         </div>
-                        <div class="space-y-2">
-                            <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                Produtos com acesso (opcional)
+                        <div>
+                            <p class="ep-label">
+                                Produtos com acesso <span class="font-normal text-[var(--ep-text-4)]">(opcional)</span>
                             </p>
-                            <div class="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                            <div class="max-h-40 space-y-0.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5">
                                 <label
                                     v-for="p in produtos"
                                     :key="p.id"
-                                    class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                                    class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
                                     <span class="shrink-0 w-fit">
                                         <Checkbox
@@ -638,13 +635,13 @@ onUnmounted(() => {
                                             @update:model-value="(v) => { if (v) novoAlunoForm.product_ids = [...novoAlunoForm.product_ids, p.id]; else novoAlunoForm.product_ids = novoAlunoForm.product_ids.filter(x => x !== p.id); }"
                                         />
                                     </span>
-                                    <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">{{ p.name }}</span>
+                                    <span class="flex-1 truncate text-left text-[13px] text-[var(--ep-text)]">{{ p.name }}</span>
                                 </label>
-                                <p v-if="!produtos.length" class="text-sm text-zinc-500">Nenhum produto disponível</p>
+                                <p v-if="!produtos.length" class="px-2 py-1.5 text-[12.5px] text-[var(--ep-text-4)]">Nenhum produto disponível</p>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end gap-2">
+                    <div class="mt-6 flex justify-end gap-2 border-t border-[var(--ep-line)] pt-5">
                         <Button variant="outline" :disabled="savingNovo" @click="closeNovoAluno">
                             Cancelar
                         </Button>
@@ -664,56 +661,56 @@ onUnmounted(() => {
                 aria-modal="true"
                 role="dialog"
             >
-                <div class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/60" @click="closeImportModal" />
+                <div class="ep-scrim fixed inset-0" @click="closeImportModal" />
                 <div
-                    class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+                    class="ep-modal relative w-full max-w-md p-6"
                 >
-                    <h3 class="mb-5 text-lg font-semibold text-zinc-900 dark:text-white">
+                    <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
                         Importar alunos em massa
                     </h3>
-                    <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
-                        Envie um arquivo CSV com as colunas: <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">nome</code>, <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">email</code>, <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">senha</code> (opcional). Use <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">;</code> ou <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">,</code> como separador.
+                    <p class="mb-4 mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
+                        Envie um arquivo CSV com as colunas: <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">nome</code>, <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">email</code>, <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">senha</code> (opcional). Use <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">;</code> ou <code class="rounded-md bg-[var(--ep-active)] px-1 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">,</code> como separador.
                     </p>
                     <a
                         href="/produtos/alunos/import-example"
                         download
-                        class="mb-4 inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:underline"
+                        class="ep-btn-ghost mb-4 !-ml-2 !h-8 !px-2 text-[var(--ep-accent)] hover:!text-[var(--ep-accent)]"
                     >
-                        <Download class="h-4 w-4 shrink-0" />
+                        <Download class="h-4 w-4 shrink-0" :stroke-width="1.75" />
                         Baixar CSV de exemplo
                     </a>
                     <div class="space-y-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        <div>
+                            <label class="ep-label">
                                 Arquivo CSV
                             </label>
                             <input
                                 type="file"
                                 accept=".csv,.txt"
-                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                class="ep-input !h-auto py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--ep-active)] file:px-3 file:py-1 file:text-[12.5px] file:font-medium file:text-[var(--ep-text)]"
                                 @change="onImportFileChange"
                             />
-                            <p v-if="importForm.file" class="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p v-if="importForm.file" class="ep-help">
                                 {{ importForm.file.name }}
                             </p>
                         </div>
-                        <div class="space-y-2">
-                            <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left">
+                        <div>
+                            <label class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)] -mx-2">
                                 <span class="shrink-0 w-fit">
                                     <Checkbox :model-value="importForm.send_access_email" @update:model-value="importForm.send_access_email = $event" />
                                 </span>
-                                <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">Enviar e-mail de acesso aos importados</span>
+                                <span class="flex-1 text-left text-[13px] text-[var(--ep-text)]">Enviar e-mail de acesso aos importados</span>
                             </label>
                         </div>
-                        <div class="space-y-2">
-                            <p class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                Produtos para dar acesso (obrigatório)
+                        <div>
+                            <p class="ep-label">
+                                Produtos para dar acesso <span class="font-normal text-[var(--ep-text-4)]">(obrigatório)</span>
                             </p>
-                            <div class="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                            <div class="max-h-40 space-y-0.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5">
                                 <label
                                     v-for="p in produtos"
                                     :key="p.id"
-                                    class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                                    class="flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
                                     <span class="shrink-0 w-fit">
                                         <Checkbox
@@ -721,13 +718,13 @@ onUnmounted(() => {
                                             @update:model-value="(v) => { if (v) importForm.product_ids = [...importForm.product_ids, p.id]; else importForm.product_ids = importForm.product_ids.filter(x => x !== p.id); }"
                                         />
                                     </span>
-                                    <span class="flex-1 text-left text-sm text-zinc-900 dark:text-white">{{ p.name }}</span>
+                                    <span class="flex-1 truncate text-left text-[13px] text-[var(--ep-text)]">{{ p.name }}</span>
                                 </label>
-                                <p v-if="!produtos.length" class="text-sm text-zinc-500">Nenhum produto disponível</p>
+                                <p v-if="!produtos.length" class="px-2 py-1.5 text-[12.5px] text-[var(--ep-text-4)]">Nenhum produto disponível</p>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end gap-2">
+                    <div class="mt-6 flex justify-end gap-2 border-t border-[var(--ep-line)] pt-5">
                         <Button variant="outline" :disabled="importing" @click="closeImportModal">
                             Cancelar
                         </Button>
@@ -753,13 +750,12 @@ onUnmounted(() => {
                     v-if="toast.message"
                     role="alert"
                     :class="[
-                        'fixed bottom-4 right-4 z-[100002] max-w-sm rounded-xl border px-4 py-3 shadow-lg',
-                        toast.type === 'error'
-                            ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200'
-                            : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-200',
+                        'ep-modal fixed bottom-4 right-4 z-[100002] flex max-w-sm items-start gap-2.5 !rounded-2xl px-4 py-3',
+                        toast.type === 'error' ? 'text-[var(--ep-neg)]' : 'text-[var(--ep-pos)]',
                     ]"
                 >
-                    <p class="text-sm font-medium">{{ toast.message }}</p>
+                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
+                    <p class="text-[13px] font-medium text-[var(--ep-text)]">{{ toast.message }}</p>
                 </div>
             </Transition>
         </Teleport>

@@ -1,6 +1,7 @@
 <script setup>
 import { Trophy, MapPin } from 'lucide-vue-next';
 import { formatBRL, countryFlag } from '@/composables/useTrackingPanel';
+import MoneyAmount from '@/components/ui/MoneyAmount.vue';
 
 defineProps({
     topCountry: { type: Object, default: null },
@@ -9,46 +10,52 @@ defineProps({
 </script>
 
 <template>
-    <div class="panel-card-md flex h-full flex-col justify-center">
-        <div class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-            <div class="dash-metric-icon-sm">
-                <Trophy class="h-4 w-4" />
-            </div>
-            País líder em vendas
+    <section class="panel-card flex h-full min-w-0 flex-col p-6" aria-labelledby="trk-lider">
+        <div class="flex items-center justify-between gap-3">
+            <h2 id="trk-lider" class="flex items-center gap-2 text-[13px] font-medium text-[var(--ep-text-2)]">
+                <Trophy class="h-4 w-4 text-[var(--ep-warn)]" :stroke-width="1.75" aria-hidden="true" />
+                País líder em vendas
+            </h2>
         </div>
 
         <div
             v-if="topCountry"
-            class="relative mt-5 overflow-hidden rounded-2xl border border-[var(--color-primary)]/20 bg-gradient-to-br from-[var(--color-primary)]/8 via-transparent to-zinc-50/80 p-5 text-center dark:from-[var(--color-primary)]/12 dark:to-zinc-900/40"
+            class="relative mt-5 flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-5 py-6 text-center shadow-[var(--ep-glass-highlight)]"
         >
-            <div class="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-[var(--color-primary)]/10 blur-3xl" />
-            <div class="pointer-events-none absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-[var(--color-primary)]/10 blur-2xl" />
+            <div
+                class="pointer-events-none absolute left-1/2 top-0 h-48 w-48 -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--ep-accent)_38%,transparent),transparent)] blur-2xl"
+                aria-hidden="true"
+            />
 
-            <div class="relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-4xl shadow-sm ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:ring-zinc-700">
+            <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--ep-glass-border)] border-t-[var(--ep-glass-border-top)] bg-[linear-gradient(180deg,var(--ep-glass-strong),var(--ep-glass))] text-4xl leading-none shadow-[var(--ep-glass-highlight),0_10px_30px_-12px_var(--ep-glow)]">
                 {{ countryFlag(topCountry.country_code) }}
             </div>
 
-            <p class="relative mt-4 text-lg font-bold text-zinc-900 dark:text-white">
+            <p class="relative mt-4 text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">
                 {{ topCountry.country_name }}
             </p>
 
-            <p class="relative mt-2 text-2xl font-bold tabular-nums text-[var(--color-primary)] sm:text-3xl">
-                {{ valuesVisible ? formatBRL(topCountry.total) : '••••••' }}
-            </p>
+            <MoneyAmount
+                class="relative mt-2"
+                :value="Number(topCountry.total) || 0"
+                :hidden="!valuesVisible"
+                size="lg"
+            />
 
             <div class="relative mt-4 flex flex-wrap items-center justify-center gap-2">
-                <span class="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary)]/12 px-2.5 py-1 text-xs font-semibold text-[var(--color-primary)]">
+                <span class="ep-chip ep-chip--accent tabular-nums">
                     {{ topCountry.percent }}% do total
                 </span>
-                <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                    <MapPin class="h-3 w-3" aria-hidden="true" />
+                <span class="ep-chip tabular-nums">
+                    <MapPin class="h-3 w-3" :stroke-width="1.75" aria-hidden="true" />
                     {{ topCountry.count }} {{ topCountry.count === 1 ? 'venda' : 'vendas' }}
                 </span>
             </div>
         </div>
 
-        <p v-else class="mt-8 text-center text-sm text-zinc-500">
-            Nenhuma venda geolocalizada
-        </p>
-    </div>
+        <div v-else class="ep-empty flex-1">
+            <p class="ep-empty__title">Nenhuma venda geolocalizada</p>
+            <p class="ep-empty__text">O país líder aparece quando uma venda do período tiver localização identificada.</p>
+        </div>
+    </section>
 </template>

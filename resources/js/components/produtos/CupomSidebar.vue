@@ -135,98 +135,104 @@ watch(
             :aria-labelledby="isEdit ? 'sidebar-edit-cupom' : 'sidebar-new-cupom'"
         >
             <div
-                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/70"
+                class="ep-scrim fixed inset-0"
                 aria-hidden="true"
                 @click="close"
             />
             <aside
-                class="relative z-[100001] flex h-full w-full max-w-md flex-col rounded-l-2xl bg-white shadow-xl dark:bg-zinc-900 sm:w-[420px]"
+                class="ep-drawer relative z-[100001] flex h-full w-full max-w-md flex-col sm:w-[440px] sm:rounded-l-[22px]"
                 @click.stop
             >
                 <div
-                    class="flex shrink-0 items-center justify-between rounded-tl-2xl border-b border-zinc-200 px-4 py-3 dark:border-zinc-800"
+                    class="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--ep-line)] px-6 pb-4 pt-5"
                 >
-                    <h2 :id="isEdit ? 'sidebar-edit-cupom' : 'sidebar-new-cupom'" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                        {{ isEdit ? 'Editar cupom' : 'Novo cupom' }}
-                    </h2>
+                    <div class="min-w-0">
+                        <p class="text-[11.5px] font-medium text-[var(--ep-text-4)]">Cupom de desconto</p>
+                        <h2 :id="isEdit ? 'sidebar-edit-cupom' : 'sidebar-new-cupom'" class="mt-0.5 text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                            {{ isEdit ? 'Editar cupom' : 'Novo cupom' }}
+                        </h2>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon -mr-2 !h-8 !w-8 !rounded-[10px] text-[var(--ep-text-3)]"
                         aria-label="Fechar"
                         @click="close"
                     >
-                        <X class="h-5 w-5" />
+                        <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto px-4 py-4">
-                    <form class="space-y-4" @submit.prevent="submit">
+                <div class="flex-1 overflow-y-auto px-6 py-5">
+                    <form class="space-y-5" @submit.prevent="submit">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Código *
                             </label>
                             <input
                                 v-model="form.code"
                                 type="text"
                                 required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                                class="ep-input font-mono tracking-[0.03em]"
                                 placeholder="Ex: PROMO20"
                             />
-                            <p v-if="form.errors.code" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            <p v-if="form.errors.code" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
                                 {{ form.errors.code }}
                             </p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Tipo *
-                            </label>
-                            <select
-                                v-model="form.type"
-                                required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                            >
-                                <option value="percent">Percentual (%)</option>
-                                <option value="fixed">Valor fixo (R$)</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="ep-label">
+                                    Tipo *
+                                </label>
+                                <select
+                                    v-model="form.type"
+                                    required
+                                    class="ep-input"
+                                >
+                                    <option value="percent">Percentual (%)</option>
+                                    <option value="fixed">Valor fixo (R$)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="ep-label">
+                                    Valor *
+                                </label>
+                                <input
+                                    v-model="form.value"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                    class="ep-input font-medium tabular-nums"
+                                    :placeholder="form.type === 'percent' ? '0–100' : '0,00'"
+                                />
+                                <p v-if="form.errors.value" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
+                                    {{ form.errors.value }}
+                                </p>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Valor *
-                            </label>
-                            <input
-                                v-model="form.value"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                required
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                :placeholder="form.type === 'percent' ? '0–100' : '0,00'"
-                            />
-                            <p v-if="form.errors.value" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.value }}
-                            </p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <label class="ep-label">
                                 Produtos
                             </label>
-                            <div class="relative mt-1" data-cupom-products-dropdown>
+                            <div class="relative" data-cupom-products-dropdown>
                                 <button
                                     type="button"
-                                    class="flex w-full items-center justify-between rounded-lg border border-zinc-300 bg-white px-3 py-2 text-left text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input flex items-center justify-between gap-2 text-left"
                                     aria-haspopup="listbox"
                                     :aria-expanded="productsDropdownOpen"
                                     @click="productsDropdownOpen = !productsDropdownOpen"
                                 >
                                     <span class="truncate">{{ productsLabel }}</span>
                                     <ChevronDown
-                                        class="h-4 w-4 shrink-0 transition-transform"
+                                        class="h-4 w-4 shrink-0 text-[var(--ep-text-3)] transition-transform duration-200"
                                         :class="{ 'rotate-180': productsDropdownOpen }"
+                                        :stroke-width="1.75"
                                     />
                                 </button>
                                 <div
                                     v-show="productsDropdownOpen"
-                                    class="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                                    class="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-56 overflow-auto rounded-[14px] border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] p-1 shadow-[var(--ep-shadow-pop)] backdrop-blur-2xl backdrop-saturate-150"
                                     role="listbox"
                                 >
                                     <button
@@ -235,84 +241,89 @@ watch(
                                         type="button"
                                         role="option"
                                         :aria-selected="isProductSelected(p.id)"
-                                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                        class="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-[13px] text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                         @click="toggleProduct(p.id)"
                                     >
                                         <span
-                                            class="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-zinc-300 dark:border-zinc-600"
-                                            :class="isProductSelected(p.id) ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'bg-white dark:bg-zinc-800'"
+                                            class="flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-150"
+                                            :class="isProductSelected(p.id) ? 'border-[var(--ep-accent)] bg-[var(--ep-accent)] text-white dark:text-[#061126]' : 'border-[var(--ep-line-strong)] bg-[var(--ep-input)]'"
                                         >
                                             <Check v-if="isProductSelected(p.id)" class="h-3 w-3" stroke-width="3" />
                                         </span>
-                                        {{ p.name }}
+                                        <span class="min-w-0 truncate">{{ p.name }}</span>
                                     </button>
-                                    <p v-if="!produtos.length" class="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <p v-if="!produtos.length" class="px-2.5 py-2 text-[12.5px] text-[var(--ep-text-4)]">
                                         Nenhum produto cadastrado.
                                     </p>
                                 </div>
                             </div>
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="ep-help">
                                 Nenhum selecionado = cupom vale para todos os produtos.
                             </p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Pedido mínimo (R$)
-                            </label>
-                            <input
-                                v-model="form.min_amount"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                placeholder="Opcional"
-                            />
-                            <p v-if="form.errors.min_amount" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.min_amount }}
-                            </p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="ep-label">
+                                    Pedido mínimo (R$)
+                                </label>
+                                <input
+                                    v-model="form.min_amount"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    class="ep-input tabular-nums"
+                                    placeholder="Opcional"
+                                />
+                                <p v-if="form.errors.min_amount" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
+                                    {{ form.errors.min_amount }}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="ep-label">
+                                    Máximo de usos
+                                </label>
+                                <input
+                                    v-model="form.max_uses"
+                                    type="number"
+                                    min="1"
+                                    class="ep-input tabular-nums"
+                                    placeholder="Ilimitado"
+                                />
+                                <p v-if="form.errors.max_uses" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
+                                    {{ form.errors.max_uses }}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Máximo de usos
-                            </label>
-                            <input
-                                v-model="form.max_uses"
-                                type="number"
-                                min="1"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                                placeholder="Ilimitado"
-                            />
-                            <p v-if="form.errors.max_uses" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.max_uses }}
-                            </p>
+                        <div class="space-y-4 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3.5">
+                            <p class="ep-section-title">Validade</p>
+                            <div>
+                                <label class="ep-label">
+                                    Válido de
+                                </label>
+                                <input
+                                    v-model="form.valid_from"
+                                    type="datetime-local"
+                                    class="ep-input tabular-nums"
+                                />
+                            </div>
+                            <div>
+                                <label class="ep-label">
+                                    Válido até
+                                </label>
+                                <input
+                                    v-model="form.valid_until"
+                                    type="datetime-local"
+                                    class="ep-input tabular-nums"
+                                />
+                                <p v-if="form.errors.valid_until" class="mt-1.5 text-[12px] text-[var(--ep-neg)]">
+                                    {{ form.errors.valid_until }}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Válido de
-                            </label>
-                            <input
-                                v-model="form.valid_from"
-                                type="datetime-local"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Válido até
-                            </label>
-                            <input
-                                v-model="form.valid_until"
-                                type="datetime-local"
-                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                            />
-                            <p v-if="form.errors.valid_until" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {{ form.errors.valid_until }}
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 rounded-[14px] border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3">
                             <Toggle v-model="form.is_active" label="Cupom ativo" />
                         </div>
-                        <div class="flex gap-2 pt-2">
+                        <div class="sticky bottom-0 -mx-6 -mb-5 flex gap-2 border-t border-[var(--ep-line)] bg-[var(--ep-drawer)] px-6 py-4 backdrop-blur-xl">
                             <Button type="submit" :disabled="form.processing">
                                 {{ isEdit ? 'Salvar' : 'Criar cupom' }}
                             </Button>

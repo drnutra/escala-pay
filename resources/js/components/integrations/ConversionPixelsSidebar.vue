@@ -180,187 +180,230 @@ async function destroyIntegration(integration) {
             leave-to-class="opacity-0"
         >
             <div v-if="open" class="fixed inset-0 z-[100000] flex justify-end">
-                <div class="absolute inset-0 bg-black/40" aria-hidden="true" @click="emit('close')" />
+                <div class="ep-scrim absolute inset-0" aria-hidden="true" @click="emit('close')" />
                 <aside
-                    class="relative flex h-full w-full max-w-xl flex-col bg-white shadow-2xl dark:bg-zinc-900"
+                    class="ep-drawer relative flex h-full w-full max-w-xl flex-col"
                     role="dialog"
                     aria-labelledby="conversion-pixels-sidebar-title"
                 >
-                    <header class="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-700">
-                        <div class="flex items-center gap-2">
+                    <header class="flex items-center justify-between gap-3 border-b border-[var(--ep-line)] px-6 py-4">
+                        <div class="flex min-w-0 items-center gap-2">
                             <button
                                 v-if="showingForm"
                                 type="button"
-                                class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                class="ep-btn-ghost ep-btn-icon -ml-2 shrink-0"
+                                aria-label="Voltar"
                                 @click="resetForm"
                             >
-                                <ArrowLeft class="h-5 w-5" />
+                                <ArrowLeft class="h-[18px] w-[18px]" :stroke-width="1.75" />
                             </button>
-                            <h2 id="conversion-pixels-sidebar-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
-                                Pixels e rastreamento
-                            </h2>
+                            <div class="min-w-0">
+                                <h2 id="conversion-pixels-sidebar-title" class="truncate text-[17px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">
+                                    Pixels e rastreamento
+                                </h2>
+                                <p class="mt-0.5 text-[12.5px] text-[var(--ep-text-3)]">
+                                    Cadastre pixels uma vez e reutilize nos produtos.
+                                </p>
+                            </div>
                         </div>
-                        <button type="button" class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800" @click="emit('close')">
-                            <X class="h-5 w-5" />
+                        <button type="button" class="ep-btn-ghost ep-btn-icon shrink-0" aria-label="Fechar" @click="emit('close')">
+                            <X class="h-[18px] w-[18px]" :stroke-width="1.75" />
                         </button>
                     </header>
 
-                    <div v-if="!showingForm" class="border-b border-zinc-200 px-3 py-3 dark:border-zinc-700">
-                        <div class="flex gap-2 overflow-x-auto pb-1">
+                    <div v-if="!showingForm" class="border-b border-[var(--ep-line)] px-6 py-3">
+                        <div class="ep-tabs max-w-full overflow-x-auto">
                             <button
                                 v-for="tab in integrationTabs"
                                 :key="tab.id"
                                 type="button"
                                 :class="[
-                                    'flex shrink-0 flex-col items-center gap-1 rounded-lg border px-3 py-2 text-xs font-medium transition',
+                                    'ep-tab shrink-0 border',
                                     selectedTab === tab.id
-                                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                                        : 'border-zinc-200 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400',
+                                        ? 'ep-tab--active'
+                                        : 'border-transparent',
                                 ]"
                                 @click="selectedTab = tab.id"
                             >
-                                <img :src="tab.image" :alt="tab.label" class="h-6 w-6 object-contain" />
+                                <img :src="tab.image" :alt="tab.label" class="h-4 w-4 object-contain" />
                                 {{ tab.label }}
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto p-5">
-                        <div
+                    <div class="flex-1 overflow-y-auto px-6 py-5">
+                        <section
                             v-if="!showingForm"
-                            class="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/50 dark:text-zinc-400"
+                            class="panel-card mb-5 p-5 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]"
                         >
-                            <p class="mb-2 font-medium text-zinc-800 dark:text-zinc-200">Tracking GTM e server-side</p>
-                            <ul class="list-inside list-disc space-y-1">
-                                <li>
-                                    O checkout publica eventos no
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">dataLayer</code>
-                                    (<code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">page_view</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">begin_checkout</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">purchase</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">pix_generated</code>).
+                            <p class="ep-section-title mb-3">Tracking GTM e server-side</p>
+                            <ul class="space-y-2">
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                                    <span>
+                                        O checkout publica eventos no
+                                        <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">dataLayer</code>
+                                        (<code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">page_view</code>,
+                                        <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">begin_checkout</code>,
+                                        <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">purchase</code>,
+                                        <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">pix_generated</code>).
+                                    </span>
                                 </li>
-                                <li>Configure tags no GTM ouvindo esses eventos. O container GTM é cadastrado em cada produto (Pixels → GTM).</li>
-                                <li>Meta CAPI exige <strong>access token</strong> na integração, não só Pixel ID.</li>
-                                <li>Utmify é integração separada dos pixels do checkout.</li>
-                                <li>Abandono é métrica interna do painel — não é enviado automaticamente ao GTM.</li>
-                                <li>Use <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">?tracking_debug=1</code> no checkout para ver falhas de API no console.</li>
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                    <span>Configure tags no GTM ouvindo esses eventos. O container GTM é cadastrado em cada produto (Pixels → GTM).</span>
+                                </li>
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                    <span>Meta CAPI exige <strong class="font-medium text-[var(--ep-text)]">access token</strong> na integração, não só Pixel ID.</span>
+                                </li>
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                    <span>Utmify é integração separada dos pixels do checkout.</span>
+                                </li>
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                    <span>Abandono é métrica interna do painel — não é enviado automaticamente ao GTM.</span>
+                                </li>
+                                <li class="flex gap-2.5">
+                                    <span class="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ep-text-4)]" aria-hidden="true" />
+                                    <span>Use <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-input)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--ep-text-2)]">?tracking_debug=1</code> no checkout para ver falhas de API no console.</span>
+                                </li>
                             </ul>
-                        </div>
-                        <p v-if="errorMessage" class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                        </section>
+                        <p
+                            v-if="errorMessage"
+                            class="mb-4 rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_30%,transparent)] bg-[var(--ep-neg-bg)] px-3.5 py-2.5 text-[13px] text-[var(--ep-neg)]"
+                        >
                             {{ errorMessage }}
                         </p>
 
                         <template v-if="!showingForm">
-                            <div class="mb-4 flex items-center justify-between">
-                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                    Cadastre pixels uma vez e reutilize nos produtos.
-                                </p>
+                            <div class="mb-3 flex items-center justify-between gap-3">
+                                <h3 class="ep-section-title flex items-center gap-2">
+                                    Integrações
+                                    <span class="ep-chip tabular-nums">{{ integrationsForTab.length }}</span>
+                                </h3>
                                 <Button type="button" size="sm" @click="startNew">
-                                    <Plus class="mr-1 h-4 w-4" /> Novo
+                                    <Plus class="h-4 w-4" :stroke-width="1.75" /> Novo
                                 </Button>
                             </div>
-                            <ul v-if="integrationsForTab.length" class="space-y-2">
+                            <ul
+                                v-if="integrationsForTab.length"
+                                class="panel-card ep-data divide-y divide-[var(--ep-line)] overflow-hidden"
+                            >
                                 <li
                                     v-for="item in integrationsForTab"
                                     :key="item.id"
-                                    class="panel-card-sm flex items-center justify-between gap-3"
+                                    class="flex items-center justify-between gap-3 px-5 py-4 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                 >
                                     <div class="min-w-0">
-                                        <p class="font-medium text-zinc-900 dark:text-white">{{ item.name }}</p>
-                                        <p class="truncate text-xs text-zinc-500">{{ item.summary }}</p>
-                                        <p class="mt-1 text-xs" :class="item.is_active ? 'text-emerald-600' : 'text-zinc-400'">
-                                            {{ item.is_active ? 'Ativo' : 'Inativo' }}
-                                        </p>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <p class="text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">{{ item.name }}</p>
+                                            <span class="ep-chip" :class="item.is_active ? 'ep-chip--pos' : 'ep-chip--warn'">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                                                {{ item.is_active ? 'Ativo' : 'Inativo' }}
+                                            </span>
+                                        </div>
+                                        <p class="mt-1 truncate font-mono text-[12px] text-[var(--ep-text-3)]">{{ item.summary }}</p>
                                     </div>
                                     <div class="flex shrink-0 gap-1">
                                         <button
                                             type="button"
-                                            class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8"
+                                            aria-label="Editar"
                                             @click="editIntegration(item)"
                                         >
-                                            <Pencil class="h-4 w-4" />
+                                            <Pencil class="h-4 w-4" :stroke-width="1.75" />
                                         </button>
                                         <button
                                             type="button"
-                                            class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8 hover:!text-[var(--ep-neg)]"
+                                            aria-label="Excluir"
                                             @click="confirmingDeleteId = item.id"
                                         >
-                                            <Trash2 class="h-4 w-4" />
+                                            <Trash2 class="h-4 w-4" :stroke-width="1.75" />
                                         </button>
                                     </div>
                                 </li>
                             </ul>
-                            <p v-else class="text-sm text-zinc-500 dark:text-zinc-400">
-                                Nenhuma integração nesta plataforma. Clique em «Novo» para cadastrar.
-                            </p>
+                            <div v-else class="panel-card ep-empty">
+                                <p class="ep-empty__title">Nenhuma integração nesta plataforma</p>
+                                <p class="ep-empty__text">Clique em «Novo» para cadastrar.</p>
+                            </div>
                         </template>
 
                         <form v-else class="space-y-4" @submit.prevent="save">
-                            <div>
-                                <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome</label>
-                                <input v-model="form.name" type="text" required :class="inputClass" placeholder="Ex: Meta — Loja principal" />
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ativo</span>
-                                <Toggle v-model="form.is_active" />
-                            </div>
+                            <section class="panel-card space-y-4 p-5">
+                                <h3 class="ep-section-title">Identificação</h3>
+                                <div>
+                                    <label class="ep-label">Nome</label>
+                                    <input v-model="form.name" type="text" required class="ep-input" placeholder="Ex: Meta — Loja principal" />
+                                </div>
+                                <div class="flex items-center justify-between border-t border-[var(--ep-line)] pt-4">
+                                    <span class="text-[13px] font-medium text-[var(--ep-text-2)]">Ativo</span>
+                                    <Toggle v-model="form.is_active" />
+                                </div>
+                            </section>
 
-                            <template v-if="selectedTab === 'meta' || selectedTab === 'tiktok'">
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Pixel ID</label>
-                                    <input v-model="form.config.pixel_id" type="text" required :class="inputClass" />
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                        Access Token (CAPI)
-                                        <span v-if="editingIntegration?.has_access_token" class="font-normal text-zinc-500">
-                                            — deixe em branco para manter o atual
-                                        </span>
-                                    </label>
-                                    <input
-                                        v-model="form.access_token"
-                                        type="password"
-                                        :required="isCreating"
-                                        :class="inputClass"
-                                        autocomplete="off"
-                                    />
-                                </div>
-                            </template>
+                            <section class="panel-card space-y-4 p-5">
+                                <h3 class="ep-section-title">Credenciais</h3>
+                                <template v-if="selectedTab === 'meta' || selectedTab === 'tiktok'">
+                                    <div>
+                                        <label class="ep-label">Pixel ID</label>
+                                        <input v-model="form.config.pixel_id" type="text" required class="ep-input font-mono !text-[13px]" />
+                                    </div>
+                                    <div>
+                                        <label class="ep-label">
+                                            Access Token (CAPI)
+                                            <span v-if="editingIntegration?.has_access_token" class="font-normal text-[var(--ep-text-4)]">
+                                                — deixe em branco para manter o atual
+                                            </span>
+                                        </label>
+                                        <input
+                                            v-model="form.access_token"
+                                            type="password"
+                                            :required="isCreating"
+                                            class="ep-input"
+                                            autocomplete="off"
+                                        />
+                                    </div>
+                                </template>
 
-                            <template v-else-if="selectedTab === 'google_ads'">
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Conversion ID</label>
-                                    <input v-model="form.config.conversion_id" type="text" required :class="inputClass" />
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Conversion Label</label>
-                                    <input v-model="form.config.conversion_label" type="text" :class="inputClass" />
-                                </div>
-                            </template>
+                                <template v-else-if="selectedTab === 'google_ads'">
+                                    <div>
+                                        <label class="ep-label">Conversion ID</label>
+                                        <input v-model="form.config.conversion_id" type="text" required class="ep-input font-mono !text-[13px]" />
+                                    </div>
+                                    <div>
+                                        <label class="ep-label">Conversion Label</label>
+                                        <input v-model="form.config.conversion_label" type="text" class="ep-input font-mono !text-[13px]" />
+                                    </div>
+                                </template>
 
-                            <template v-else-if="selectedTab === 'google_analytics'">
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Measurement ID</label>
-                                    <input v-model="form.config.measurement_id" type="text" required :class="inputClass" placeholder="G-XXXXXXXXXX" />
-                                </div>
-                            </template>
+                                <template v-else-if="selectedTab === 'google_analytics'">
+                                    <div>
+                                        <label class="ep-label">Measurement ID</label>
+                                        <input v-model="form.config.measurement_id" type="text" required class="ep-input font-mono !text-[13px]" placeholder="G-XXXXXXXXXX" />
+                                    </div>
+                                </template>
 
-                            <template v-else-if="selectedTab === 'custom_script'">
-                                <div>
-                                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Script</label>
-                                    <textarea
-                                        v-model="form.config.script"
-                                        rows="8"
-                                        required
-                                        :class="inputClass + ' font-mono text-sm'"
-                                        placeholder="&lt;script&gt;...&lt;/script&gt;"
-                                    />
-                                </div>
-                            </template>
+                                <template v-else-if="selectedTab === 'custom_script'">
+                                    <div>
+                                        <label class="ep-label">Script</label>
+                                        <textarea
+                                            v-model="form.config.script"
+                                            rows="8"
+                                            required
+                                            class="ep-input font-mono !text-[12.5px]"
+                                            placeholder="&lt;script&gt;...&lt;/script&gt;"
+                                        />
+                                    </div>
+                                </template>
+                            </section>
 
-                            <div v-if="supportsBehaviorFlags" class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
-                                <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Comportamento no checkout</p>
+                            <section v-if="supportsBehaviorFlags" class="panel-card space-y-3 p-5">
+                                <p class="ep-section-title mb-1">Comportamento no checkout</p>
                                 <Checkbox
                                     v-model="form.config.fire_purchase_on_pix"
                                     label="Disparar Purchase ao gerar PIX (não na aprovação)?"
@@ -373,23 +416,23 @@ async function destroyIntegration(integration) {
                                     v-model="form.config.disable_order_bump_events"
                                     label="Desativar eventos de order bumps?"
                                 />
-                            </div>
+                            </section>
 
-                            <div>
-                                <span class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            <section class="panel-card p-5">
+                                <span class="ep-section-title block">
                                     Produtos atribuídos
                                 </span>
-                                <p class="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                <p class="mb-3 mt-1 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                     Marque os produtos que devem usar este pixel. Sem seleção, o pixel não é aplicado em nenhum checkout.
                                 </p>
                                 <div
                                     v-if="products.length"
-                                    class="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-3 text-left dark:border-zinc-600 dark:bg-zinc-800"
+                                    class="max-h-56 space-y-0.5 overflow-y-auto rounded-xl border border-[var(--ep-input-border)] bg-[var(--ep-input)] p-1.5 text-left"
                                 >
                                     <label
                                         v-for="p in products"
                                         :key="p.id"
-                                        class="flex cursor-pointer items-start justify-start gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                                        class="flex cursor-pointer items-start justify-start gap-2.5 rounded-[10px] px-2.5 py-2 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                     >
                                         <span class="shrink-0 pt-0.5">
                                             <Checkbox
@@ -398,16 +441,16 @@ async function destroyIntegration(integration) {
                                                 @update:model-value="(v) => setProductSelected(p.id, v)"
                                             />
                                         </span>
-                                        <span class="min-w-0 flex-1 text-left text-sm leading-snug text-zinc-900 dark:text-white">
+                                        <span class="min-w-0 flex-1 text-left text-[13px] leading-snug text-[var(--ep-text)]">
                                             {{ p.name }}
                                         </span>
                                     </label>
                                 </div>
-                                <p v-else class="text-xs text-zinc-500">Nenhum produto cadastrado.</p>
-                            </div>
+                                <p v-else class="text-[12.5px] text-[var(--ep-text-4)]">Nenhum produto cadastrado.</p>
+                            </section>
 
                             <Button type="submit" class="w-full" :disabled="saving">
-                                <Loader2 v-if="saving" class="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 v-if="saving" class="h-4 w-4 animate-spin" :stroke-width="1.75" />
                                 {{ editingIntegration ? 'Salvar alterações' : 'Criar integração' }}
                             </Button>
                         </form>
@@ -415,14 +458,16 @@ async function destroyIntegration(integration) {
 
                     <div
                         v-if="confirmingDeleteId"
-                        class="absolute inset-0 z-10 flex items-center justify-center bg-black/50 p-4"
+                        class="ep-scrim absolute inset-0 z-10 flex items-center justify-center p-4"
                     >
-                        <div class="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-zinc-800">
-                            <p class="text-sm text-zinc-700 dark:text-zinc-300">Excluir esta integração? Produtos que a usam deixarão de disparar este pixel.</p>
-                            <div class="mt-4 flex gap-2">
+                        <div class="ep-modal w-full max-w-sm p-6">
+                            <h3 class="text-[15px] font-semibold tracking-[-0.015em] text-[var(--ep-text)]">Excluir integração</h3>
+                            <p class="mt-2 text-[13px] leading-relaxed text-[var(--ep-text-3)]">Excluir esta integração? Produtos que a usam deixarão de disparar este pixel.</p>
+                            <div class="mt-5 flex gap-2">
                                 <Button variant="outline" class="flex-1" @click="confirmingDeleteId = null">Cancelar</Button>
                                 <Button
-                                    class="flex-1 bg-red-600 hover:bg-red-700"
+                                    variant="destructive"
+                                    class="flex-1"
                                     :disabled="deleting === confirmingDeleteId"
                                     @click="destroyIntegration(integrationsForTab.find((i) => i.id === confirmingDeleteId))"
                                 >

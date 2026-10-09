@@ -10,9 +10,16 @@ defineOptions({ layout: LayoutInfoprodutor });
 
 const props = defineProps({
     period: { type: String, default: 'hoje' },
+    comparacao: { type: Object, default: null },
     vendas_totais: { type: Number, default: 0 },
     vendas_totais_por_moeda: { type: Array, default: () => [] },
     vendas_pendentes: { type: Number, default: 0 },
+    pendentes_count: { type: Number, default: 0 },
+    top_produtos: { type: Array, default: () => [] },
+    vendas_recentes: { type: Array, default: () => [] },
+    ultimos_7_dias: { type: Array, default: () => [] },
+    funil_checkout: { type: Object, default: null },
+    grafico_vendas_anterior: { type: Array, default: null },
     quantidade_vendas: { type: Number, default: 0 },
     ticket_medio: { type: Number, default: 0 },
     formas_pagamento: { type: Array, default: () => [] },

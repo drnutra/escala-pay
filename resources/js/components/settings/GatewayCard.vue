@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { CreditCard } from 'lucide-vue-next';
+import { ChevronRight } from 'lucide-vue-next';
 import {
     TooltipRoot,
     TooltipTrigger,
@@ -58,7 +59,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
 <template>
     <button
         type="button"
-        class="group relative flex w-full flex-row gap-3 rounded-xl border border-zinc-200 bg-white p-3 text-left shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+        class="group relative flex w-full flex-row items-start gap-3.5 rounded-2xl border border-[var(--ep-glass-border)] bg-[linear-gradient(180deg,var(--ep-glass-strong),var(--ep-glass))] p-3.5 text-left shadow-[var(--ep-glass-highlight)] transition-[border-color,box-shadow,transform] duration-150 hover:border-[var(--ep-line-strong)] hover:shadow-[var(--ep-glass-highlight),0_14px_32px_-18px_var(--ep-glow)] active:scale-[0.99]"
         @click="emit('click')"
     >
         <!-- Bandeira(s) do(s) país(es) no canto superior direito -->
@@ -66,7 +67,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
             <TooltipRoot v-if="hasMultipleCountries">
                 <TooltipTrigger as-child>
                     <div
-                        class="absolute right-3 top-3 z-10 flex shrink-0 items-center gap-0.5"
+                        class="absolute right-3 top-3 z-10 flex shrink-0 items-center -space-x-1"
                         @click.stop
                     >
                         <img
@@ -74,7 +75,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
                             :key="c.flag"
                             :src="`/images/gateways/paises/${c.flag.replace(/^\//, '')}`"
                             :alt="c.name"
-                            class="h-5 w-5 rounded-full border border-zinc-200 object-cover shadow-sm dark:border-zinc-600"
+                            class="h-[18px] w-[18px] rounded-full border border-[var(--ep-glass-border)] object-cover ring-1 ring-[var(--ep-line)]"
                             @error="($e) => ($e.target.style.display = 'none')"
                         />
                     </div>
@@ -83,7 +84,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
                     <TooltipContent
                         side="bottom"
                         :side-offset="6"
-                        class="max-w-[12rem] rounded-lg border border-zinc-200 bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-lg dark:border-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
+                        class="z-[100001] max-w-[12rem] rounded-xl border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] px-3 py-2 text-[12.5px] font-medium text-[var(--ep-text)] shadow-[var(--ep-shadow-pop)] backdrop-blur-xl"
                     >
                         <div class="flex flex-col gap-0.5">
                             <span v-for="c in countries" :key="c.flag">{{ c.name }}</span>
@@ -94,7 +95,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
             <TooltipRoot v-else-if="countryFlagUrl && countryName">
                 <TooltipTrigger as-child>
                     <div
-                        class="absolute right-3 top-3 z-10 flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white shadow-sm dark:border-zinc-600 dark:bg-zinc-700"
+                        class="absolute right-3 top-3 z-10 flex h-[18px] w-[18px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ep-glass-border)] bg-[var(--ep-card-2)] ring-1 ring-[var(--ep-line)]"
                         @click.stop
                     >
                         <img
@@ -109,7 +110,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
                     <TooltipContent
                         side="bottom"
                         :side-offset="6"
-                        class="rounded-lg border border-zinc-200 bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-lg dark:border-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
+                        class="z-[100001] rounded-xl border border-[var(--ep-glass-border)] bg-[var(--ep-drawer)] px-3 py-2 text-[12.5px] font-medium text-[var(--ep-text)] shadow-[var(--ep-shadow-pop)] backdrop-blur-xl"
                     >
                         {{ countryName }}
                     </TooltipContent>
@@ -117,7 +118,7 @@ const hasMultipleCountries = computed(() => countries.value != null);
             </TooltipRoot>
         </TooltipProvider>
         <div
-            class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-700/50"
+            class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
             <img
                 v-if="imageUrl"
@@ -128,40 +129,44 @@ const hasMultipleCountries = computed(() => countries.value != null);
             />
             <CreditCard
                 v-else
-                class="h-8 w-8 text-zinc-400 dark:text-zinc-500"
+                class="h-6 w-6 text-[var(--ep-text-4)]"
+                :stroke-width="1.75"
                 aria-hidden="true"
             />
         </div>
-        <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="font-medium text-zinc-900 dark:text-white">
+        <div class="flex min-w-0 flex-1 flex-col self-stretch">
+            <div class="flex flex-wrap items-center gap-2 pr-12">
+                <span class="truncate text-[14px] font-medium tracking-[-0.01em] text-[var(--ep-text)]">
                     {{ gateway.name }}
                 </span>
             </div>
-            <div class="mt-1 flex flex-wrap items-center gap-1.5">
+            <div class="mt-1.5 flex flex-wrap items-center gap-1">
                 <span
                     v-for="method in methods"
                     :key="method"
-                    class="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400"
+                    class="ep-chip !h-5 !px-1.5 !text-[11px]"
                 >
                     {{ method }}
                 </span>
             </div>
-            <div class="mt-1.5 flex items-center gap-2 text-xs">
+            <div class="mt-auto flex items-center justify-between gap-2 pt-2.5">
                 <span
                     v-if="gateway.is_connected"
-                    class="text-emerald-600 dark:text-emerald-400"
+                    class="ep-chip ep-chip--pos"
                 >
+                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                     Conectado
                 </span>
                 <span
                     v-else-if="gateway.is_configured"
-                    class="text-amber-600 dark:text-amber-400"
+                    class="ep-chip ep-chip--warn"
                 >
+                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                     Configurado
                 </span>
-                <span v-else class="text-zinc-500 dark:text-zinc-400">
-                    Não configurado
+                <span class="ml-auto flex items-center gap-0.5 text-[12px] font-medium text-[var(--ep-text-3)] transition-colors duration-150 group-hover:text-[var(--ep-text)]">
+                    Configurar
+                    <ChevronRight class="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" :stroke-width="1.75" aria-hidden="true" />
                 </span>
             </div>
         </div>

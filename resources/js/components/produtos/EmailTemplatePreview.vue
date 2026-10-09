@@ -29,30 +29,36 @@ const previewBodyHtml = computed(() => replacePlaceholders(props.bodyHtml));
 </script>
 
 <template>
-  <div class="rounded-xl border border-zinc-200 bg-zinc-50/80 dark:border-zinc-600 dark:bg-zinc-900/80 overflow-hidden shadow-inner">
-    <div class="border-b border-zinc-200 bg-white px-3 py-2 flex items-center gap-2 dark:border-zinc-600 dark:bg-zinc-800">
-      <span class="text-[10px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">Preview</span>
-      <span class="text-zinc-300 dark:text-zinc-600">·</span>
-      <span class="text-xs text-zinc-500 dark:text-zinc-400">dados de exemplo</span>
+  <div class="overflow-hidden rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)]">
+    <div class="flex items-center gap-2 border-b border-[var(--ep-line)] px-4 py-2.5">
+      <span class="flex items-center gap-1.5" aria-hidden="true">
+        <span class="h-2 w-2 rounded-full bg-[var(--ep-line-strong)]" />
+        <span class="h-2 w-2 rounded-full bg-[var(--ep-line-strong)]" />
+        <span class="h-2 w-2 rounded-full bg-[var(--ep-line-strong)]" />
+      </span>
+      <span class="ml-1 text-[12px] font-medium text-[var(--ep-text-2)]">Preview</span>
+      <span class="ep-chip ml-auto">dados de exemplo</span>
     </div>
-    <div class="p-3 bg-white dark:bg-zinc-800/90 min-h-[200px] overflow-auto max-h-[520px]">
-      <div class="text-xs text-zinc-500 dark:text-zinc-400 space-y-1 mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-700">
-        <div v-if="fromName" class="flex gap-2">
-          <span class="text-zinc-400 shrink-0">De:</span>
-          <span class="text-zinc-700 dark:text-zinc-300 truncate">{{ fromName }}</span>
-        </div>
-        <div v-if="previewSubject" class="flex gap-2">
-          <span class="text-zinc-400 shrink-0">Assunto:</span>
-          <span class="text-zinc-800 dark:text-zinc-200 font-medium truncate">{{ previewSubject }}</span>
-        </div>
+    <div class="space-y-1.5 border-b border-[var(--ep-line)] px-4 py-3 text-[12.5px]">
+      <div v-if="fromName" class="flex gap-2">
+        <span class="w-14 shrink-0 text-[var(--ep-text-4)]">De:</span>
+        <span class="truncate text-[var(--ep-text-2)]">{{ fromName }}</span>
       </div>
-      <div v-if="logoUrl" class="mb-3 flex justify-center">
-        <img :src="logoUrl" alt="Logo" class="max-h-10 w-auto object-contain mx-auto" @error="($e) => $e.target.style.display = 'none'" />
+      <div v-if="previewSubject" class="flex gap-2">
+        <span class="w-14 shrink-0 text-[var(--ep-text-4)]">Assunto:</span>
+        <span class="truncate font-medium text-[var(--ep-text)]">{{ previewSubject }}</span>
       </div>
-      <div
-        class="email-preview-body text-sm text-zinc-700 dark:text-zinc-300 font-sans max-w-none break-words"
-        v-html="previewBodyHtml"
-      />
+    </div>
+    <div class="max-h-[520px] min-h-[200px] overflow-auto p-4">
+      <div class="rounded-xl bg-white p-5 text-[#334155] shadow-[0_1px_2px_rgba(0,0,0,0.12),0_12px_32px_-16px_rgba(0,0,0,0.45)] ring-1 ring-black/5">
+        <div v-if="logoUrl" class="mb-4 flex justify-center">
+          <img :src="logoUrl" alt="Logo" class="max-h-10 w-auto object-contain mx-auto" @error="($e) => $e.target.style.display = 'none'" />
+        </div>
+        <div
+          class="email-preview-body max-w-none break-words font-sans text-sm text-[#334155]"
+          v-html="previewBodyHtml"
+        />
+      </div>
     </div>
   </div>
 </template>

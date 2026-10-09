@@ -105,6 +105,10 @@
     <script src="{{ $asset['url'] }}" @if(!empty($asset['defer'])) defer @endif data-plugin-script="{{ $asset['handle'] }}"></script>
     @endforeach
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @unless($skipPanelPwa)
+    {{-- Demo local: paleta EscalaX no painel (ver public/escalax-theme.css) --}}
+    <link rel="stylesheet" href="{{ asset('escalax-theme.css') }}?v={{ @filemtime(public_path('escalax-theme.css')) }}">
+    @endunless
 </head>
 <body class="antialiased">
     @if($isMemberArea)

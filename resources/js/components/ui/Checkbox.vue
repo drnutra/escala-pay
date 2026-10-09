@@ -20,7 +20,7 @@ function toggle() {
 <template>
     <label
         :class="[
-            'flex w-full cursor-pointer items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300 transition-colors',
+            'flex w-full cursor-pointer items-center gap-3 text-[13px] text-[var(--ep-text-2)] transition-colors',
             disabled && 'cursor-not-allowed opacity-60',
             cn(props.class),
         ]"
@@ -31,11 +31,11 @@ function toggle() {
             :aria-checked="modelValue"
             :aria-label="label || (modelValue ? 'Marcado' : 'Desmarcado')"
             :class="[
-                'relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900',
+                'relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[6px] border transition-[background-color,border-color,box-shadow] duration-150',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ep-accent)]',
                 modelValue
-                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white'
-                    : 'border-zinc-300 bg-white hover:border-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500',
+                    ? 'border-[var(--ep-accent)] bg-[var(--ep-accent)] text-[#061126]'
+                    : 'border-[var(--ep-input-border)] bg-[var(--ep-input)] hover:border-[var(--ep-line-strong)]',
                 disabled && 'pointer-events-none',
             ]"
             tabindex="0"

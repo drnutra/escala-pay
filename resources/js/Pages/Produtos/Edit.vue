@@ -1649,39 +1649,49 @@ function submit() {
 </script>
 
 <template>
-    <div class="flex min-w-0 flex-col space-y-6 lg:flex-row lg:gap-6 lg:space-y-0 lg:pl-2">
+    <div class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:gap-5 lg:pl-2">
         <!-- Desktop: sidebar vertical de abas (alinhado à esquerda junto ao sidebar principal) -->
         <aside
-            class="hidden lg:flex lg:flex-col w-56 shrink-0 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2"
+            class="panel-card hidden w-60 shrink-0 flex-col p-2 lg:sticky lg:top-6 lg:flex"
             aria-label="Menu de edição do produto"
         >
+            <div class="px-2.5 pb-3 pt-2.5">
+                <p class="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--ep-text-4)]">Editando produto</p>
+                <p class="mt-1 truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">{{ produto.name }}</p>
+                <span class="ep-chip mt-2" :class="produto.is_active ? 'ep-chip--pos' : ''">
+                    <span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                    {{ produto.is_active ? 'Ativo' : 'Inativo' }}
+                </span>
+            </div>
+            <div class="ep-divider mb-2" aria-hidden="true" />
             <nav class="flex flex-col gap-0.5">
                 <template v-for="tab in TABS" :key="tab.id">
                     <a
                         v-if="tab.linkOnly && tab.id === 'member_builder' && produto.type === 'area_membros'"
                         :href="`/produtos/${produto.id}/member-builder`"
-                        :class="[
-                            'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                            'text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-700/80 dark:hover:text-white',
-                        ]"
+                        :class="['menu-item', 'menu-item-inactive']"
                         @click.prevent="goToMemberBuilder"
                     >
-                        <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                        {{ tab.label }}
+                        <component :is="tab.icon" :stroke-width="1.75" class="h-4 w-4 shrink-0 menu-item-icon-inactive" aria-hidden="true" />
+                        <span class="truncate">{{ tab.label }}</span>
                     </a>
                     <button
                         v-else-if="tabIsVisible(tab)"
                         type="button"
                         :class="[
-                            'flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
-                            currentTab === tab.id
-                                ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                                : 'text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-700/80 dark:hover:text-white',
+                            'menu-item text-left',
+                            currentTab === tab.id ? 'menu-item-active' : 'menu-item-inactive',
                         ]"
                         :aria-current="currentTab === tab.id ? 'page' : undefined"
                         @click="setTab(tab.id)"
                     >
-                        <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <component
+                            :is="tab.icon"
+                            :stroke-width="1.75"
+                            class="h-4 w-4 shrink-0"
+                            :class="currentTab === tab.id ? 'menu-item-icon-active' : 'menu-item-icon-inactive'"
+                            aria-hidden="true"
+                        />
                         <span class="flex min-w-0 flex-1 items-center gap-1.5">
                             <span class="truncate">{{ tab.label }}</span>
                             <BetaBadge v-if="tab.beta" size="xs" />
@@ -1694,20 +1704,17 @@ function submit() {
         <!-- Mobile: abas em carrossel horizontal -->
         <HorizontalScrollTabs
             aria-label="Abas de edição do produto"
-            wrapper-class="pb-2 lg:hidden"
-            nav-class="gap-2 snap-x snap-mandatory rounded-xl bg-zinc-100/80 p-1 dark:bg-zinc-800/80"
+            wrapper-class="lg:hidden"
+            nav-class="ep-tabs !flex gap-0.5 snap-x snap-mandatory"
         >
             <template v-for="tab in TABS" :key="tab.id">
                 <a
                     v-if="tab.linkOnly && tab.id === 'member_builder' && produto.type === 'area_membros'"
                     :href="`/produtos/${produto.id}/member-builder`"
-                    :class="[
-                        'flex snap-center items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-                        'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
-                    ]"
+                    :class="['ep-tab snap-center border border-transparent']"
                     @click.prevent="goToMemberBuilder"
                 >
-                    <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <component :is="tab.icon" :stroke-width="1.75" class="h-4 w-4 shrink-0" aria-hidden="true" />
                     {{ tab.label }}
                 </a>
                 <button
@@ -1715,15 +1722,19 @@ function submit() {
                     type="button"
                     :ref="currentTab === tab.id ? activeTabRef : undefined"
                     :class="[
-                        'flex snap-center items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-                        currentTab === tab.id
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm dark:bg-zinc-700 dark:text-[var(--color-primary)]'
-                            : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white',
+                        'ep-tab snap-center border border-transparent',
+                        currentTab === tab.id ? 'ep-tab--active' : '',
                     ]"
                     :aria-current="currentTab === tab.id ? 'page' : undefined"
                     @click="setTab(tab.id)"
                 >
-                    <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <component
+                        :is="tab.icon"
+                        :stroke-width="1.75"
+                        class="h-4 w-4 shrink-0"
+                        :class="currentTab === tab.id ? 'text-[var(--ep-accent)]' : ''"
+                        aria-hidden="true"
+                    />
                     <span class="flex items-center gap-1.5">
                         {{ tab.label }}
                         <BetaBadge v-if="tab.beta" size="xs" />
@@ -1733,50 +1744,50 @@ function submit() {
         </HorizontalScrollTabs>
 
         <!-- Conteúdo da aba -->
-        <div class="flex-1 min-w-0 space-y-6">
+        <div class="min-w-0 flex-1 space-y-4">
         <!-- Aba Geral -->
         <template v-if="currentTab === 'geral'">
-            <form class="mx-auto w-full max-w-3xl space-y-8 xl:max-w-6xl" @submit.prevent="submit">
-                <div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <form class="mx-auto w-full max-w-3xl space-y-4 xl:max-w-6xl" @submit.prevent="submit">
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <!-- Informações básicas (nome, slug, descrição, imagem, status) -->
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Informações básicas</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Nome, identificador e imagem do produto.</p>
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Informações básicas</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Nome, identificador e imagem do produto.</p>
                     </div>
                     <div class="p-6">
                         <div class="grid gap-6 lg:grid-cols-[1fr,auto]">
                             <div class="space-y-5">
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do produto *</label>
+                                    <label class="ep-label">Nome do produto *</label>
                                     <input
                                         v-model="form.name"
                                         type="text"
                                         required
                                         placeholder="Ex: Curso Completo de X"
-                                        :class="inputClass"
+                                        class="ep-input"
                                     />
-                                    <p v-if="form.errors.name" class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.errors.name }}</p>
+                                    <p v-if="form.errors.name" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.name }}</p>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug (URL) *</label>
+                                    <label class="ep-label">Slug (URL) *</label>
                                     <input
                                         v-model="form.slug"
                                         type="text"
                                         required
                                         placeholder="curso-completo-x"
-                                        :class="inputClass"
+                                        class="ep-input"
                                     />
-                                    <p v-if="form.errors.slug" class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.errors.slug }}</p>
-                                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Usado em URLs e área de membros. Apenas letras minúsculas, números e hífens.</p>
+                                    <p v-if="form.errors.slug" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.slug }}</p>
+                                    <p class="ep-help">Usado em URLs e área de membros. Apenas letras minúsculas, números e hífens.</p>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Descrição</label>
+                                    <label class="ep-label">Descrição</label>
                                     <textarea
                                         v-model="form.description"
                                         rows="3"
                                         placeholder="Breve descrição do produto..."
-                                        :class="inputClass"
+                                        class="ep-input"
                                     />
                                 </div>
                                 <div class="flex flex-wrap items-center gap-4 pt-1">
@@ -1784,20 +1795,20 @@ function submit() {
                                 </div>
                             </div>
                             <div class="flex flex-col items-start lg:pt-0">
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Imagem do produto</label>
-                                <p class="mb-2 text-xs text-zinc-500 dark:text-zinc-400">1:1, ex.: 400×400 px.</p>
+                                <label class="ep-label">Imagem do produto</label>
+                                <p class="mb-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]">1:1, ex.: 400×400 px.</p>
                                 <label
-                                    class="relative flex h-28 w-28 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50/80 transition hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5 dark:border-zinc-600 dark:bg-zinc-800/80 dark:hover:border-[var(--color-primary)]/40 dark:hover:bg-[var(--color-primary)]/10"
+                                    class="relative flex h-28 w-28 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] transition-colors duration-150 hover:border-[var(--ep-accent)] hover:bg-[var(--ep-hover)]"
                                 >
                                     <template v-if="currentImageUrl">
                                         <img :src="currentImageUrl" alt="Preview" class="h-full w-full object-cover" />
-                                        <span class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition opacity hover:opacity-100">
-                                            <span class="rounded-lg bg-white/90 px-2 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-900 dark:text-white">Trocar</span>
+                                        <span class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity duration-150 hover:opacity-100">
+                                            <span class="ep-chip">Trocar</span>
                                         </span>
                                     </template>
                                     <template v-else>
-                                        <ImageIcon class="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
-                                        <span class="mt-1 text-center text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ form.image?.name || 'Enviar' }}</span>
+                                        <ImageIcon :stroke-width="1.75" class="h-6 w-6 text-[var(--ep-text-4)]" />
+                                        <span class="mt-1.5 text-center text-[12px] font-medium text-[var(--ep-text-3)]">{{ form.image?.name || 'Enviar' }}</span>
                                     </template>
                                     <input type="file" accept="image/*" class="hidden" @change="onFileChange" />
                                 </label>
@@ -1811,23 +1822,21 @@ function submit() {
                     class="panel-table xl:min-h-0"
                     :class="comboDropdownContext ? '!overflow-visible' : ''"
                 >
-                    <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Preço e cobrança</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Defina como o produto será cobrado e o valor base.</p>
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Preço e cobrança</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Defina como o produto será cobrado e o valor base.</p>
                     </div>
                     <div class="p-6 space-y-6">
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Tipo de cobrança *</label>
-                            <div class="grid gap-3 sm:grid-cols-2">
+                            <label class="ep-label">Tipo de cobrança *</label>
+                            <div class="ep-tabs !flex w-full">
                                 <button
                                     v-for="bt in billingTypes"
                                     :key="bt.value"
                                     type="button"
                                     :class="[
-                                        'flex items-center justify-center rounded-xl border-2 px-4 py-3.5 text-sm font-medium transition-all duration-200',
-                                        form.billing_type === bt.value
-                                            ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] shadow-sm dark:bg-[var(--color-primary)]/20 dark:text-[var(--color-primary)]'
-                                            : 'border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/50',
+                                        'ep-tab !h-9 flex-1 justify-center border border-transparent',
+                                        form.billing_type === bt.value ? 'ep-tab--active' : '',
                                     ]"
                                     @click="form.billing_type = bt.value"
                                 >
@@ -1838,7 +1847,7 @@ function submit() {
                         <div class="max-w-2xl space-y-4">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
                                 <div class="min-w-0 flex-1 max-w-xs">
-                                    <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Preço base (BRL) *</label>
+                                    <label class="ep-label">Preço base (BRL) *</label>
                                     <input
                                         v-model="form.price"
                                         type="number"
@@ -1846,34 +1855,35 @@ function submit() {
                                         min="0"
                                         required
                                         placeholder="0,00"
-                                        :class="inputClass"
+                                        class="ep-input"
                                     />
-                                    <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Aproximado: € {{ priceEur }} · US$ {{ priceUsd }}</p>
-                                    <p v-if="form.errors.price" class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.errors.price }}</p>
+                                    <p class="ep-help">Aproximado: € {{ priceEur }} · US$ {{ priceUsd }}</p>
+                                    <p v-if="form.errors.price" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.price }}</p>
                                 </div>
                                 <div class="min-w-0 w-full flex-1 sm:max-w-md">
-                                    <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                        <Layers class="h-3.5 w-3.5 text-zinc-400" aria-hidden="true" />
+                                    <label class="ep-label flex items-center gap-1.5">
+                                        <Layers :stroke-width="1.75" class="h-3.5 w-3.5 text-[var(--ep-text-4)]" aria-hidden="true" />
                                         Combo
                                     </label>
-                                    <p v-if="!comboProductOptions.length" class="text-xs text-zinc-500 dark:text-zinc-400">Nenhum outro produto ativo no tenant para vincular.</p>
+                                    <p v-if="!comboProductOptions.length" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Nenhum outro produto ativo no tenant para vincular.</p>
                                     <div v-else ref="comboDropdownMainEl" class="relative">
                                         <button
                                             type="button"
-                                            class="flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-left text-sm text-zinc-800 shadow-sm transition hover:border-zinc-300 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500"
+                                            class="ep-input flex items-center justify-between gap-2 text-left hover:border-[var(--ep-line-strong)]"
                                             :aria-expanded="comboDropdownContext === 'main'"
                                             @click="toggleComboDropdown('main')"
                                         >
                                             <span class="min-w-0 flex-1 truncate font-normal">{{ comboSelectionSummary(form) }}</span>
                                             <ChevronDown
-                                                class="h-4 w-4 shrink-0 text-zinc-500 transition-transform dark:text-zinc-400"
+                                                :stroke-width="1.75"
+                                                class="h-4 w-4 shrink-0 text-[var(--ep-text-3)] transition-transform duration-150"
                                                 :class="comboDropdownContext === 'main' ? 'rotate-180' : ''"
                                                 aria-hidden="true"
                                             />
                                         </button>
                                         <div
                                             v-show="comboDropdownContext === 'main'"
-                                            class="absolute left-0 right-0 z-[60] mt-1 max-h-56 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-600 dark:bg-zinc-900"
+                                            class="ep-modal absolute left-0 right-0 z-[60] mt-1.5 max-h-56 space-y-1 overflow-y-auto !rounded-[14px] p-2"
                                             role="listbox"
                                             @click.stop
                                         >
@@ -1881,31 +1891,29 @@ function submit() {
                                                 v-for="opt in comboProductOptions"
                                                 :key="opt.id"
                                                 :model-value="form.combo_product_ids.includes(opt.id)"
-                                                class="!w-full !items-start !gap-2 py-1"
+                                                class="!w-full !items-start !gap-2 rounded-lg px-1.5 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                                 @update:model-value="(v) => toggleComboId('main', opt.id, v)"
                                             >
-                                                <span class="text-sm leading-snug text-zinc-700 dark:text-zinc-300">{{ opt.name }}</span>
+                                                <span class="text-[13px] leading-snug text-[var(--ep-text-2)]">{{ opt.name }}</span>
                                             </Checkbox>
                                         </div>
                                     </div>
-                                    <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Abra a lista e marque um ou mais produtos — acesso extra sem alterar o valor do pedido.</p>
-                                    <p v-if="form.errors.combo_product_ids" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.errors.combo_product_ids }}</p>
+                                    <p class="ep-help">Abra a lista e marque um ou mais produtos — acesso extra sem alterar o valor do pedido.</p>
+                                    <p v-if="form.errors.combo_product_ids" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.combo_product_ids }}</p>
                                 </div>
                             </div>
 
-                            <div class="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-600/80 dark:bg-zinc-900/20">
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Moeda no checkout</label>
-                                <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                                <label class="ep-label">Moeda no checkout</label>
+                                <p class="mb-3 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                     Global permite que o cliente escolha a moeda (com detecção por país). Moeda única oculta o seletor e usa só a moeda escolhida.
                                 </p>
-                                <div class="flex flex-wrap gap-2">
+                                <div class="ep-tabs">
                                     <button
                                         type="button"
                                         :class="[
-                                            'rounded-xl border-2 px-4 py-2.5 text-sm font-medium transition-all',
-                                            form.checkout_currency.mode === 'global'
-                                                ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                                                : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-400',
+                                            'ep-tab border border-transparent',
+                                            form.checkout_currency.mode === 'global' ? 'ep-tab--active' : '',
                                         ]"
                                         @click="form.checkout_currency.mode = 'global'"
                                     >
@@ -1914,10 +1922,8 @@ function submit() {
                                     <button
                                         type="button"
                                         :class="[
-                                            'rounded-xl border-2 px-4 py-2.5 text-sm font-medium transition-all',
-                                            form.checkout_currency.mode === 'fixed'
-                                                ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                                                : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-400',
+                                            'ep-tab border border-transparent',
+                                            form.checkout_currency.mode === 'fixed' ? 'ep-tab--active' : '',
                                         ]"
                                         @click="form.checkout_currency.mode = 'fixed'"
                                     >
@@ -1925,21 +1931,21 @@ function submit() {
                                     </button>
                                 </div>
                                 <div v-if="form.checkout_currency.mode === 'fixed'" class="mt-4 max-w-xs">
-                                    <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Moeda fixa *</label>
-                                    <select v-model="form.checkout_currency.currency" required :class="inputClass">
+                                    <label class="ep-label">Moeda fixa *</label>
+                                    <select v-model="form.checkout_currency.currency" required class="ep-input">
                                         <option v-for="c in tenant_currencies" :key="c.code" :value="String(c.code).toUpperCase()">
                                             {{ c.label || c.code }} ({{ String(c.code).toUpperCase() }})
                                         </option>
                                     </select>
-                                    <p v-if="form.errors['checkout_currency.currency']" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                    <p v-if="form.errors['checkout_currency.currency']" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">
                                         {{ form.errors['checkout_currency.currency'] }}
                                     </p>
                                 </div>
                             </div>
 
                             <div v-if="form.billing_type === 'subscription'">
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Recorrência *</label>
-                                <select v-model="form.base_interval" required :class="inputClass">
+                                <label class="ep-label">Recorrência *</label>
+                                <select v-model="form.base_interval" required class="ep-input">
                                     <option value="weekly">Semanal</option>
                                     <option value="monthly">Mensal</option>
                                     <option value="quarterly">Trimestral</option>
@@ -1947,60 +1953,60 @@ function submit() {
                                     <option value="annual">Anual</option>
                                     <option value="lifetime">Vitalício</option>
                                 </select>
-                                <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Intervalo da cobrança recorrente do preço base.</p>
+                                <p class="ep-help">Intervalo da cobrança recorrente do preço base.</p>
                             </div>
                             <div
                                 v-if="form.billing_type === 'subscription'"
-                                class="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-600/80 dark:bg-zinc-900/20 sm:col-span-2"
+                                class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4 sm:col-span-2"
                             >
-                                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Assinatura e renovação</h3>
-                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                <h3 class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Assinatura e renovação</h3>
+                                <p class="ep-help">
                                     Lembretes por e-mail com link de renovação. O cliente paga manualmente em /renovar.
                                 </p>
                                 <div class="mt-4 grid gap-4 sm:grid-cols-3">
                                     <div>
-                                        <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Carência (dias após vencer)</label>
+                                        <label class="ep-label">Carência (dias após vencer)</label>
                                         <input
                                             v-model.number="form.subscription.grace_period_days"
                                             type="number"
                                             min="0"
                                             max="365"
-                                            :class="inputClass"
+                                            class="ep-input"
                                         />
-                                        <p class="mt-1 text-[11px] text-zinc-500">Acesso continua após o vencimento.</p>
+                                        <p class="ep-help">Acesso continua após o vencimento.</p>
                                     </div>
                                     <div>
-                                        <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Avisar antes (dias)</label>
+                                        <label class="ep-label">Avisar antes (dias)</label>
                                         <input
                                             v-model.number="form.subscription.notify_days_before"
                                             type="number"
                                             min="0"
                                             max="90"
-                                            :class="inputClass"
+                                            class="ep-input"
                                         />
-                                        <p class="mt-1 text-[11px] text-zinc-500">1 e-mail por dia até renovar.</p>
+                                        <p class="ep-help">1 e-mail por dia até renovar.</p>
                                     </div>
                                     <div>
-                                        <label class="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Janela de renovação (dias)</label>
+                                        <label class="ep-label">Janela de renovação (dias)</label>
                                         <input
                                             v-model.number="form.subscription.renewal_window_days"
                                             type="number"
                                             min="0"
                                             max="365"
-                                            :class="inputClass"
+                                            class="ep-input"
                                         />
-                                        <p class="mt-1 text-[11px] text-zinc-500">Dias após vencer em que o link /renovar funciona.</p>
+                                        <p class="ep-help">Dias após vencer em que o link /renovar funciona.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Ofertas (pagamento único) ou Planos (assinatura) -->
-                        <div class="border-t border-zinc-200/80 pt-6 dark:border-zinc-600/80">
-                            <p class="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        <div class="border-t border-[var(--ep-line)] pt-6">
+                            <h3 class="ep-section-title">
                                 {{ form.billing_type === 'one_time' ? 'Ofertas extras' : 'Planos de assinatura' }}
-                            </p>
-                            <p class="mb-4 text-xs text-zinc-500 dark:text-zinc-400">
+                            </h3>
+                            <p class="mb-4 mt-1 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                 <template v-if="form.billing_type === 'one_time'">
                                     Múltiplas ofertas (preços). Cada uma tem seu próprio link de checkout.
                                 </template>
@@ -2015,15 +2021,15 @@ function submit() {
                                     <li
                                         v-for="offer in (produto.offers || [])"
                                         :key="offer.id"
-                                        class="panel-card flex flex-wrap items-center gap-3 px-3 py-2.5"
+                                        class="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                                     >
                                         <div class="min-w-0 flex-1">
-                                            <span class="font-medium text-zinc-900 dark:text-white">{{ offer.name }}</span>
-                                            <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{{ offer.currency }} {{ Number(offer.price).toFixed(2) }}</span>
+                                            <span class="text-[13.5px] font-medium text-[var(--ep-text)]">{{ offer.name }}</span>
+                                            <span class="ml-2 text-[13px] tabular-nums text-[var(--ep-text-3)]">{{ offer.currency }} {{ Number(offer.price).toFixed(2) }}</span>
                                             <span
                                                 v-for="(cname, cidx) in (offer.combo_product_names || [])"
                                                 :key="'oc-' + offer.id + '-' + cidx"
-                                                class="ml-1 inline-block rounded-md bg-zinc-200/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                                                class="ep-chip ml-1 !h-5 !px-1.5 !text-[11px]"
                                             >
                                                 + {{ cname }}
                                             </span>
@@ -2032,59 +2038,60 @@ function submit() {
                                                 :href="getOfferCheckoutUrl(offer)"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="ml-2 inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline"
+                                                class="ml-2 inline-flex items-center gap-1 text-[12px] font-medium text-[var(--ep-accent)] hover:underline"
                                             >
-                                                <Link2 class="h-3 w-3" />
+                                                <Link2 :stroke-width="1.75" class="h-3 w-3" />
                                                 Link
                                             </a>
                                         </div>
                                         <div class="flex gap-1.5">
                                             <Button size="sm" variant="outline" class="h-8 w-8 p-0" @click="openEditOffer(offer)">
-                                                <Pencil class="h-3.5 w-3.5" />
+                                                <Pencil :stroke-width="1.75" class="h-3.5 w-3.5" />
                                             </Button>
-                                            <Button size="sm" variant="outline" class="h-8 w-8 p-0 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="confirmDestroyOffer(offer)">
-                                                <Trash2 class="h-3.5 w-3.5" />
+                                            <Button size="sm" variant="outline" class="h-8 w-8 p-0 text-[var(--ep-neg)] hover:bg-[var(--ep-neg-bg)] hover:text-[var(--ep-neg)]" @click="confirmDestroyOffer(offer)">
+                                                <Trash2 :stroke-width="1.75" class="h-3.5 w-3.5" />
                                             </Button>
                                         </div>
                                     </li>
-                                    <li v-if="!produto.offers || !produto.offers.length" class="rounded-lg border border-dashed border-zinc-200 py-4 text-center text-xs text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
+                                    <li v-if="!produto.offers || !produto.offers.length" class="panel-card-dashed py-5 text-center text-[12.5px] text-[var(--ep-text-4)]">
                                         Nenhuma oferta. Adicione abaixo ou use apenas o preço base.
                                     </li>
                                 </ul>
-                                <form v-if="offerFormVisible" class="panel-card-sm" @submit.prevent="submitOffer">
-                                    <p class="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ editingOffer ? 'Editar oferta' : 'Nova oferta' }}</p>
+                                <form v-if="offerFormVisible" class="rounded-2xl border border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] p-4" @submit.prevent="submitOffer">
+                                    <p class="mb-3 text-[13px] font-medium text-[var(--ep-text)]">{{ editingOffer ? 'Editar oferta' : 'Nova oferta' }}</p>
                                     <div class="grid gap-3 sm:grid-cols-[1fr,1fr,auto]">
-                                        <input v-model="offerForm.name" type="text" required :class="inputClass" placeholder="Nome (ex: Básico)" />
-                                        <input v-model="offerForm.price" type="number" step="0.01" min="0" required :class="inputClass" placeholder="Preço" />
-                                        <select v-model="offerForm.currency" :class="inputClass + ' min-w-0'">
+                                        <input v-model="offerForm.name" type="text" required class="ep-input" placeholder="Nome (ex: Básico)" />
+                                        <input v-model="offerForm.price" type="number" step="0.01" min="0" required class="ep-input" placeholder="Preço" />
+                                        <select v-model="offerForm.currency" class="ep-input min-w-0">
                                             <option value="BRL">BRL</option>
                                             <option value="EUR">EUR</option>
                                             <option value="USD">USD</option>
                                         </select>
                                     </div>
                                     <div class="mt-3">
-                                        <label class="mb-1 flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                            <Layers class="h-3 w-3" aria-hidden="true" />
+                                        <label class="ep-label flex items-center gap-1.5">
+                                            <Layers :stroke-width="1.75" class="h-3 w-3" aria-hidden="true" />
                                             Combo
                                         </label>
-                                        <p v-if="!comboProductOptions.length" class="text-xs text-zinc-500 dark:text-zinc-400">Nenhum outro produto disponível.</p>
+                                        <p v-if="!comboProductOptions.length" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Nenhum outro produto disponível.</p>
                                         <div v-else ref="comboDropdownOfferEl" class="relative">
                                             <button
                                                 type="button"
-                                                class="flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-left text-sm text-zinc-800 shadow-sm transition hover:border-zinc-300 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500"
+                                                class="ep-input flex items-center justify-between gap-2 text-left hover:border-[var(--ep-line-strong)]"
                                                 :aria-expanded="comboDropdownContext === 'offer'"
                                                 @click="toggleComboDropdown('offer')"
                                             >
                                                 <span class="min-w-0 flex-1 truncate font-normal">{{ comboSelectionSummary(offerForm) }}</span>
                                                 <ChevronDown
-                                                    class="h-4 w-4 shrink-0 text-zinc-500 transition-transform dark:text-zinc-400"
+                                                    :stroke-width="1.75"
+                                                    class="h-4 w-4 shrink-0 text-[var(--ep-text-3)] transition-transform duration-150"
                                                     :class="comboDropdownContext === 'offer' ? 'rotate-180' : ''"
                                                     aria-hidden="true"
                                                 />
                                             </button>
                                             <div
                                                 v-show="comboDropdownContext === 'offer'"
-                                                class="absolute left-0 right-0 z-[60] mt-1 max-h-52 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-600 dark:bg-zinc-900"
+                                                class="ep-modal absolute left-0 right-0 z-[60] mt-1.5 max-h-52 space-y-1 overflow-y-auto !rounded-[14px] p-2"
                                                 role="listbox"
                                                 @click.stop
                                             >
@@ -2092,22 +2099,22 @@ function submit() {
                                                     v-for="opt in comboProductOptions"
                                                     :key="'of-' + opt.id"
                                                     :model-value="offerForm.combo_product_ids.includes(opt.id)"
-                                                    class="!w-full !items-start !gap-2 py-1"
+                                                    class="!w-full !items-start !gap-2 rounded-lg px-1.5 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                                     @update:model-value="(v) => toggleComboId('offer', opt.id, v)"
                                                 >
-                                                    <span class="text-sm leading-snug text-zinc-700 dark:text-zinc-300">{{ opt.name }}</span>
+                                                    <span class="text-[13px] leading-snug text-[var(--ep-text-2)]">{{ opt.name }}</span>
                                                 </Checkbox>
                                             </div>
                                         </div>
                                     </div>
-                                    <p v-if="offerForm.errors.combo_product_ids" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ offerForm.errors.combo_product_ids }}</p>
+                                    <p v-if="offerForm.errors.combo_product_ids" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ offerForm.errors.combo_product_ids }}</p>
                                     <div class="mt-3 flex gap-2">
                                         <Button type="submit" size="sm" :disabled="offerForm.processing">{{ editingOffer ? 'Atualizar' : 'Adicionar' }}</Button>
                                         <Button type="button" size="sm" variant="outline" @click="closeOfferForm">Cancelar</Button>
                                     </div>
                                 </form>
                                 <Button v-else type="button" size="sm" variant="outline" class="mt-1" @click="openNewOffer">
-                                    <Plus class="mr-1.5 h-3.5 w-3.5" />
+                                    <Plus :stroke-width="1.75" class="mr-1.5 h-3.5 w-3.5" />
                                     Adicionar oferta
                                 </Button>
                             </template>
@@ -2118,15 +2125,15 @@ function submit() {
                                     <li
                                         v-for="plan in (produto.subscription_plans || [])"
                                         :key="plan.id"
-                                        class="panel-card flex flex-wrap items-center gap-3 px-3 py-2.5"
+                                        class="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3.5 py-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                                     >
                                         <div class="min-w-0 flex-1">
-                                            <span class="font-medium text-zinc-900 dark:text-white">{{ plan.name }}</span>
-                                            <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{{ plan.currency }} {{ Number(plan.price).toFixed(2) }} · {{ intervalLabel(plan.interval) }}</span>
+                                            <span class="text-[13.5px] font-medium text-[var(--ep-text)]">{{ plan.name }}</span>
+                                            <span class="ml-2 text-[13px] tabular-nums text-[var(--ep-text-3)]">{{ plan.currency }} {{ Number(plan.price).toFixed(2) }} · {{ intervalLabel(plan.interval) }}</span>
                                             <span
                                                 v-for="(cname, cidx) in (plan.combo_product_names || [])"
                                                 :key="'pc-' + plan.id + '-' + cidx"
-                                                class="ml-1 inline-block rounded-md bg-zinc-200/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                                                class="ep-chip ml-1 !h-5 !px-1.5 !text-[11px]"
                                             >
                                                 + {{ cname }}
                                             </span>
@@ -2135,36 +2142,36 @@ function submit() {
                                                 :href="getPlanCheckoutUrl(plan)"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="ml-2 inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline"
+                                                class="ml-2 inline-flex items-center gap-1 text-[12px] font-medium text-[var(--ep-accent)] hover:underline"
                                             >
-                                                <Link2 class="h-3 w-3" />
+                                                <Link2 :stroke-width="1.75" class="h-3 w-3" />
                                                 Link
                                             </a>
                                         </div>
                                         <div class="flex gap-1.5">
                                             <Button size="sm" variant="outline" class="h-8 w-8 p-0" @click="openEditPlan(plan)">
-                                                <Pencil class="h-3.5 w-3.5" />
+                                                <Pencil :stroke-width="1.75" class="h-3.5 w-3.5" />
                                             </Button>
-                                            <Button size="sm" variant="outline" class="h-8 w-8 p-0 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="confirmDestroyPlan(plan)">
-                                                <Trash2 class="h-3.5 w-3.5" />
+                                            <Button size="sm" variant="outline" class="h-8 w-8 p-0 text-[var(--ep-neg)] hover:bg-[var(--ep-neg-bg)] hover:text-[var(--ep-neg)]" @click="confirmDestroyPlan(plan)">
+                                                <Trash2 :stroke-width="1.75" class="h-3.5 w-3.5" />
                                             </Button>
                                         </div>
                                     </li>
-                                    <li v-if="!produto.subscription_plans || !produto.subscription_plans.length" class="rounded-lg border border-dashed border-zinc-200 py-4 text-center text-xs text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
+                                    <li v-if="!produto.subscription_plans || !produto.subscription_plans.length" class="panel-card-dashed py-5 text-center text-[12.5px] text-[var(--ep-text-4)]">
                                         Nenhum plano. Adicione abaixo.
                                     </li>
                                 </ul>
-                                <form v-if="planFormVisible" class="panel-card-sm" @submit.prevent="submitPlan">
-                                    <p class="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ editingPlan ? 'Editar plano' : 'Novo plano' }}</p>
+                                <form v-if="planFormVisible" class="rounded-2xl border border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] p-4" @submit.prevent="submitPlan">
+                                    <p class="mb-3 text-[13px] font-medium text-[var(--ep-text)]">{{ editingPlan ? 'Editar plano' : 'Novo plano' }}</p>
                                     <div class="grid gap-3 sm:grid-cols-2">
-                                        <input v-model="planForm.name" type="text" required :class="inputClass" placeholder="Nome (ex: Mensal)" />
-                                        <input v-model="planForm.price" type="number" step="0.01" min="0" required :class="inputClass" placeholder="Preço" />
-                                        <select v-model="planForm.currency" :class="inputClass">
+                                        <input v-model="planForm.name" type="text" required class="ep-input" placeholder="Nome (ex: Mensal)" />
+                                        <input v-model="planForm.price" type="number" step="0.01" min="0" required class="ep-input" placeholder="Preço" />
+                                        <select v-model="planForm.currency" class="ep-input">
                                             <option value="BRL">BRL</option>
                                             <option value="EUR">EUR</option>
                                             <option value="USD">USD</option>
                                         </select>
-                                        <select v-model="planForm.interval" required :class="inputClass">
+                                        <select v-model="planForm.interval" required class="ep-input">
                                             <option value="weekly">Semanal</option>
                                             <option value="monthly">Mensal</option>
                                             <option value="quarterly">Trimestral</option>
@@ -2173,28 +2180,29 @@ function submit() {
                                             <option value="lifetime">Vitalício</option>
                                         </select>
                                         <div ref="comboDropdownPlanEl" class="relative sm:col-span-2">
-                                            <label class="mb-1 flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                                <Layers class="h-3 w-3" aria-hidden="true" />
+                                            <label class="ep-label flex items-center gap-1.5">
+                                                <Layers :stroke-width="1.75" class="h-3 w-3" aria-hidden="true" />
                                                 Combo
                                             </label>
-                                            <p v-if="!comboProductOptions.length" class="text-xs text-zinc-500 dark:text-zinc-400">Nenhum outro produto disponível.</p>
+                                            <p v-if="!comboProductOptions.length" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Nenhum outro produto disponível.</p>
                                             <template v-else>
                                                 <button
                                                     type="button"
-                                                    class="flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-left text-sm text-zinc-800 shadow-sm transition hover:border-zinc-300 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500"
+                                                    class="ep-input flex items-center justify-between gap-2 text-left hover:border-[var(--ep-line-strong)]"
                                                     :aria-expanded="comboDropdownContext === 'plan'"
                                                     @click="toggleComboDropdown('plan')"
                                                 >
                                                     <span class="min-w-0 flex-1 truncate font-normal">{{ comboSelectionSummary(planForm) }}</span>
                                                     <ChevronDown
-                                                        class="h-4 w-4 shrink-0 text-zinc-500 transition-transform dark:text-zinc-400"
+                                                        :stroke-width="1.75"
+                                                        class="h-4 w-4 shrink-0 text-[var(--ep-text-3)] transition-transform duration-150"
                                                         :class="comboDropdownContext === 'plan' ? 'rotate-180' : ''"
                                                         aria-hidden="true"
                                                     />
                                                 </button>
                                                 <div
                                                     v-show="comboDropdownContext === 'plan'"
-                                                    class="absolute left-0 right-0 z-[60] mt-1 max-h-52 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-600 dark:bg-zinc-900"
+                                                    class="ep-modal absolute left-0 right-0 z-[60] mt-1.5 max-h-52 space-y-1 overflow-y-auto !rounded-[14px] p-2"
                                                     role="listbox"
                                                     @click.stop
                                                 >
@@ -2202,23 +2210,23 @@ function submit() {
                                                         v-for="opt in comboProductOptions"
                                                         :key="'pf-' + opt.id"
                                                         :model-value="planForm.combo_product_ids.includes(opt.id)"
-                                                        class="!w-full !items-start !gap-2 py-1"
+                                                        class="!w-full !items-start !gap-2 rounded-lg px-1.5 py-1.5 transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                                                         @update:model-value="(v) => toggleComboId('plan', opt.id, v)"
                                                     >
-                                                        <span class="text-sm leading-snug text-zinc-700 dark:text-zinc-300">{{ opt.name }}</span>
+                                                        <span class="text-[13px] leading-snug text-[var(--ep-text-2)]">{{ opt.name }}</span>
                                                     </Checkbox>
                                                 </div>
                                             </template>
                                         </div>
                                     </div>
-                                    <p v-if="planForm.errors.combo_product_ids" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ planForm.errors.combo_product_ids }}</p>
+                                    <p v-if="planForm.errors.combo_product_ids" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ planForm.errors.combo_product_ids }}</p>
                                     <div class="mt-3 flex gap-2">
                                         <Button type="submit" size="sm" :disabled="planForm.processing">{{ editingPlan ? 'Atualizar' : 'Adicionar' }}</Button>
                                         <Button type="button" size="sm" variant="outline" @click="closePlanForm">Cancelar</Button>
                                     </div>
                                 </form>
                                 <Button v-else type="button" size="sm" variant="outline" class="mt-1" @click="openNewPlan">
-                                    <Plus class="mr-1.5 h-3.5 w-3.5" />
+                                    <Plus :stroke-width="1.75" class="mr-1.5 h-3.5 w-3.5" />
                                     Adicionar plano
                                 </Button>
                             </template>
@@ -2227,50 +2235,50 @@ function submit() {
                 </section>
 
                 <section class="panel-table xl:min-h-0">
-                    <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Checkout público</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                            Idioma e moeda exibidos no link de checkout, e valores fixos em outras moedas (opcional). Com <strong class="font-medium text-zinc-700 dark:text-zinc-300">CajuPay</strong> (cartão e wallets), a cobrança é feita na moeda escolhida pelo cliente.
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Checkout público</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
+                            Idioma e moeda exibidos no link de checkout, e valores fixos em outras moedas (opcional). Com <strong class="font-medium text-[var(--ep-text)]">CajuPay</strong> (cartão e wallets), a cobrança é feita na moeda escolhida pelo cliente.
                         </p>
                     </div>
                     <div class="space-y-6 p-6">
-                        <div class="panel-card-sm">
+                        <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                             <Toggle v-model="form.checkout_force.enabled" label="Forçar idioma no checkout" />
-                            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="mt-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                 Quando ativo, ignora a sugestão de idioma por país (geo) até o visitante mudar manualmente no checkout.
                             </p>
                             <div v-if="form.checkout_force.enabled" class="mt-4 max-w-xs">
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Idioma *</label>
-                                <select v-model="form.checkout_force.locale" required :class="inputClass">
+                                <label class="ep-label">Idioma *</label>
+                                <select v-model="form.checkout_force.locale" required class="ep-input">
                                     <option value="pt_BR">Português (Brasil)</option>
                                     <option value="en">English</option>
                                     <option value="es">Español</option>
                                 </select>
-                                <p v-if="form.errors['checkout_force.locale']" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                                <p v-if="form.errors['checkout_force.locale']" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">
                                     {{ form.errors['checkout_force.locale'] }}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="panel-card-sm">
+                        <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                             <Toggle v-model="form.custom_prices_by_currency.enabled" label="Personalizar preço exibido/cobrado por moeda" />
-                            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                                Aplica-se apenas ao <strong class="font-medium text-zinc-700 dark:text-zinc-300">preço base do produto</strong> (sem oferta nem plano). Order bumps seguem em BRL e são convertidos pela taxa.
+                            <p class="mt-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
+                                Aplica-se apenas ao <strong class="font-medium text-[var(--ep-text)]">preço base do produto</strong> (sem oferta nem plano). Order bumps seguem em BRL e são convertidos pela taxa.
                             </p>
-                            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                                Valores em moeda estrangeira com preço customizado são cobrados <strong class="font-medium">naquela moeda</strong> via CajuPay. Sem preço customizado, o valor em BRL é convertido pela taxa <code class="rounded bg-zinc-200/80 px-1 dark:bg-zinc-700">rate_to_brl</code> de cada moeda nas
-                                <Link href="/configuracoes?tab=moedas" class="text-[var(--color-primary)] hover:underline">Configurações → Moedas</Link>.
+                            <p class="mt-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
+                                Valores em moeda estrangeira com preço customizado são cobrados <strong class="font-medium">naquela moeda</strong> via CajuPay. Sem preço customizado, o valor em BRL é convertido pela taxa <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">rate_to_brl</code> de cada moeda nas
+                                <Link href="/configuracoes?tab=moedas" class="font-medium text-[var(--ep-accent)] hover:underline">Configurações → Moedas</Link>.
                             </p>
                             <div v-if="form.custom_prices_by_currency.enabled" class="mt-4 space-y-4">
-                                <p v-if="!tenantCurrenciesNonBrl.length" class="text-sm text-zinc-600 dark:text-zinc-400">
+                                <p v-if="!tenantCurrenciesNonBrl.length" class="text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                                     Nenhuma moeda extra além de BRL. Adicione moedas em Configurações para preencher valores aqui.
                                 </p>
-                                <p v-else class="text-xs text-zinc-500 dark:text-zinc-400">
+                                <p v-else class="text-[12px] leading-relaxed tabular-nums text-[var(--ep-text-3)]">
                                     {{ tenantCurrenciesNonBrl.length }} moeda(s) habilitada(s) no checkout — preencha apenas as que deseja cobrar com valor fixo.
                                 </p>
                                 <div class="max-h-96 space-y-4 overflow-y-auto pr-1">
                                 <div v-for="row in tenantCurrenciesNonBrl" :key="row.code" class="max-w-xs">
-                                    <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                    <label class="ep-label">
                                         {{ row.label || row.code }} ({{ String(row.code).toUpperCase() }}) — opcional
                                     </label>
                                     <input
@@ -2279,11 +2287,11 @@ function submit() {
                                         step="0.01"
                                         min="0"
                                         :placeholder="`Ex.: 10.00 em ${String(row.code).toUpperCase()}`"
-                                        :class="inputClass"
+                                        class="ep-input"
                                     />
                                 </div>
                                 </div>
-                                <p v-if="form.errors['custom_prices_by_currency.amounts']" class="text-sm text-red-600 dark:text-red-400">
+                                <p v-if="form.errors['custom_prices_by_currency.amounts']" class="text-[12.5px] text-[var(--ep-neg)]">
                                     {{ form.errors['custom_prices_by_currency.amounts'] }}
                                 </p>
                             </div>
@@ -2292,14 +2300,14 @@ function submit() {
                 </section>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
-                    <Link
-                        href="/produtos"
-                        class="inline-flex items-center rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    >
-                        Cancelar
-                    </Link>
+                <div class="sticky bottom-4 z-20">
+                    <div class="panel-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <p class="hidden text-[12.5px] text-[var(--ep-text-3)] sm:block">As alterações valem depois de salvar.</p>
+                        <div class="ml-auto flex items-center gap-2">
+                            <Link href="/produtos" class="ep-btn-secondary">Cancelar</Link>
+                            <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
+                        </div>
+                    </div>
                 </div>
             </form>
             <div v-if="plugin_form_sections?.length" class="mx-auto w-full max-w-3xl xl:max-w-6xl">
@@ -2317,27 +2325,27 @@ function submit() {
 
         <!-- Aba Configurações -->
         <template v-if="currentTab === 'configuracoes'">
-            <form class="w-full space-y-8" @submit.prevent="submit">
+            <form class="w-full space-y-4" @submit.prevent="submit">
                 <!-- Métodos de pagamento -->
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 px-6 py-4 dark:border-zinc-700/80">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Métodos de pagamento</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Métodos de pagamento</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                             Selecione o gateway para cada forma de pagamento no checkout.
                         </p>
                     </div>
                     <div class="p-6">
-                        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                             <!-- PIX -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/payment-methods/pix.svg" alt="PIX" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">PIX</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagamento instantâneo</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">PIX</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Pagamento instantâneo</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2349,31 +2357,31 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.pix)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('pix')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="gateways_by_method.pix.length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway</Link>
+                                    <p v-if="gateways_by_method.pix.length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- PIX Parcelado (somente pagamento único) -->
                             <div
                                 v-if="form.billing_type === 'one_time'"
-                                class="panel-card-md"
+                                class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                             >
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/payment-methods/pix.svg" alt="PIX Parcelado" class="h-7 w-7 object-contain" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">PIX Parcelado</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Entrada + parcelas (CajuPay)</p>
-                                            <span class="mt-1 inline-flex rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">BRL · pagamento único</span>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">PIX Parcelado</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Entrada + parcelas (CajuPay)</p>
+                                            <span class="ep-chip ep-chip--pos mt-1.5">BRL · pagamento único</span>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2385,41 +2393,41 @@ function submit() {
                                     <button
                                         v-if="form.payment_gateways.pix_parcelado === 'cajupay'"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300"
+                                        class="ep-btn-secondary justify-start"
                                         @click="pixParceladoRulesSidebarOpen = true"
                                     >
-                                        <SlidersHorizontal class="h-4 w-4" />
+                                        <SlidersHorizontal :stroke-width="1.75" class="h-4 w-4" />
                                         Definir regras
                                     </button>
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.pix_parcelado)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('pix_parcelado')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="cajupayParceladoNotEnrolled" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                                    <p v-if="cajupayParceladoNotEnrolled" class="rounded-xl border border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] bg-[var(--ep-warn-bg)] text-[var(--ep-warn)] px-3 py-2 text-[12px] leading-relaxed">
                                         Aceite o contrato PIX Parcelado na
                                         <Link href="/integracoes?tab=gateways&gateway=cajupay" class="font-medium underline">configuração CajuPay</Link>
                                         antes de usar no checkout.
                                     </p>
-                                    <p v-if="(gateways_by_method.pix_parcelado || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar CajuPay</Link>
+                                    <p v-if="(gateways_by_method.pix_parcelado || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar CajuPay</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- Cartão -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/payment-methods/card.png" alt="Cartão" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">Cartão</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Crédito e débito</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Cartão</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Crédito e débito</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2431,55 +2439,55 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.card)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('card')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
                                     <button
                                         v-if="isBrBillingGateway(form.payment_gateways.card)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="pagarmeBillingSidebarOpen = true"
                                     >
-                                        <MapPin class="h-4 w-4" />
+                                        <MapPin :stroke-width="1.75" class="h-4 w-4" />
                                         Configurar endereço (checkout)
                                     </button>
-                                    <p v-if="gateways_by_method.card.length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway</Link>
+                                    <p v-if="gateways_by_method.card.length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway</Link>
                                     </p>
                                     <template v-if="supportsCardInstallments(form.payment_gateways.card)">
-                                        <div class="mt-3 space-y-3 border-t border-zinc-200/80 pt-3 dark:border-zinc-600/80">
-                                            <div class="flex items-center justify-between rounded-xl border border-zinc-100 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                                        <div class="mt-1 space-y-3 border-t border-[var(--ep-line)] pt-3">
+                                            <div class="flex items-center justify-between gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                                                 <div class="min-w-0">
-                                                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Permitir parcelamento</p>
-                                                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                                    <p class="text-[13px] font-medium text-[var(--ep-text)]">Permitir parcelamento</p>
+                                                    <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                                         Opcional. Se desligado, o cartão cobra só à vista (1x). Com {{ cardInstallmentsGatewayLabel(form.payment_gateways.card) }}, o seletor de parcelas aparece no checkout
                                                         <template v-if="form.payment_gateways.card === 'cajupay'"> (dentro do SDK)</template>.
                                                     </p>
                                                 </div>
                                                 <Toggle v-model="form.card_installments.enabled" class="shrink-0" />
                                             </div>
-                                            <div v-if="form.card_installments.enabled" class="rounded-xl border border-zinc-100 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
-                                                <label for="card-installments-max" class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Até quantas parcelas</label>
+                                            <div v-if="form.card_installments.enabled" class="rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                                                <label for="card-installments-max" class="ep-label">Até quantas parcelas</label>
                                                 <select
                                                     id="card-installments-max"
                                                     v-model.number="form.card_installments.max"
-                                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
+                                                    class="ep-input"
                                                 >
                                                     <option v-for="n in maxAllowedInstallments" :key="n" :value="n">{{ n }}x</option>
                                                 </select>
-                                                <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Com o preço de R$ {{ priceNum.toFixed(2) }}, até {{ maxAllowedInstallments }}x (mín. R$ {{ MIN_PARCELA_BRL }},00 por parcela).</p>
+                                                <p class="ep-help tabular-nums">Com o preço de R$ {{ priceNum.toFixed(2) }}, até {{ maxAllowedInstallments }}x (mín. R$ {{ MIN_PARCELA_BRL }},00 por parcela).</p>
                                             </div>
                                         </div>
                                     </template>
                                     <template v-if="form.payment_gateways.card === 'cajupay'">
-                                        <div class="mt-3 space-y-3 border-t border-zinc-200/80 pt-3 dark:border-zinc-600/80">
-                                            <div class="flex items-center justify-between rounded-xl border border-zinc-100 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                                        <div class="mt-1 space-y-3 border-t border-[var(--ep-line)] pt-3">
+                                            <div class="flex items-center justify-between gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                                                 <div class="min-w-0">
-                                                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Exigir 3DS (Cartão Brasil)</p>
-                                                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                                    <p class="text-[13px] font-medium text-[var(--ep-text)]">Exigir 3DS (Cartão Brasil)</p>
+                                                    <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                                         Só surte efeito se a conta CajuPay estiver em modo 3DS opcional. O comprador não vê essa opção — o SDK autentica sozinho quando exigido.
                                                     </p>
                                                 </div>
@@ -2488,11 +2496,11 @@ function submit() {
                                         </div>
                                     </template>
                                     <template v-if="form.payment_gateways.card === 'stripe'">
-                                        <div class="mt-3 space-y-3 border-t border-zinc-200/80 pt-3 dark:border-zinc-600/80">
-                                            <div class="flex items-center justify-between rounded-xl border border-zinc-100 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                                        <div class="mt-1 space-y-3 border-t border-[var(--ep-line)] pt-3">
+                                            <div class="flex items-center justify-between gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3">
                                                 <div class="min-w-0">
-                                                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Usar Stripe Link</p>
-                                                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Permitir que o cliente use Link para preencher dados do cartão (Stripe)</p>
+                                                    <p class="text-[13px] font-medium text-[var(--ep-text)]">Usar Stripe Link</p>
+                                                    <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">Permitir que o cliente use Link para preencher dados do cartão (Stripe)</p>
                                                 </div>
                                                 <Toggle v-model="form.stripe_link_enabled" class="shrink-0" />
                                             </div>
@@ -2501,15 +2509,15 @@ function submit() {
                                 </div>
                             </div>
                             <!-- Boleto -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/payment-methods/boleto.png" alt="Boleto" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">Boleto</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagamento bancário</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Boleto</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Pagamento bancário</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2521,40 +2529,40 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.boleto)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('boleto')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
                                     <button
                                         v-if="isBrBillingGateway(form.payment_gateways.boleto)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="pagarmeBillingSidebarOpen = true"
                                     >
-                                        <MapPin class="h-4 w-4" />
+                                        <MapPin :stroke-width="1.75" class="h-4 w-4" />
                                         Configurar endereço (checkout)
                                     </button>
-                                    <p v-if="gateways_by_method.boleto.length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway</Link>
+                                    <p v-if="gateways_by_method.boleto.length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- Apple Pay -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-black p-2 shadow-sm">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-black p-2">
                                             <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="currentColor" aria-hidden="true">
                                                 <path d="M17.564 12.42c-.02-2.11 1.72-3.13 1.8-3.18-0.98-1.43-2.5-1.62-3.04-1.64-1.29-.13-2.52.76-3.17.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.3 1.06 8.36.7 1.01 1.53 2.14 2.62 2.1 1.05-.04 1.45-.68 2.72-.68 1.27 0 1.62.68 2.73.66 1.13-.02 1.85-1.03 2.54-2.04.8-1.17 1.13-2.31 1.15-2.37-.03-.01-2.21-.85-2.24-3.33zM15.43 5.36c.58-.7.97-1.67.86-2.64-.84.03-1.85.56-2.45 1.26-.54.62-1.01 1.61-.88 2.56.93.07 1.89-.47 2.47-1.18z" />
                                             </svg>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="font-semibold text-zinc-900 dark:text-white">Apple Pay</p>
-                                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Carteira digital</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Apple Pay</p>
+                                            <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">Carteira digital</p>
                                             <span
-                                                class="mt-1.5 inline-flex max-w-full items-center rounded-md border border-zinc-200/90 bg-white px-2 py-0.5 text-[11px] font-medium leading-tight text-zinc-600 shadow-sm dark:border-zinc-600 dark:bg-zinc-800/90 dark:text-zinc-300"
+                                                class="ep-chip mt-1.5 max-w-full"
                                                 title="No checkout público, o botão Apple Pay só é exibido em iPhone e iPad."
                                             >
                                                 Somente dispositivos iOS
@@ -2570,22 +2578,22 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.apple_pay)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('apple_pay')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="(gateways_by_method.apple_pay || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway compatível (CajuPay)</Link>
+                                    <p v-if="(gateways_by_method.apple_pay || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway compatível (CajuPay)</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- Google Pay -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2">
                                             <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true">
                                                 <path fill="#4285F4" d="M21.6 12.227c0-.71-.064-1.391-.182-2.045H12v3.873h5.39a4.61 4.61 0 0 1-2 3.025v2.512h3.235c1.893-1.745 2.975-4.314 2.975-7.365z" />
                                                 <path fill="#34A853" d="M12 22c2.7 0 4.964-.895 6.625-2.408l-3.235-2.512c-.896.6-2.041.955-3.39.955-2.605 0-4.81-1.76-5.598-4.124H3.057v2.59A9.997 9.997 0 0 0 12 22z" />
@@ -2594,10 +2602,10 @@ function submit() {
                                             </svg>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="font-semibold text-zinc-900 dark:text-white">Google Pay</p>
-                                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Carteira digital</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Google Pay</p>
+                                            <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">Carteira digital</p>
                                             <span
-                                                class="mt-1.5 inline-flex max-w-full items-center rounded-md border border-zinc-200/90 bg-white px-2 py-0.5 text-[11px] font-medium leading-tight text-zinc-600 shadow-sm dark:border-zinc-600 dark:bg-zinc-800/90 dark:text-zinc-300"
+                                                class="ep-chip mt-1.5 max-w-full"
                                                 title="No checkout público, o Google Pay não é exibido em iPhone/iPad; apenas em Android ou desktop."
                                             >
                                                 Somente Android ou desktop
@@ -2613,27 +2621,27 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.google_pay)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('google_pay')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="(gateways_by_method.google_pay || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway compatível (CajuPay)</Link>
+                                    <p v-if="(gateways_by_method.google_pay || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway compatível (CajuPay)</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- PayPal -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/gateways/paypal.png" alt="PayPal" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="font-semibold text-zinc-900 dark:text-white">PayPal</p>
-                                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Carteira / cartão via PayPal</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">PayPal</p>
+                                            <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">Carteira / cartão via PayPal</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2644,57 +2652,57 @@ function submit() {
                                     />
                                     <template v-if="form.payment_gateways.paypal">
                                         <div>
-                                            <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Exibir no checkout como</label>
+                                            <label class="ep-label">Exibir no checkout como</label>
                                             <select
                                                 v-model="form.payment_gateways.paypal_display_as"
-                                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                                class="ep-input"
                                             >
                                                 <option value="paypal">PayPal</option>
                                                 <option value="card">Cartão</option>
                                             </select>
-                                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                            <p class="ep-help">
                                                 “Cartão” usa o mesmo fluxo PayPal com rótulo de cartão. Se já houver outro Cartão, aparece como “Cartão PayPal”.
                                             </p>
                                         </div>
-                                        <label class="flex cursor-pointer items-start gap-2.5 rounded-lg border border-zinc-200 px-3 py-2.5 dark:border-zinc-600">
+                                        <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-3 py-2.5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                             <input
                                                 v-model="form.payment_gateways.paypal_show_wallet"
                                                 type="checkbox"
-                                                class="mt-0.5 h-4 w-4 rounded border-zinc-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                                                class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--ep-accent)]"
                                             />
                                             <span class="min-w-0">
-                                                <span class="block text-sm font-medium text-zinc-800 dark:text-zinc-200">Mostrar também botão da conta PayPal</span>
-                                                <span class="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">Abre o popup da carteira PayPal, além do pagamento com cartão.</span>
+                                                <span class="block text-[13px] font-medium text-[var(--ep-text)]">Mostrar também botão da conta PayPal</span>
+                                                <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">Abre o popup da carteira PayPal, além do pagamento com cartão.</span>
                                             </span>
                                         </label>
                                     </template>
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.paypal)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('paypal')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="(gateways_by_method.paypal || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar PayPal</Link>
+                                    <p v-if="(gateways_by_method.paypal || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar PayPal</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- PIX automático (somente Assinatura) -->
                             <div
                                 v-if="form.billing_type === 'subscription'"
-                                class="panel-card-md"
+                                class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                             >
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/gateways/pix-automatico.png" alt="PIX automático" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">PIX automático</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Renovação automática (assinaturas)</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">PIX automático</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Renovação automática (assinaturas)</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2706,27 +2714,27 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.pix_auto)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('pix_auto')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="(gateways_by_method.pix_auto || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway Efí</Link>
+                                    <p v-if="(gateways_by_method.pix_auto || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway Efí</Link>
                                     </p>
                                 </div>
                             </div>
                             <!-- Criptomoeda -->
-                            <div class="panel-card-md">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-5 transition-colors duration-150 hover:border-[var(--ep-line-strong)]">
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm dark:bg-zinc-700/50">
+                                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-white p-2 dark:bg-[var(--ep-card-2)]">
                                             <img src="/images/payment-methods/cripto.png" alt="Criptomoeda" class="h-7 w-7 object-contain" @error="($e) => $e.target && ($e.target.style.display = 'none')" />
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-zinc-900 dark:text-white">Criptomoeda</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Bitcoin e outras</p>
+                                            <p class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Criptomoeda</p>
+                                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Bitcoin e outras</p>
                                         </div>
                                     </div>
                                     <GatewaySelect
@@ -2738,14 +2746,14 @@ function submit() {
                                     <button
                                         v-if="canShowRedundancy(form.payment_gateways.crypto)"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-300 dark:hover:border-[var(--color-primary)] dark:hover:bg-[var(--color-primary)]/20"
+                                        class="ep-btn-secondary justify-start"
                                         @click="openRedundancySidebar('crypto')"
                                     >
-                                        <Layers class="h-4 w-4" />
+                                        <Layers :stroke-width="1.75" class="h-4 w-4" />
                                         Redundância
                                     </button>
-                                    <p v-if="(gateways_by_method.crypto || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        <Link href="/integracoes?tab=gateways" class="text-[var(--color-primary)] hover:underline">Conectar gateway</Link>
+                                    <p v-if="(gateways_by_method.crypto || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
+                                        <Link href="/integracoes?tab=gateways" class="font-medium text-[var(--ep-accent)] hover:underline">Conectar gateway</Link>
                                     </p>
                                 </div>
                             </div>
@@ -2755,9 +2763,9 @@ function submit() {
 
                 <!-- Tipo de entrega -->
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Tipo de entrega</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Como o cliente recebe o produto após a compra.</p>
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Tipo de entrega</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Como o cliente recebe o produto após a compra.</p>
                     </div>
                     <div class="p-6">
                         <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -2767,42 +2775,42 @@ function submit() {
                                 type="button"
                                 :disabled="!t.available"
                                 :class="[
-                                    'flex items-start gap-3 rounded-xl border-2 p-4 text-left transition',
+                                    'flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors duration-150',
                                     form.type === t.value
-                                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 dark:bg-[var(--color-primary)]/20'
-                                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700',
+                                        ? 'border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)] shadow-[0_0_0_3px_color-mix(in_oklab,var(--ep-accent)_12%,transparent)]'
+                                        : 'border-[var(--ep-line)] bg-[var(--ep-card-2)] hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]',
                                     !t.available && 'cursor-not-allowed opacity-60',
                                 ]"
                                 @click="t.available && (form.type = t.value)"
                             >
-                                <component :is="typeIcons[t.value] || Package" class="mt-0.5 h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-400" />
+                                <component :is="typeIcons[t.value] || Package" :stroke-width="1.75" class="mt-0.5 h-[18px] w-[18px] shrink-0" :class="form.type === t.value ? 'text-[var(--ep-accent)]' : 'text-[var(--ep-text-3)]'" />
                                 <div class="min-w-0 flex-1">
-                                    <span class="font-medium text-zinc-900 dark:text-white">{{ t.label }}</span>
-                                    <span v-if="!t.available" class="ml-1 text-xs text-zinc-500">(em breve)</span>
+                                    <span class="text-[13.5px] font-medium text-[var(--ep-text)]">{{ t.label }}</span>
+                                    <span v-if="!t.available" class="ml-1 text-[12px] text-[var(--ep-text-4)]">(em breve)</span>
                                 </div>
                                 <button
                                     v-if="t.available && t.value === 'link' && form.type === t.value"
                                     type="button"
-                                    class="shrink-0 rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600 dark:hover:text-white"
+                                    class="shrink-0 rounded-lg p-1.5 text-[var(--ep-text-3)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                     title="Configurar link do entregável"
                                     aria-label="Configurar link do entregável"
                                     @click.stop="deliverableLinkSidebarOpen = true"
                                 >
-                                    <Settings class="h-4 w-4" aria-hidden="true" />
+                                    <Settings :stroke-width="1.75" class="h-4 w-4" aria-hidden="true" />
                                 </button>
                                 <button
                                     v-if="t.available && t.value === 'area_membros' && form.type === t.value"
                                     type="button"
-                                    class="shrink-0 rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600 dark:hover:text-white"
+                                    class="shrink-0 rounded-lg p-1.5 text-[var(--ep-text-3)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)]"
                                     title="Abrir Member Builder"
                                     aria-label="Abrir Member Builder"
                                     @click.stop="goToMemberBuilder"
                                 >
-                                    <Settings class="h-4 w-4" aria-hidden="true" />
+                                    <Settings :stroke-width="1.75" class="h-4 w-4" aria-hidden="true" />
                                 </button>
                             </button>
                         </div>
-                        <p v-if="form.errors.type" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.type }}</p>
+                        <p v-if="form.errors.type" class="mt-2 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.type }}</p>
                     </div>
                 </section>
 
@@ -2811,31 +2819,31 @@ function submit() {
                     v-if="form.type === 'area_membros_externa'"
                     class="panel-table"
                 >
-                    <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Área de membros externa (Cademí)</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Área de membros externa (Cademí)</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                             Se este produto for entregue via Cademí, configure aqui qual integração e qual TAG o aluno receberá após o pagamento.
                         </p>
                     </div>
                     <div class="p-6 space-y-4">
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Integração Cademí</label>
+                                <label class="ep-label">Integração Cademí</label>
                                 <select
                                     v-model="cademiConfig.integration_id"
-                                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                    class="ep-input"
                                 >
                                     <option value="">(desconectado)</option>
                                     <option v-for="i in cademi_integrations" :key="i.id" :value="String(i.id)">
                                         {{ i.name }}
                                     </option>
                                 </select>
-                                <p v-if="cademi_integrations.length === 0" class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                    Nenhuma integração Cademí cadastrada. Vá em <Link href="/integracoes" class="text-[var(--color-primary)] hover:underline">/integracoes</Link> e crie uma.
+                                <p v-if="cademi_integrations.length === 0" class="ep-help">
+                                    Nenhuma integração Cademí cadastrada. Vá em <Link href="/integracoes" class="font-medium text-[var(--ep-accent)] hover:underline">/integracoes</Link> e crie uma.
                                 </p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Produto ID (Cademí)</label>
+                                <label class="ep-label">Produto ID (Cademí)</label>
                                 <div class="space-y-2">
                                     <div v-for="(pid, idx) in cademiConfig.cademi_produto_ids" :key="idx" class="flex gap-2">
                                         <input
@@ -2843,7 +2851,7 @@ function submit() {
                                             type="number"
                                             min="1"
                                             placeholder="Ex: 231"
-                                            class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                            class="ep-input"
                                         />
                                         <Button type="button" variant="outline" :disabled="cademiConfig.cademi_produto_ids.length <= 1" @click="cademiConfig.cademi_produto_ids.splice(idx, 1)">
                                             Remover
@@ -2853,18 +2861,18 @@ function submit() {
                                         Adicionar Produto ID
                                     </Button>
                                 </div>
-                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                <p class="ep-help">
                                     Obrigatório para conceder acesso na Cademí.
                                 </p>
                             </div>
 
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">TAG ID (Cademí) (opcional)</label>
+                                <label class="ep-label">TAG ID (Cademí) (opcional)</label>
                                 <div class="space-y-2">
                                     <div class="flex gap-2">
                                         <select
                                             v-model="cademiConfig.cademi_tag_id"
-                                            class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                            class="ep-input"
                                             :disabled="!cademiConfig.integration_id || cademiTagsLoading"
                                         >
                                             <option value="">Selecione uma TAG</option>
@@ -2878,7 +2886,7 @@ function submit() {
                                             :disabled="!cademiConfig.integration_id || cademiTagsLoading"
                                             @click="loadCademiTags"
                                         >
-                                            <Loader2 v-if="cademiTagsLoading" class="mr-2 h-4 w-4 animate-spin" />
+                                            <Loader2 v-if="cademiTagsLoading" :stroke-width="1.75" class="mr-2 h-4 w-4 animate-spin" />
                                             Atualizar
                                         </Button>
                                     </div>
@@ -2887,7 +2895,7 @@ function submit() {
                                         v-model="cademiTagQuery"
                                         type="text"
                                         placeholder="Buscar TAG pelo nome…"
-                                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                        class="ep-input"
                                         :disabled="!cademiConfig.integration_id || cademiTagsLoading || (cademiTags || []).length === 0"
                                     />
 
@@ -2896,29 +2904,29 @@ function submit() {
                                         type="number"
                                         min="1"
                                         placeholder="Ou cole o TAG ID (ex: 472)"
-                                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                                        class="ep-input"
                                         :disabled="!cademiConfig.integration_id"
                                     />
 
-                                    <p v-if="cademiTagsError" class="text-xs text-red-600 dark:text-red-400">{{ cademiTagsError }}</p>
-                                    <p v-else-if="cademiConfig.integration_id && !cademiTagsLoading && (cademiTags || []).length === 0" class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    <p v-if="cademiTagsError" class="text-[12px] text-[var(--ep-neg)]">{{ cademiTagsError }}</p>
+                                    <p v-else-if="cademiConfig.integration_id && !cademiTagsLoading && (cademiTags || []).length === 0" class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                         Nenhuma TAG retornada pela Cademí (ou integração ainda não carregada).
                                     </p>
                                 </div>
-                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                <p class="ep-help">
                                     Dica: selecione pelo nome (recomendado). Se necessário, cole o ID manualmente no campo acima.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="flex items-end">
-                            <Button type="button" class="w-full" :disabled="cademiSaving" @click="saveCademiProductMapping">
-                                <Loader2 v-if="cademiSaving" class="mr-2 h-4 w-4 animate-spin" />
+                        <div class="flex justify-end border-t border-[var(--ep-line)] pt-4">
+                            <Button type="button" class="w-full sm:w-auto" :disabled="cademiSaving" @click="saveCademiProductMapping">
+                                <Loader2 v-if="cademiSaving" :stroke-width="1.75" class="mr-2 h-4 w-4 animate-spin" />
                                 Salvar configuração Cademí
                             </Button>
                         </div>
 
-                        <p v-if="cademiError" class="rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                        <p v-if="cademiError" class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)] px-3.5 py-2.5 text-[12.5px]">
                             {{ cademiError }}
                         </p>
                     </div>
@@ -2936,7 +2944,7 @@ function submit() {
                     >
                         <div
                             v-if="deliverableLinkSidebarOpen"
-                            class="fixed inset-0 z-[100000] bg-black/30"
+                            class="ep-scrim fixed inset-0 z-[100000]"
                             aria-hidden="true"
                             @click="deliverableLinkSidebarOpen = false"
                         />
@@ -2951,36 +2959,36 @@ function submit() {
                     >
                         <aside
                             v-if="deliverableLinkSidebarOpen"
-                            class="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-zinc-900 shadow-2xl z-[100001] flex flex-col"
+                            class="ep-drawer fixed top-0 right-0 z-[100001] flex h-full w-full max-w-md flex-col"
                             role="dialog"
                             aria-labelledby="deliverable-link-sidebar-title"
                             @click.stop
                         >
-                            <div class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+                            <div class="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--ep-line)] px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <Settings class="h-5 w-5 text-zinc-500 dark:text-white" aria-hidden="true" />
-                                    <h2 id="deliverable-link-sidebar-title" class="text-lg font-semibold text-zinc-900 dark:text-white">Link do entregável</h2>
+                                    <Settings :stroke-width="1.75" class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" aria-hidden="true" />
+                                    <h2 id="deliverable-link-sidebar-title" class="text-[15px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Link do entregável</h2>
                                 </div>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                                    class="ep-btn-ghost ep-btn-icon -mr-1.5 shrink-0"
                                     aria-label="Fechar"
                                     @click="deliverableLinkSidebarOpen = false"
                                 >
-                                    <X class="h-5 w-5" />
+                                    <X :stroke-width="1.75" class="h-4 w-4" />
                                 </button>
                             </div>
-                            <div class="flex-1 overflow-y-auto p-4">
-                                <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+                            <div class="flex-1 overflow-y-auto p-5">
+                                <p class="mb-4 text-[13px] leading-relaxed text-[var(--ep-text-3)]">
                                     URL enviada por e-mail ao cliente após a compra. O link deve apontar para o conteúdo (página, arquivo, etc.).
                                 </p>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">URL do entregável</label>
-                                    <input v-model="form.deliverable_link" type="url" placeholder="https://..." :class="inputClass" />
-                                    <p v-if="form.errors.deliverable_link" class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.errors.deliverable_link }}</p>
+                                    <label class="ep-label">URL do entregável</label>
+                                    <input v-model="form.deliverable_link" type="url" placeholder="https://..." class="ep-input" />
+                                    <p v-if="form.errors.deliverable_link" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ form.errors.deliverable_link }}</p>
                                 </div>
                             </div>
-                            <div class="shrink-0 border-t border-zinc-200 p-4 flex gap-2 dark:border-zinc-700">
+                            <div class="flex shrink-0 gap-2 border-t border-[var(--ep-line)] px-5 py-4">
                                 <Button type="button" class="flex-1" :disabled="form.processing" @click="submit(); deliverableLinkSidebarOpen = false">
                                     Salvar
                                 </Button>
@@ -3024,7 +3032,7 @@ function submit() {
                     >
                         <div
                             v-if="pagarmeBillingSidebarOpen"
-                            class="fixed inset-0 z-[100000] bg-black/30"
+                            class="ep-scrim fixed inset-0 z-[100000]"
                             aria-hidden="true"
                             @click="pagarmeBillingSidebarOpen = false"
                         />
@@ -3039,54 +3047,54 @@ function submit() {
                     >
                         <aside
                             v-if="pagarmeBillingSidebarOpen"
-                            class="fixed top-0 right-0 z-[100001] flex h-full w-full max-w-md flex-col bg-white shadow-2xl dark:bg-zinc-900"
+                            class="ep-drawer fixed top-0 right-0 z-[100001] flex h-full w-full max-w-md flex-col"
                             role="dialog"
                             aria-labelledby="pagarme-billing-sidebar-title"
                             @click.stop
                         >
-                            <div class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+                            <div class="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--ep-line)] px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <MapPin class="h-5 w-5 text-zinc-500 dark:text-white" aria-hidden="true" />
-                                    <h2 id="pagarme-billing-sidebar-title" class="text-lg font-semibold text-zinc-900 dark:text-white">
+                                    <MapPin :stroke-width="1.75" class="h-4 w-4 shrink-0 text-[var(--ep-text-3)]" aria-hidden="true" />
+                                    <h2 id="pagarme-billing-sidebar-title" class="text-[15px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">
                                         Cobrança — endereço (Pagar.me / Efí)
                                     </h2>
                                 </div>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                                    class="ep-btn-ghost ep-btn-icon -mr-1.5 shrink-0"
                                     aria-label="Fechar"
                                     @click="pagarmeBillingSidebarOpen = false"
                                 >
-                                    <X class="h-5 w-5" />
+                                    <X :stroke-width="1.75" class="h-4 w-4" />
                                 </button>
                             </div>
-                            <div class="flex-1 space-y-4 overflow-y-auto p-4">
-                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                    Quando usar <strong>Pagar.me</strong> ou <strong>Efí</strong> no cartão e/ou no boleto, defina se o checkout pede o endereço do cliente ou usa o endereço da empresa (fatura/antifraude). No modo empresa, preencha o endereço abaixo (CEP com 8 dígitos, UF com 2 letras).
+                            <div class="flex-1 space-y-4 overflow-y-auto p-5">
+                                <p class="text-[13px] leading-relaxed text-[var(--ep-text-3)]">
+                                    Quando usar <strong class="font-medium text-[var(--ep-text-2)]">Pagar.me</strong> ou <strong class="font-medium text-[var(--ep-text-2)]">Efí</strong> no cartão e/ou no boleto, defina se o checkout pede o endereço do cliente ou usa o endereço da empresa (fatura/antifraude). No modo empresa, preencha o endereço abaixo (CEP com 8 dígitos, UF com 2 letras).
                                 </p>
-                                <div class="panel-card p-3 space-y-2">
-                                    <p class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Modo no checkout</p>
-                                    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-600 dark:bg-zinc-900/80">
-                                        <input v-model="form.pagarme_billing.mode" type="radio" class="mt-0.5" value="customer" />
+                                <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] space-y-2 p-3">
+                                    <p class="text-[12.5px] font-medium text-[var(--ep-text-2)]">Modo no checkout</p>
+                                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]">
+                                        <input v-model="form.pagarme_billing.mode" type="radio" class="mt-0.5 shrink-0 accent-[var(--ep-accent)]" value="customer" />
                                         <span>
-                                            <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Solicitar endereço do cliente</span>
-                                            <span class="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">O checkout exibe o bloco de CEP/endereço.</span>
+                                            <span class="text-[13px] font-medium text-[var(--ep-text)]">Solicitar endereço do cliente</span>
+                                            <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">O checkout exibe o bloco de CEP/endereço.</span>
                                         </span>
                                     </label>
-                                    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-600 dark:bg-zinc-900/80">
-                                        <input v-model="form.pagarme_billing.mode" type="radio" class="mt-0.5" value="company" />
+                                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]">
+                                        <input v-model="form.pagarme_billing.mode" type="radio" class="mt-0.5 shrink-0 accent-[var(--ep-accent)]" value="company" />
                                         <span>
-                                            <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Usar endereço da empresa</span>
-                                            <span class="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">O checkout não pede endereço; usamos os dados abaixo na cobrança.</span>
+                                            <span class="text-[13px] font-medium text-[var(--ep-text)]">Usar endereço da empresa</span>
+                                            <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">O checkout não pede endereço; usamos os dados abaixo na cobrança.</span>
                                         </span>
                                     </label>
                                 </div>
-                                <p v-if="form.errors['pagarme_billing.company_address']" class="text-sm text-red-600 dark:text-red-400">
+                                <p v-if="form.errors['pagarme_billing.company_address']" class="text-[12.5px] text-[var(--ep-neg)]">
                                     {{ form.errors['pagarme_billing.company_address'] }}
                                 </p>
-                                <p class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Endereço da empresa</p>
+                                <p class="text-[12.5px] font-medium text-[var(--ep-text-2)]">Endereço da empresa</p>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">CEP</label>
+                                    <label class="ep-label">CEP</label>
                                     <div class="flex gap-2">
                                         <input
                                             :value="form.pagarme_billing.company_address.zipcode"
@@ -3094,7 +3102,7 @@ function submit() {
                                             inputmode="numeric"
                                             maxlength="9"
                                             placeholder="00000-000"
-                                            :class="inputClass"
+                                            class="ep-input"
                                             @input="onPagarmeCompanyCepInput"
                                         />
                                         <Button
@@ -3103,43 +3111,42 @@ function submit() {
                                             :disabled="pagarmeCompanyCepLoading || (form.pagarme_billing.company_address.zipcode || '').replace(/\D/g, '').length < 8"
                                             @click="fetchPagarmeCompanyCep"
                                         >
-                                            <Loader2 v-if="pagarmeCompanyCepLoading" class="h-4 w-4 animate-spin" />
+                                            <Loader2 v-if="pagarmeCompanyCepLoading" :stroke-width="1.75" class="h-4 w-4 animate-spin" />
                                             <span v-else>Buscar</span>
                                         </Button>
                                     </div>
-                                    <p v-if="pagarmeCompanyCepError" class="mt-1 text-xs text-amber-600 dark:text-amber-400">{{ pagarmeCompanyCepError }}</p>
+                                    <p v-if="pagarmeCompanyCepError" class="mt-1 text-[12px] text-[var(--ep-warn)]">{{ pagarmeCompanyCepError }}</p>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Rua</label>
-                                    <input v-model="form.pagarme_billing.company_address.street" type="text" :class="inputClass" />
+                                    <label class="ep-label">Rua</label>
+                                    <input v-model="form.pagarme_billing.company_address.street" type="text" class="ep-input" />
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Número</label>
-                                        <input v-model="form.pagarme_billing.company_address.number" type="text" :class="inputClass" />
+                                        <label class="ep-label">Número</label>
+                                        <input v-model="form.pagarme_billing.company_address.number" type="text" class="ep-input" />
                                     </div>
                                     <div>
-                                        <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">UF</label>
+                                        <label class="ep-label">UF</label>
                                         <input
                                             v-model="form.pagarme_billing.company_address.state"
                                             type="text"
                                             maxlength="2"
-                                            class="uppercase"
-                                            :class="inputClass"
+                                            class="ep-input uppercase"
                                             @blur="form.pagarme_billing.company_address.state = (form.pagarme_billing.company_address.state || '').toUpperCase().slice(0, 2)"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Bairro</label>
-                                    <input v-model="form.pagarme_billing.company_address.neighborhood" type="text" :class="inputClass" />
+                                    <label class="ep-label">Bairro</label>
+                                    <input v-model="form.pagarme_billing.company_address.neighborhood" type="text" class="ep-input" />
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Cidade</label>
-                                    <input v-model="form.pagarme_billing.company_address.city" type="text" :class="inputClass" />
+                                    <label class="ep-label">Cidade</label>
+                                    <input v-model="form.pagarme_billing.company_address.city" type="text" class="ep-input" />
                                 </div>
                             </div>
-                            <div class="flex shrink-0 gap-2 border-t border-zinc-200 p-4 dark:border-zinc-700">
+                            <div class="flex shrink-0 gap-2 border-t border-[var(--ep-line)] px-5 py-4">
                                 <Button type="button" class="flex-1" :disabled="form.processing" @click="submit(); pagarmeBillingSidebarOpen = false">
                                     Salvar
                                 </Button>
@@ -3151,9 +3158,9 @@ function submit() {
 
                 <!-- Pixels de conversão -->
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Pixels de conversão</h2>
-                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">Pixels de conversão</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                             Pixels vinculados a este produto (configurados em Integrações).
                         </p>
                     </div>
@@ -3161,74 +3168,74 @@ function submit() {
                         <ProductConversionPixelsInfo :integrations="product_pixel_integrations" />
                     </div>
                 </section>
-                <div class="flex flex-wrap items-center gap-3">
-                    <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
-                    <Link
-                        href="/produtos"
-                        class="inline-flex items-center rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    >
-                        Cancelar
-                    </Link>
+                <div class="sticky bottom-4 z-20">
+                    <div class="panel-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <p class="hidden text-[12.5px] text-[var(--ep-text-3)] sm:block">As alterações valem depois de salvar.</p>
+                        <div class="ml-auto flex items-center gap-2">
+                            <Link href="/produtos" class="ep-btn-secondary">Cancelar</Link>
+                            <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </template>
 
         <!-- Aba E-mail -->
         <template v-if="currentTab === 'email'">
-            <form class="mx-auto w-full max-w-3xl space-y-8 xl:max-w-6xl" @submit.prevent="submit">
-                <div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <form class="mx-auto w-full max-w-3xl space-y-4 xl:max-w-6xl" @submit.prevent="submit">
+                <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <!-- Configuração do template -->
                     <section class="panel-table">
-                        <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
-                            <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Template do e-mail de acesso</h2>
-                            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                        <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                            <h2 class="ep-section-title">Template do e-mail de acesso</h2>
+                            <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                 Personalize o e-mail enviado ao cliente após a compra. Use os placeholders; eles serão substituídos pelos dados reais no envio.
                             </p>
                         </div>
                         <div class="p-6 space-y-5">
                             <div>
-                                <label class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Logo do e-mail</label>
+                                <label class="ep-label">Logo do e-mail</label>
                                 <div class="flex flex-col sm:flex-row gap-4 items-start">
                                     <div
-                                        class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800/80 w-full sm:w-44 h-32 shrink-0 cursor-pointer transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5"
+                                        class="flex h-32 w-full shrink-0 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--ep-line-strong)] bg-[var(--ep-card-2)] transition-colors duration-150 hover:border-[var(--ep-accent)] hover:bg-[var(--ep-hover)] sm:w-44"
                                         @click="logoInputRef?.click()"
                                     >
                                         <input ref="logoInputRef" type="file" accept="image/*" class="hidden" @change="onLogoFileChange" />
                                         <template v-if="logoUploading">
-                                            <Loader2 class="h-8 w-8 text-[var(--color-primary)] animate-spin" />
-                                            <span class="mt-2 text-xs text-zinc-500">Enviando...</span>
+                                            <Loader2 :stroke-width="1.75" class="h-6 w-6 animate-spin text-[var(--ep-accent)]" />
+                                            <span class="mt-2 text-[12px] text-[var(--ep-text-3)]">Enviando...</span>
                                         </template>
                                         <template v-else-if="form.email_template.logo_url">
                                             <img :src="form.email_template.logo_url" alt="Logo" class="max-h-20 w-auto object-contain px-2" @error="($e) => $e.target.style.display = 'none'" />
-                                            <span class="mt-2 text-xs text-zinc-500">Clique para trocar</span>
+                                            <span class="mt-2 text-[12px] text-[var(--ep-text-3)]">Clique para trocar</span>
                                         </template>
                                         <template v-else>
-                                            <ImageIcon class="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
-                                            <span class="mt-2 text-xs text-zinc-500">Clique para enviar</span>
+                                            <ImageIcon :stroke-width="1.75" class="h-6 w-6 text-[var(--ep-text-4)]" />
+                                            <span class="mt-2 text-[12px] text-[var(--ep-text-3)]">Clique para enviar</span>
                                         </template>
                                     </div>
-                                    <p class="text-xs text-zinc-500 dark:text-zinc-400 sm:pt-2">PNG ou JPG, até 2 MB. Exibida no topo do e-mail.</p>
+                                    <p class="text-[12px] leading-relaxed text-[var(--ep-text-4)] sm:pt-2">PNG ou JPG, até 2 MB. Exibida no topo do e-mail.</p>
                                 </div>
-                                <p v-if="logoError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ logoError }}</p>
+                                <p v-if="logoError" class="mt-2 text-[12.5px] text-[var(--ep-neg)]">{{ logoError }}</p>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do remetente (opcional)</label>
-                                <input v-model="form.email_template.from_name" type="text" placeholder="Ex: Minha Marca" :class="inputClass" />
-                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Se vazio, usa o nome das Configurações gerais.</p>
+                                <label class="ep-label">Nome do remetente (opcional)</label>
+                                <input v-model="form.email_template.from_name" type="text" placeholder="Ex: Minha Marca" class="ep-input" />
+                                <p class="ep-help">Se vazio, usa o nome das Configurações gerais.</p>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Assunto do e-mail</label>
-                                <input v-model="form.email_template.subject" type="text" placeholder="Seu acesso a {nome_produto}" :class="inputClass" />
+                                <label class="ep-label">Assunto do e-mail</label>
+                                <input v-model="form.email_template.subject" type="text" placeholder="Seu acesso a {nome_produto}" class="ep-input" />
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mensagem (texto)</label>
-                                <textarea v-model="form.email_template.body_text" rows="14" :class="inputClass" placeholder="Digite a mensagem (texto simples)..." />
-                                <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                                    Placeholders: <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_cliente}</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_produto}</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{link_acesso}</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{email_cliente}</code>,
-                                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{senha}</code>
+                                <label class="ep-label">Mensagem (texto)</label>
+                                <textarea v-model="form.email_template.body_text" rows="14" class="ep-input" placeholder="Digite a mensagem (texto simples)..." />
+                                <p class="ep-help">
+                                    Placeholders: <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_cliente}</code>,
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_produto}</code>,
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{link_acesso}</code>,
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{email_cliente}</code>,
+                                    <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{senha}</code>
                                     (preenchido apenas para área de membros quando uma senha é enviada ao cliente).
                                 </p>
                             </div>
@@ -3237,11 +3244,11 @@ function submit() {
 
                     <!-- Recuperação de carrinho -->
                     <section class="panel-table">
-                        <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
+                        <div class="border-b border-[var(--ep-line)] px-6 py-5">
                             <div class="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Recuperação de carrinho (e-mail)</h2>
-                                    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <h2 class="ep-section-title">Recuperação de carrinho (e-mail)</h2>
+                                    <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                         Envia lembretes automáticos para sessões abandonadas e pedidos pendentes (PIX/Boleto) nos tempos de 10m, 5h e 24h.
                                     </p>
                                 </div>
@@ -3249,54 +3256,54 @@ function submit() {
                             </div>
                         </div>
                         <div class="p-6 space-y-6">
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                 Placeholders disponíveis:
-                                <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_cliente}</code>,
-                                <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{email_cliente}</code>,
-                                <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_produto}</code>,
-                                <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{valor}</code>,
-                                <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{link_checkout}</code>
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_cliente}</code>,
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{email_cliente}</code>,
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_produto}</code>,
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{valor}</code>,
+                                <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{link_checkout}</code>
                             </p>
 
-                            <div class="panel-card-sm space-y-3 dark:bg-zinc-900/20">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] space-y-3 p-4">
                                 <div class="flex items-center justify-between gap-3">
-                                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Etapa 1 — 10 minutos</h3>
+                                    <h3 class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Etapa 1 — 10 minutos</h3>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Assunto</label>
-                                    <input v-model="form.cart_recovery_email.stages['10m'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" :class="inputClass" placeholder="Você ainda quer garantir {nome_produto}?" />
+                                    <label class="ep-label">Assunto</label>
+                                    <input v-model="form.cart_recovery_email.stages['10m'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" class="ep-input" placeholder="Você ainda quer garantir {nome_produto}?" />
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mensagem (texto)</label>
-                                    <textarea v-model="form.cart_recovery_email.stages['10m'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" :class="inputClass" placeholder="Digite a mensagem (texto simples)..." />
+                                    <label class="ep-label">Mensagem (texto)</label>
+                                    <textarea v-model="form.cart_recovery_email.stages['10m'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" class="ep-input" placeholder="Digite a mensagem (texto simples)..." />
                                 </div>
                             </div>
 
-                            <div class="panel-card-sm space-y-3 dark:bg-zinc-900/20">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] space-y-3 p-4">
                                 <div class="flex items-center justify-between gap-3">
-                                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Etapa 2 — 5 horas</h3>
+                                    <h3 class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Etapa 2 — 5 horas</h3>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Assunto</label>
-                                    <input v-model="form.cart_recovery_email.stages['5h'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" :class="inputClass" placeholder="Última chance de garantir {nome_produto}" />
+                                    <label class="ep-label">Assunto</label>
+                                    <input v-model="form.cart_recovery_email.stages['5h'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" class="ep-input" placeholder="Última chance de garantir {nome_produto}" />
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mensagem (texto)</label>
-                                    <textarea v-model="form.cart_recovery_email.stages['5h'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" :class="inputClass" placeholder="Digite a mensagem (texto simples)..." />
+                                    <label class="ep-label">Mensagem (texto)</label>
+                                    <textarea v-model="form.cart_recovery_email.stages['5h'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" class="ep-input" placeholder="Digite a mensagem (texto simples)..." />
                                 </div>
                             </div>
 
-                            <div class="panel-card-sm space-y-3 dark:bg-zinc-900/20">
+                            <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] space-y-3 p-4">
                                 <div class="flex items-center justify-between gap-3">
-                                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Etapa 3 — 24 horas</h3>
+                                    <h3 class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Etapa 3 — 24 horas</h3>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Assunto</label>
-                                    <input v-model="form.cart_recovery_email.stages['24h'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" :class="inputClass" placeholder="Seu link para {nome_produto} (caso ainda queira)" />
+                                    <label class="ep-label">Assunto</label>
+                                    <input v-model="form.cart_recovery_email.stages['24h'].subject" :disabled="!form.cart_recovery_email.enabled" type="text" class="ep-input" placeholder="Seu link para {nome_produto} (caso ainda queira)" />
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mensagem (texto)</label>
-                                    <textarea v-model="form.cart_recovery_email.stages['24h'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" :class="inputClass" placeholder="Digite a mensagem (texto simples)..." />
+                                    <label class="ep-label">Mensagem (texto)</label>
+                                    <textarea v-model="form.cart_recovery_email.stages['24h'].body_text" :disabled="!form.cart_recovery_email.enabled" rows="10" class="ep-input" placeholder="Digite a mensagem (texto simples)..." />
                                 </div>
                             </div>
                         </div>
@@ -3304,9 +3311,9 @@ function submit() {
 
                     <!-- Preview do e-mail -->
                     <section class="panel-table xl:sticky xl:top-6">
-                        <div class="border-b border-zinc-200/80 bg-zinc-50/80 px-6 py-4 dark:border-zinc-700/80 dark:bg-zinc-800/50">
-                            <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Preview do e-mail</h2>
-                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Como o e-mail será exibido para o cliente.</p>
+                        <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                            <h2 class="ep-section-title">Preview do e-mail</h2>
+                            <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Como o e-mail será exibido para o cliente.</p>
                         </div>
                         <div class="p-6">
                             <EmailTemplatePreview
@@ -3318,37 +3325,37 @@ function submit() {
                         </div>
                     </section>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
-                    <Link
-                        href="/produtos"
-                        class="inline-flex items-center rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    >
-                        Cancelar
-                    </Link>
+                <div class="sticky bottom-4 z-20">
+                    <div class="panel-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <p class="hidden text-[12.5px] text-[var(--ep-text-3)] sm:block">As alterações valem depois de salvar.</p>
+                        <div class="ml-auto flex items-center gap-2">
+                            <Link href="/produtos" class="ep-btn-secondary">Cancelar</Link>
+                            <Button type="submit" :disabled="form.processing">Salvar alterações</Button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </template>
 
         <!-- Aba SMS -->
         <template v-if="currentTab === 'sms'">
-            <form class="w-full space-y-6" @submit.prevent="submit">
-                <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800/50 dark:bg-amber-950/30 dark:text-amber-100">
+            <form class="w-full space-y-4" @submit.prevent="submit">
+                <div class="rounded-xl border border-[color-mix(in_oklab,var(--ep-warn)_35%,transparent)] bg-[var(--ep-warn-bg)] text-[var(--ep-warn)] px-4 py-3 text-[13px] leading-relaxed">
                     Os SMS são enviados pela integração
-                    <Link href="/integracoes?tab=apps" class="font-medium text-[var(--color-primary)] underline">IntegraX</Link>
+                    <Link href="/integracoes?tab=apps" class="font-medium text-[var(--ep-accent)] underline">IntegraX</Link>
                     (token ativo em Integrações). Mensagens limitadas a 160 caracteres.
                 </div>
 
-                <div v-if="smsValidationError" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-200">
+                <div v-if="smsValidationError" class="rounded-xl border border-[color-mix(in_oklab,var(--ep-neg)_35%,transparent)] bg-[var(--ep-neg-bg)] text-[var(--ep-neg)] px-4 py-3 text-[13px]">
                     {{ smsValidationError }}
                 </div>
 
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Envio de acesso</h2>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">SMS após compra aprovada com link de acesso.</p>
+                                <h2 class="ep-section-title">Envio de acesso</h2>
+                                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">SMS após compra aprovada com link de acesso.</p>
                             </div>
                             <Toggle v-model="form.sms.access_delivery.enabled" />
                         </div>
@@ -3359,29 +3366,29 @@ function submit() {
                             :disabled="!form.sms.access_delivery.enabled"
                             rows="4"
                             maxlength="200"
-                            :class="inputClass"
+                            class="ep-input"
                             placeholder="Ola {nome_cliente}! Seu acesso: {link_acesso}"
                         />
-                        <p :class="['text-xs', smsFieldOverLimit(form.sms.access_delivery.body_text, form.sms.access_delivery.enabled) ? 'text-red-600' : 'text-zinc-500']">
+                        <p :class="['text-[12px] tabular-nums', smsFieldOverLimit(form.sms.access_delivery.body_text, form.sms.access_delivery.enabled) ? 'text-[var(--ep-neg)]' : 'text-[var(--ep-text-4)]']">
                             {{ smsTextLength(form.sms.access_delivery.body_text) }}/{{ SMS_MAX_LENGTH }} caracteres
                         </p>
-                        <p class="text-xs text-zinc-500">
+                        <p class="text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                             Placeholders:
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_cliente}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_produto}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{link_acesso}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{senha}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{email_cliente}</code>
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_cliente}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_produto}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{link_acesso}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{senha}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{email_cliente}</code>
                         </p>
                     </div>
                 </section>
 
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">PIX gerado</h2>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">SMS quando o cliente gera um PIX no checkout.</p>
+                                <h2 class="ep-section-title">PIX gerado</h2>
+                                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">SMS quando o cliente gera um PIX no checkout.</p>
                             </div>
                             <Toggle v-model="form.sms.pix_generated.enabled" />
                         </div>
@@ -3392,42 +3399,41 @@ function submit() {
                             :disabled="!form.sms.pix_generated.enabled"
                             rows="4"
                             maxlength="200"
-                            :class="inputClass"
+                            class="ep-input"
                             placeholder="PIX de {nome_produto}. Pague: {link_pix}"
                         />
-                        <p :class="['text-xs', smsFieldOverLimit(form.sms.pix_generated.body_text, form.sms.pix_generated.enabled) ? 'text-red-600' : 'text-zinc-500']">
+                        <p :class="['text-[12px] tabular-nums', smsFieldOverLimit(form.sms.pix_generated.body_text, form.sms.pix_generated.enabled) ? 'text-[var(--ep-neg)]' : 'text-[var(--ep-text-4)]']">
                             {{ smsTextLength(form.sms.pix_generated.body_text) }}/{{ SMS_MAX_LENGTH }} caracteres
                         </p>
-                        <p class="text-xs text-zinc-500">
+                        <p class="text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                             Placeholders:
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{link_pix}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_produto}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{valor}</code>
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{link_pix}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_produto}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{valor}</code>
                         </p>
                     </div>
                 </section>
 
                 <section class="panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-zinc-800/80 dark:to-zinc-800/50">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Recuperação de carrinho (SMS)</h2>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Etapas configuráveis para sessões abandonadas e pedidos pendentes.</p>
+                                <h2 class="ep-section-title">Recuperação de carrinho (SMS)</h2>
+                                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Etapas configuráveis para sessões abandonadas e pedidos pendentes.</p>
                             </div>
                             <Toggle v-model="form.sms.cart_recovery.enabled" />
                         </div>
                     </div>
                     <div class="p-6 space-y-6">
                         <div>
-                            <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Por quanto tempo tentar recuperar?</label>
-                            <p class="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            <label class="ep-label">Por quanto tempo tentar recuperar?</label>
+                            <p class="mb-2 text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                                 Após esse prazo, nenhum SMS de recuperação será enviado para o mesmo abandono.
                             </p>
                             <select
                                 :value="Number(form.sms.cart_recovery.deadline_hours) || 48"
                                 :disabled="!form.sms.cart_recovery.enabled"
-                                :class="inputClass"
-                                class="max-w-xs"
+                                class="ep-input max-w-xs"
                                 @change="setSmsDeadlineHours($event.target.value)"
                             >
                                 <option
@@ -3443,19 +3449,19 @@ function submit() {
                         <div
                             v-for="(stage, index) in form.sms.cart_recovery.stages"
                             :key="`sms-stage-${index}-${stage.delay_minutes}`"
-                            class="panel-card-sm space-y-4 dark:bg-zinc-900/20"
+                            class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] space-y-4 p-4"
                         >
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div>
-                                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Etapa {{ index + 1 }}</h3>
-                                    <p class="mt-0.5 text-xs font-medium text-[var(--color-primary)]">
+                                    <h3 class="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Etapa {{ index + 1 }}</h3>
+                                    <p class="mt-0.5 text-[12px] font-medium tabular-nums text-[var(--ep-accent)]">
                                         {{ formatSmsDelaySummary(stage) }}
                                     </p>
                                 </div>
                                 <button
                                     v-if="form.sms.cart_recovery.stages.length > 1"
                                     type="button"
-                                    class="text-xs font-medium text-red-600 hover:underline"
+                                    class="ep-btn-ghost h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px] !text-[var(--ep-neg)] hover:!bg-[var(--ep-neg-bg)]"
                                     :disabled="!form.sms.cart_recovery.enabled"
                                     @click="removeSmsRecoveryStage(index)"
                                 >
@@ -3464,22 +3470,20 @@ function submit() {
                             </div>
 
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Quando enviar?</label>
+                                <label class="ep-label">Quando enviar?</label>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <input
                                         v-model.number="form.sms.cart_recovery.stages[index].delay_value"
                                         :disabled="!form.sms.cart_recovery.enabled"
                                         type="number"
                                         min="1"
-                                        :class="inputClass"
-                                        class="w-20 shrink-0"
+                                        class="ep-input w-20 shrink-0"
                                         @input="syncStageDelayMinutes(index)"
                                     />
                                     <select
                                         v-model="form.sms.cart_recovery.stages[index].delay_unit"
                                         :disabled="!form.sms.cart_recovery.enabled"
-                                        :class="inputClass"
-                                        class="min-w-[7rem] flex-1"
+                                        class="ep-input min-w-[7rem] flex-1"
                                         @change="syncStageDelayMinutes(index)"
                                     >
                                         <option
@@ -3490,20 +3494,20 @@ function submit() {
                                             {{ unit.label }}
                                         </option>
                                     </select>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">após o abandono</span>
+                                    <span class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">após o abandono</span>
                                 </div>
                                 <div class="mt-3 flex flex-wrap gap-2">
-                                    <span class="w-full text-xs text-zinc-500 dark:text-zinc-400">Atalhos:</span>
+                                    <span class="w-full text-[12px] text-[var(--ep-text-4)]">Atalhos:</span>
                                     <button
                                         v-for="preset in SMS_DELAY_PRESETS"
                                         :key="preset.minutes"
                                         type="button"
                                         :disabled="!form.sms.cart_recovery.enabled"
                                         :class="[
-                                            'rounded-lg px-2.5 py-1 text-xs font-medium transition',
+                                            'ep-chip !h-7 !px-2.5 !text-[12px] tabular-nums transition-colors duration-150 disabled:opacity-50',
                                             isSmsDelayPresetActive(stage, preset.minutes)
-                                                ? 'bg-[var(--color-primary)] text-white shadow-sm'
-                                                : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
+                                                ? 'ep-chip--accent'
+                                                : 'hover:border-[var(--ep-line-strong)] hover:text-[var(--ep-text)]',
                                         ]"
                                         @click="applySmsDelayPreset(index, preset.minutes)"
                                     >
@@ -3513,16 +3517,16 @@ function submit() {
                             </div>
 
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mensagem do SMS</label>
+                                <label class="ep-label">Mensagem do SMS</label>
                                 <textarea
                                     v-model="form.sms.cart_recovery.stages[index].body_text"
                                     :disabled="!form.sms.cart_recovery.enabled"
                                     rows="3"
                                     maxlength="200"
-                                    :class="inputClass"
+                                    class="ep-input"
                                     placeholder="Ex.: Ola {nome_cliente}! Retome {nome_produto}: {link_checkout}"
                                 />
-                                <p :class="['mt-1 text-xs', smsFieldOverLimit(stage.body_text, form.sms.cart_recovery.enabled) ? 'text-red-600' : 'text-zinc-500']">
+                                <p :class="['mt-1 text-[12px] tabular-nums', smsFieldOverLimit(stage.body_text, form.sms.cart_recovery.enabled) ? 'text-[var(--ep-neg)]' : 'text-[var(--ep-text-4)]']">
                                     {{ smsTextLength(stage.body_text) }}/{{ SMS_MAX_LENGTH }} caracteres
                                 </p>
                             </div>
@@ -3530,109 +3534,109 @@ function submit() {
 
                         <button
                             type="button"
-                            class="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                            class="ep-btn-secondary"
                             :disabled="!form.sms.cart_recovery.enabled"
                             @click="addSmsRecoveryStage"
                         >
                             + Adicionar etapa
                         </button>
 
-                        <p class="text-xs text-zinc-500">
+                        <p class="text-[12px] leading-relaxed text-[var(--ep-text-4)]">
                             Placeholders:
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_cliente}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{nome_produto}</code>,
-                            <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-700">{link_checkout}</code>
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_cliente}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{nome_produto}</code>,
+                            <code class="rounded-md border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-1.5 py-px font-mono text-[11.5px] text-[var(--ep-text-2)]">{link_checkout}</code>
                         </p>
                     </div>
                 </section>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <Button type="submit" :disabled="form.processing || !!smsValidationError">Salvar alterações</Button>
-                    <Link
-                        href="/produtos"
-                        class="inline-flex items-center rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    >
-                        Cancelar
-                    </Link>
+                <div class="sticky bottom-4 z-20">
+                    <div class="panel-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <p class="hidden text-[12.5px] text-[var(--ep-text-3)] sm:block">As alterações valem depois de salvar.</p>
+                        <div class="ml-auto flex items-center gap-2">
+                            <Link href="/produtos" class="ep-btn-secondary">Cancelar</Link>
+                            <Button type="submit" :disabled="form.processing || !!smsValidationError">Salvar alterações</Button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </template>
 
         <!-- Aba Order Bump -->
         <template v-if="currentTab === 'order_bump'">
-            <div class="w-full space-y-6">
-                <div class="relative panel-table">
-                        <div class="border-b border-zinc-200/80 bg-gradient-to-r from-[var(--color-primary)]/10 via-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-[var(--color-primary)]/15 dark:via-zinc-800/80 dark:to-zinc-800/50">
+            <div class="w-full space-y-4">
+                <div class="relative panel-card">
+                        <div class="px-6 py-5">
                             <div class="relative flex flex-wrap items-center justify-between gap-4">
                                 <div>
-                                    <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Order Bump</h2>
-                                    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Order Bump</h2>
+                                    <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                         Ofereça outros produtos no checkout para o cliente comprar junto. Escolha o produto, personalize título, descrição e preço.
                                     </p>
                                 </div>
-                                <Button type="button" class="inline-flex items-center gap-2 rounded-xl" @click="openNewOrderBump">
-                                    <Plus class="h-4 w-4" />
+                                <Button type="button" class="inline-flex items-center gap-2" @click="openNewOrderBump">
+                                    <Plus :stroke-width="1.75" class="h-4 w-4" />
                                     Adicionar order bump
                                 </Button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="!produto.order_bumps || !produto.order_bumps.length" class="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/50 px-6 py-16 text-center dark:border-zinc-600 dark:bg-zinc-800/30">
-                        <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-200/80 text-zinc-400 dark:bg-zinc-700/80 dark:text-zinc-500">
-                            <Package class="h-7 w-7" />
+                    <div v-if="!produto.order_bumps || !produto.order_bumps.length" class="panel-card ep-empty py-14">
+                        <span class="mb-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--ep-text-4)]">
+                            <Package :stroke-width="1.75" class="h-[18px] w-[18px]" />
                         </span>
-                        <p class="mt-4 font-medium text-zinc-700 dark:text-zinc-300">Nenhum order bump</p>
-                        <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+                        <p class="ep-empty__title">Nenhum order bump</p>
+                        <p class="ep-empty__text">
                             Adicione produtos que aparecerão no checkout como oferta especial para comprar junto.
                         </p>
-                        <Button type="button" class="mt-4 rounded-xl" @click="openNewOrderBump">
-                            <Plus class="mr-2 h-4 w-4" />
+                        <Button type="button" class="mt-3" @click="openNewOrderBump">
+                            <Plus :stroke-width="1.75" class="mr-2 h-4 w-4" />
                             Adicionar order bump
                         </Button>
                     </div>
 
-                    <ul v-else class="space-y-4">
+                    <ul v-else class="grid gap-4 lg:grid-cols-2">
                         <li
                             v-for="bump in produto.order_bumps"
                             :key="bump.id"
-                            class="panel-card flex flex-col overflow-hidden transition hover:border-zinc-200 dark:hover:border-zinc-600"
+                            class="panel-card flex flex-col overflow-hidden transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                         >
-                            <div class="flex flex-wrap items-start gap-4 p-4 sm:flex-nowrap">
-                                <div class="flex h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
+                            <div class="flex flex-wrap items-start gap-4 p-5 sm:flex-nowrap">
+                                <div class="flex h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)]">
                                     <img
                                         v-if="bump.target_image_url"
                                         :src="bump.target_image_url"
                                         :alt="bump.target_name"
                                         class="h-full w-full object-cover"
                                     />
-                                    <div v-else class="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-500">
-                                        <Package class="h-8 w-8" />
+                                    <div v-else class="flex h-full w-full items-center justify-center text-[var(--ep-text-4)]">
+                                        <Package :stroke-width="1.75" class="h-6 w-6" />
                                     </div>
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="font-semibold text-zinc-900 dark:text-white">{{ bump.title }}</h3>
-                                    <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Produto: {{ bump.target_name }}</p>
-                                    <p v-if="bump.description" class="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">{{ bump.description }}</p>
-                                    <p class="mt-2 text-sm font-medium text-[var(--color-primary)]">
+                                    <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">{{ bump.title }}</h3>
+                                    <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">Produto: {{ bump.target_name }}</p>
+                                    <p v-if="bump.description" class="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-[var(--ep-text-2)]">{{ bump.description }}</p>
+                                    <p class="mt-2.5 flex flex-wrap items-center gap-x-1 text-[13px] font-semibold tabular-nums text-[var(--ep-text)]">
                                         <span
                                             v-if="bump.is_free"
-                                            class="mr-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                                            class="ep-chip ep-chip--pos mr-1"
                                         >
                                             Grátis
                                         </span>
                                         <template v-else>
                                             {{ bump.price_override != null ? `R$ ${Number(bump.price_override).toFixed(2)}` : `R$ ${Number(bump.effective_amount_brl).toFixed(2)}` }}
                                         </template>
-                                        <span class="font-normal text-zinc-500 dark:text-zinc-400"> · CTA: {{ bump.cta_title }}</span>
+                                        <span class="font-normal text-[var(--ep-text-3)]"> · CTA: {{ bump.cta_title }}</span>
                                     </p>
                                 </div>
                                 <div class="flex shrink-0 gap-2">
                                     <Button size="sm" variant="outline" class="h-9 w-9 p-0" @click="openEditOrderBump(bump)">
-                                        <Pencil class="h-4 w-4" />
+                                        <Pencil :stroke-width="1.75" class="h-4 w-4" />
                                     </Button>
-                                    <Button size="sm" variant="outline" class="h-9 w-9 p-0 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20" @click="confirmDestroyOrderBump(bump)">
-                                        <Trash2 class="h-4 w-4" />
+                                    <Button size="sm" variant="outline" class="h-9 w-9 p-0 text-[var(--ep-neg)] hover:bg-[var(--ep-neg-bg)] hover:text-[var(--ep-neg)]" @click="confirmDestroyOrderBump(bump)">
+                                        <Trash2 :stroke-width="1.75" class="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
@@ -3657,30 +3661,29 @@ function submit() {
                         role="dialog"
                         @keydown.escape="closeOrderBumpModal"
                     >
-                        <div class="absolute inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="closeOrderBumpModal" />
+                        <div class="ep-scrim absolute inset-0" aria-hidden="true" @click="closeOrderBumpModal" />
                         <div
-                            class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                            class="ep-modal relative max-h-[90vh] w-full max-w-lg overflow-y-auto p-6"
                             role="document"
                         >
                             <div class="flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ editingBump ? 'Editar order bump' : 'Adicionar order bump' }}</h3>
+                                <h3 class="text-[15px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">{{ editingBump ? 'Editar order bump' : 'Adicionar order bump' }}</h3>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                    class="ep-btn-ghost ep-btn-icon -mr-1.5 shrink-0"
                                     aria-label="Fechar"
                                     @click="closeOrderBumpModal"
                                 >
-                                    <X class="h-5 w-5" />
+                                    <X :stroke-width="1.75" class="h-4 w-4" />
                                 </button>
                             </div>
                             <form class="mt-5 space-y-4" @submit.prevent="submitOrderBump">
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Produto</label>
+                                    <label class="ep-label">Produto</label>
                                     <select
                                         v-model="bumpForm.target_product_id"
                                         required
-                                        :class="inputClass"
-                                        class="w-full"
+                                        class="ep-input w-full"
                                         @change="onBumpProductChange"
                                     >
                                         <option value="">Selecione o produto</option>
@@ -3694,8 +3697,8 @@ function submit() {
                                     </select>
                                 </div>
                                 <div v-if="selectedBumpProduct && selectedBumpProduct.billing_type !== 'subscription' && selectedBumpProduct.offers && selectedBumpProduct.offers.length">
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Oferta (opcional)</label>
-                                    <select v-model="bumpForm.target_product_offer_id" :class="inputClass" class="w-full">
+                                    <label class="ep-label">Oferta (opcional)</label>
+                                    <select v-model="bumpForm.target_product_offer_id" class="ep-input w-full">
                                         <option value="">Preço base do produto</option>
                                         <option v-for="o in selectedBumpProduct.offers" :key="o.id" :value="o.id">
                                             {{ o.name }} — {{ o.currency }} {{ Number(o.price).toFixed(2) }}
@@ -3703,8 +3706,8 @@ function submit() {
                                     </select>
                                 </div>
                                 <div v-if="selectedBumpProduct && selectedBumpProduct.billing_type === 'subscription' && selectedBumpProduct.subscription_plans && selectedBumpProduct.subscription_plans.length">
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Plano (opcional)</label>
-                                    <select v-model="bumpForm.target_subscription_plan_id" :class="inputClass" class="w-full">
+                                    <label class="ep-label">Plano (opcional)</label>
+                                    <select v-model="bumpForm.target_subscription_plan_id" class="ep-input w-full">
                                         <option value="">Menor preço entre os planos</option>
                                         <option v-for="pl in selectedBumpProduct.subscription_plans" :key="pl.id" :value="pl.id">
                                             {{ pl.name }} — {{ pl.currency }} {{ Number(pl.price).toFixed(2) }}
@@ -3712,31 +3715,31 @@ function submit() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Título</label>
-                                    <input v-model="bumpForm.title" type="text" required :class="inputClass" placeholder="Ex: Módulo Extra" />
-                                    <p v-if="bumpForm.errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ bumpForm.errors.title }}</p>
+                                    <label class="ep-label">Título</label>
+                                    <input v-model="bumpForm.title" type="text" required class="ep-input" placeholder="Ex: Módulo Extra" />
+                                    <p v-if="bumpForm.errors.title" class="mt-1.5 text-[12.5px] text-[var(--ep-neg)]">{{ bumpForm.errors.title }}</p>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Descrição</label>
-                                    <textarea v-model="bumpForm.description" rows="3" :class="inputClass" placeholder="Descreva o benefício da oferta" />
+                                    <label class="ep-label">Descrição</label>
+                                    <textarea v-model="bumpForm.description" rows="3" class="ep-input" placeholder="Descreva o benefício da oferta" />
                                 </div>
-                                <div class="rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
+                                <div class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3.5">
                                     <Toggle
                                         v-model="bumpForm.is_free"
                                         label="Grátis (pré-selecionado no checkout)"
                                     />
-                                    <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                                    <p class="ep-help">
                                         O cliente vê “Grátis” no checkout e o bump já vem marcado. O acesso ao produto é liberado junto com a compra principal.
                                     </p>
                                 </div>
                                 <div v-if="!bumpForm.is_free">
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Preço com desconto (opcional)</label>
-                                    <input v-model="bumpForm.price_override" type="number" step="0.01" min="0" :class="inputClass" placeholder="Deixe vazio para usar o preço do produto" />
-                                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Se não preencher, será usado o preço do produto ou da oferta selecionada.</p>
+                                    <label class="ep-label">Preço com desconto (opcional)</label>
+                                    <input v-model="bumpForm.price_override" type="number" step="0.01" min="0" class="ep-input" placeholder="Deixe vazio para usar o preço do produto" />
+                                    <p class="ep-help">Se não preencher, será usado o preço do produto ou da oferta selecionada.</p>
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Texto do botão / CTA</label>
-                                    <input v-model="bumpForm.cta_title" type="text" required :class="inputClass" placeholder="Ex: Sim, quero esta oferta!" />
+                                    <label class="ep-label">Texto do botão / CTA</label>
+                                    <input v-model="bumpForm.cta_title" type="text" required class="ep-input" placeholder="Ex: Sim, quero esta oferta!" />
                                 </div>
                                 <div class="flex flex-wrap gap-2 pt-2">
                                     <Button type="submit" :disabled="bumpForm.processing">{{ editingBump ? 'Atualizar' : 'Adicionar' }}</Button>
@@ -3751,33 +3754,33 @@ function submit() {
 
         <!-- Aba Upsell / Downsell -->
         <template v-if="currentTab === 'upsell_downsell'">
-            <div class="w-full space-y-6">
-                <div class="relative panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-[var(--color-primary)]/10 via-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-[var(--color-primary)]/15 dark:via-zinc-800/80 dark:to-zinc-800/50">
+            <div class="w-full space-y-4">
+                <div class="relative panel-card">
+                    <div class="px-6 py-5">
                             <div class="flex flex-wrap items-center justify-between gap-4">
                             <div>
-                                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Upsell / Downsell</h2>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Upsell / Downsell</h2>
+                                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                     Ofertas exibidas após a compra aprovada. Upsell: ofertas extras; Downsell: oferta alternativa se o cliente recusar.
                                 </p>
                             </div>
                             <div class="flex flex-wrap items-center gap-3">
                                 <Link
                                     :href="`/produtos/${produto.id}/upsell-page/edit`"
-                                    class="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                    class="ep-btn-secondary"
                                 >
-                                    <Pencil class="h-4 w-4" />
+                                    <Pencil :stroke-width="1.75" class="h-4 w-4" />
                                     Editar página upsell
                                 </Link>
                                 <Link
                                     :href="`/produtos/${produto.id}/downsell-page/edit`"
-                                    class="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                    class="ep-btn-secondary"
                                 >
-                                    <Pencil class="h-4 w-4" />
+                                    <Pencil :stroke-width="1.75" class="h-4 w-4" />
                                     Editar página downsell
                                 </Link>
                                 <Button type="button" class="rounded-xl" :disabled="savingUpsellDownsell" @click="saveUpsellDownsell">
-                                    <Loader2 v-if="savingUpsellDownsell" class="mr-2 h-4 w-4 animate-spin" />
+                                    <Loader2 v-if="savingUpsellDownsell" :stroke-width="1.75" class="mr-2 h-4 w-4 animate-spin" />
                                     Salvar configuração
                                 </Button>
                             </div>
@@ -3789,57 +3792,57 @@ function submit() {
                     <!-- Upsell -->
                     <div>
                         <Toggle v-model="upsellDownsellForm.upsell.enabled" label="Ativar upsell (após compra aprovada)" />
-                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Exibe ofertas extras antes da página de obrigado.</p>
+                        <p class="ep-help">Exibe ofertas extras antes da página de obrigado.</p>
                         <template v-if="upsellDownsellForm.upsell.enabled">
-                            <label class="mt-3 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Ofertas de upsell</label>
-                            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Títulos, cores e textos são editados em « Editar página upsell ».</p>
-                            <div v-for="(item, idx) in upsellDownsellForm.upsell.products" :key="'u-' + idx" class="mt-2 panel-card flex flex-wrap items-end gap-2 p-3">
+                            <label class="ep-label mt-5 !mb-0">Ofertas de upsell</label>
+                            <p class="mt-0.5 text-[12px] leading-relaxed text-[var(--ep-text-3)]">Títulos, cores e textos são editados em « Editar página upsell ».</p>
+                            <div v-for="(item, idx) in upsellDownsellForm.upsell.products" :key="'u-' + idx" class="mt-2 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3">
                                 <div class="min-w-[140px] flex-1">
-                                    <label class="mb-0.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Produto</label>
-                                    <select v-model="item.product_id" :class="inputClass" class="py-2">
+                                    <label class="ep-label">Produto</label>
+                                    <select v-model="item.product_id" class="ep-input py-2">
                                         <option :value="null">Selecione</option>
                                         <option v-for="p in (produto.products_for_upsell || [])" :key="p.id" :value="p.id">{{ p.name }}</option>
                                     </select>
                                 </div>
                                 <div class="min-w-[140px] flex-1">
-                                    <label class="mb-0.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Oferta (opcional)</label>
-                                    <select v-model.number="item.product_offer_id" :class="inputClass" class="py-2">
+                                    <label class="ep-label">Oferta (opcional)</label>
+                                    <select v-model.number="item.product_offer_id" class="ep-input py-2">
                                         <option :value="null">Preço base</option>
                                         <template v-for="p in (produto.products_for_upsell || [])" :key="p.id">
                                             <option v-if="p.id === item.product_id" v-for="o in p.offers" :key="o.id" :value="o.id">{{ o.name }} (R$ {{ o.price?.toFixed(2) }})</option>
                                         </template>
                                     </select>
                                 </div>
-                                <button type="button" class="rounded-lg border border-red-200 px-2 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30" @click="upsellDownsellForm.upsell.products.splice(idx, 1)">Remover</button>
+                                <button type="button" class="ep-btn-danger h-[38px] text-[12.5px]" @click="upsellDownsellForm.upsell.products.splice(idx, 1)">Remover</button>
                             </div>
-                            <button type="button" class="mt-2 rounded-xl border-2 border-dashed border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-[var(--color-primary)]" @click="upsellDownsellForm.upsell.products.push({ product_id: null, product_offer_id: null, title_override: '', description: '', image_url: '', video_url: '' })">+ Adicionar oferta</button>
+                            <button type="button" class="mt-3 inline-flex h-9 items-center gap-1.5 rounded-xl border border-dashed border-[var(--ep-line-strong)] px-3.5 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:border-[var(--ep-accent)] hover:text-[var(--ep-accent)]" @click="upsellDownsellForm.upsell.products.push({ product_id: null, product_offer_id: null, title_override: '', description: '', image_url: '', video_url: '' })">+ Adicionar oferta</button>
                         </template>
                     </div>
 
                     <!-- Downsell -->
-                    <div class="border-t border-zinc-200 pt-6 dark:border-zinc-700">
+                    <div class="border-t border-[var(--ep-line)] pt-6">
                         <Toggle
                             v-model="upsellDownsellForm.downsell.enabled"
                             :disabled="!upsellDownsellForm.upsell.enabled"
                             label="Ativar downsell (após recusar upsell)"
                         />
-                        <p v-if="!upsellDownsellForm.upsell.enabled" class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                        <p v-if="!upsellDownsellForm.upsell.enabled" class="mt-1 text-[12px] text-[var(--ep-warn)]">
                             Ative o upsell acima para habilitar o downsell.
                         </p>
-                        <p v-else class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Uma oferta alternativa se o cliente recusar o upsell.</p>
+                        <p v-else class="ep-help">Uma oferta alternativa se o cliente recusar o upsell.</p>
                         <template v-if="upsellDownsellForm.downsell.enabled">
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Títulos, cores e textos são editados em « Editar página downsell ».</p>
+                            <p class="ep-help">Títulos, cores e textos são editados em « Editar página downsell ».</p>
                             <div class="mt-3 flex flex-wrap items-end gap-2">
                                 <div class="min-w-[140px] flex-1">
-                                    <label class="mb-0.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Produto</label>
-                                    <select v-model="upsellDownsellForm.downsell.product_id" :class="inputClass" class="py-2">
+                                    <label class="ep-label">Produto</label>
+                                    <select v-model="upsellDownsellForm.downsell.product_id" class="ep-input py-2">
                                         <option :value="null">Selecione</option>
                                         <option v-for="p in (produto.products_for_upsell || [])" :key="p.id" :value="p.id">{{ p.name }}</option>
                                     </select>
                                 </div>
                                 <div class="min-w-[140px] flex-1">
-                                    <label class="mb-0.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Oferta (opcional)</label>
-                                    <select v-model.number="upsellDownsellForm.downsell.product_offer_id" :class="inputClass" class="py-2">
+                                    <label class="ep-label">Oferta (opcional)</label>
+                                    <select v-model.number="upsellDownsellForm.downsell.product_offer_id" class="ep-input py-2">
                                         <option :value="null">Preço base</option>
                                         <template v-for="p in (produto.products_for_upsell || [])" :key="p.id">
                                             <option v-if="p.id === upsellDownsellForm.downsell.product_id" v-for="o in p.offers" :key="o.id" :value="o.id">{{ o.name }} (R$ {{ o.price?.toFixed(2) }})</option>
@@ -3855,14 +3858,14 @@ function submit() {
 
         <!-- Aba Checkout -->
         <template v-if="currentTab === 'checkout'">
-            <div class="w-full space-y-6">
+            <div class="w-full space-y-4">
                 <!-- Header + ação Criar checkout -->
-                <div class="relative panel-table">
-                    <div class="border-b border-zinc-200/80 bg-gradient-to-r from-[var(--color-primary)]/10 via-zinc-50/90 to-zinc-100/50 px-6 py-5 dark:from-[var(--color-primary)]/15 dark:via-zinc-800/80 dark:to-zinc-800/50">
+                <div class="relative panel-card">
+                    <div class="px-6 py-5">
                         <div class="relative flex flex-wrap items-center justify-between gap-4">
                             <div>
-                                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Checkouts</h2>
-                                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Checkouts</h2>
+                                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                     Ofertas e planos usam o checkout principal por padrão. Crie um checkout exclusivo só quando quiser um link direto para uma oferta ou plano.
                                 </p>
                             </div>
@@ -3873,7 +3876,7 @@ function submit() {
                                     class="inline-flex items-center gap-2 rounded-xl"
                                     @click="showCreateCheckoutModal = true"
                                 >
-                                    <Plus class="h-4 w-4" />
+                                    <Plus :stroke-width="1.75" class="h-4 w-4" />
                                     Criar novo checkout
                                 </Button>
                             </div>
@@ -3886,67 +3889,67 @@ function submit() {
                     <div
                         v-for="item in checkoutItems"
                         :key="item.id"
-                        class="panel-card flex flex-col overflow-hidden transition hover:border-zinc-200 dark:hover:border-zinc-600 dark:hover:border-zinc-500/50"
+                        class="panel-card flex flex-col overflow-hidden transition-colors duration-150 hover:border-[var(--ep-line-strong)]"
                     >
-                        <div class="flex flex-1 flex-col gap-3 p-4">
+                        <div class="flex flex-1 flex-col gap-3 p-5">
                             <div class="flex items-center gap-2">
                                 <span
-                                    class="inline-flex rounded-md px-2 py-0.5 text-xs font-medium"
-                                    :class="item.type === 'main' ? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]' : item.type === 'offer' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'"
+                                    class="ep-chip"
+                                    :class="item.type === 'main' ? 'ep-chip--accent' : ''"
                                 >
                                     {{ item.type === 'main' ? 'Principal' : item.type === 'offer' ? 'Oferta' : 'Plano' }}
                                 </span>
-                                <span class="truncate text-sm font-medium text-zinc-900 dark:text-white">{{ item.type === 'main' ? 'Preço base' : item.label }}</span>
+                                <span class="truncate text-[13.5px] font-medium text-[var(--ep-text)]">{{ item.type === 'main' ? 'Preço base' : item.label }}</span>
                             </div>
                             <template v-if="item.slug">
-                                <p class="truncate font-mono text-xs text-zinc-500 dark:text-zinc-400" :title="checkoutUrl(item.slug)">{{ checkoutUrl(item.slug) }}</p>
+                                <p class="truncate rounded-lg border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-2.5 py-1.5 font-mono text-[11.5px] text-[var(--ep-text-3)]" :title="checkoutUrl(item.slug)">{{ checkoutUrl(item.slug) }}</p>
                                 <div class="mt-auto flex flex-wrap items-center gap-2">
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition"
-                                        :class="copiedSlug === item.slug ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600'"
+                                        class="ep-btn-secondary h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px]"
+                                        :class="copiedSlug === item.slug ? '!border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] !text-[var(--ep-pos)]' : ''"
                                         @click="copyLink(item.slug)"
                                     >
-                                        <Check v-if="copiedSlug === item.slug" class="h-3.5 w-3.5" />
-                                        <Copy v-else class="h-3.5 w-3.5" />
+                                        <Check v-if="copiedSlug === item.slug" :stroke-width="1.75" class="h-3.5 w-3.5" />
+                                        <Copy v-else :stroke-width="1.75" class="h-3.5 w-3.5" />
                                         {{ copiedSlug === item.slug ? 'Copiado' : 'Copiar' }}
                                     </button>
                                     <a
                                         :href="checkoutUrl(item.slug)"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                                        class="ep-btn-ghost h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px]"
                                     >
                                         Abrir
                                     </a>
                                     <Link
                                         :href="editCheckoutUrl(item)"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)]/50 bg-[var(--color-primary)]/10 px-2.5 py-1.5 text-xs font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-primary)]/20 dark:border-[var(--color-primary)]/50 dark:bg-[var(--color-primary)]/20 dark:hover:bg-[var(--color-primary)]/30"
+                                        class="ep-btn-secondary h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px]"
                                     >
-                                        <Pencil class="h-3.5 w-3.5" />
+                                        <Pencil :stroke-width="1.75" class="h-3.5 w-3.5" />
                                         Editar
                                     </Link>
                                     <button
                                         v-if="item.type === 'offer' || item.type === 'plan'"
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                        class="ep-btn-ghost h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px] !text-[var(--ep-neg)] hover:!bg-[var(--ep-neg-bg)]"
                                         @click="removeCheckoutSlug(item)"
                                     >
-                                        <Trash2 class="h-3.5 w-3.5" />
+                                        <Trash2 :stroke-width="1.75" class="h-3.5 w-3.5" />
                                         Excluir
                                     </button>
                                 </div>
                             </template>
                             <template v-else>
                                 <template v-if="item.type === 'main'">
-                                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Salve o produto para gerar o link do checkout.</p>
+                                    <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Salve o produto para gerar o link do checkout.</p>
                                     <Button type="button" variant="outline" size="sm" class="mt-auto w-fit rounded-lg" @click="ensureCheckoutSlug(item)">
                                         Gerar link
                                     </Button>
                                 </template>
                                 <template v-else>
-                                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Usa o checkout principal.</p>
-                                    <p v-if="props.produto.checkout_slug" class="truncate font-mono text-xs text-zinc-400 dark:text-zinc-500" :title="checkoutUrl(props.produto.checkout_slug)">{{ checkoutUrl(props.produto.checkout_slug) }}</p>
+                                    <p class="text-[12px] leading-relaxed text-[var(--ep-text-3)]">Usa o checkout principal.</p>
+                                    <p v-if="props.produto.checkout_slug" class="truncate font-mono text-[11.5px] text-[var(--ep-text-4)]" :title="checkoutUrl(props.produto.checkout_slug)">{{ checkoutUrl(props.produto.checkout_slug) }}</p>
                                     <Button type="button" variant="outline" size="sm" class="mt-auto w-fit rounded-lg" @click="ensureCheckoutSlug(item)">
                                         Criar checkout exclusivo
                                     </Button>
@@ -3974,38 +3977,38 @@ function submit() {
                         role="dialog"
                         @keydown.escape="showCreateCheckoutModal = false"
                     >
-                        <div class="absolute inset-0 bg-zinc-900/60 dark:bg-zinc-950/70" aria-hidden="true" @click="showCreateCheckoutModal = false" />
+                        <div class="ep-scrim absolute inset-0" aria-hidden="true" @click="showCreateCheckoutModal = false" />
                         <div
-                            class="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+                            class="ep-modal relative w-full max-w-md p-6"
                             role="document"
                         >
                             <div class="flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Criar novo checkout</h3>
+                                <h3 class="text-[15px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Criar novo checkout</h3>
                                 <button
                                     type="button"
-                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                    class="ep-btn-ghost ep-btn-icon -mr-1.5 shrink-0"
                                     aria-label="Fechar"
                                     @click="showCreateCheckoutModal = false"
                                 >
-                                    <X class="h-5 w-5" />
+                                    <X :stroke-width="1.75" class="h-4 w-4" />
                                 </button>
                             </div>
-                            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                            <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                 Crie um link direto para uma oferta ou plano. Caso contrário, eles usam o checkout principal.
                             </p>
                             <ul class="mt-4 space-y-2">
                                 <li
                                     v-for="item in offerPlanItemsWithoutExclusiveCheckout"
                                     :key="item.id"
-                                    class="panel-card flex items-center justify-between gap-3 px-4 py-3"
+                                    class="flex items-center justify-between gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3"
                                 >
-                                    <span class="text-sm font-medium text-zinc-900 dark:text-white">{{ item.type === 'offer' ? `Oferta: ${item.label}` : `Plano: ${item.label}` }}</span>
+                                    <span class="text-[13.5px] font-medium text-[var(--ep-text)]">{{ item.type === 'offer' ? `Oferta: ${item.label}` : `Plano: ${item.label}` }}</span>
                                     <Button type="button" size="sm" class="shrink-0 rounded-lg" @click="ensureCheckoutSlug(item); showCreateCheckoutModal = false">
                                         Criar checkout exclusivo
                                     </Button>
                                 </li>
                             </ul>
-                            <p v-if="offerPlanItemsWithoutExclusiveCheckout.length === 0" class="mt-4 rounded-xl bg-zinc-100 px-4 py-3 text-sm text-zinc-600 dark:bg-zinc-700/50 dark:text-zinc-400">
+                            <p v-if="offerPlanItemsWithoutExclusiveCheckout.length === 0" class="panel-card-dashed mt-4 px-4 py-3 text-[13px] text-[var(--ep-text-3)]">
                                 Todas as ofertas e planos já possuem checkout exclusivo ou usam o principal.
                             </p>
                             <div class="mt-5 flex justify-end">
@@ -4021,15 +4024,14 @@ function submit() {
         <template v-if="currentTab === 'links'">
             <div class="w-full">
                 <!-- Header -->
-                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-primary)]/10 via-zinc-50 to-zinc-100/80 px-6 py-8 dark:from-[var(--color-primary)]/15 dark:via-zinc-800/80 dark:to-zinc-900/80">
-                    <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-[var(--color-primary)]/10 dark:bg-[var(--color-primary)]/20" aria-hidden="true" />
+                <div class="panel-card ep-glow-card relative overflow-hidden px-6 py-6">
                     <div class="relative flex items-start gap-4">
-                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/20 text-[var(--color-primary)] dark:bg-[var(--color-primary)]/30">
-                            <Link2 class="h-6 w-6" aria-hidden="true" />
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--ep-accent)]">
+                            <Link2 :stroke-width="1.75" class="h-[18px] w-[18px]" aria-hidden="true" />
                         </span>
                         <div>
-                            <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">Links de checkout</h2>
-                            <p class="mt-1 max-w-xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                            <h2 class="text-[16px] font-semibold tracking-[-0.02em] text-[var(--ep-text)]">Links de checkout</h2>
+                            <p class="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                                 Compartilhe estes links em campanhas, e-mails ou redes sociais. Cada link leva direto ao checkout correspondente.
                             </p>
                         </div>
@@ -4037,36 +4039,36 @@ function submit() {
                 </div>
 
                 <!-- Lista de links -->
-                <div class="mt-6">
+                <div class="mt-4">
                     <template v-if="allCheckoutLinks.length === 0">
-                        <div class="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/50 px-6 py-16 text-center dark:border-zinc-600 dark:bg-zinc-800/30">
-                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-200/80 text-zinc-400 dark:bg-zinc-700/80 dark:text-zinc-500">
-                                <Link2 class="h-7 w-7" />
+                        <div class="panel-card ep-empty py-14">
+                            <span class="mb-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] text-[var(--ep-text-4)]">
+                                <Link2 :stroke-width="1.75" class="h-[18px] w-[18px]" />
                             </span>
-                            <p class="mt-4 font-medium text-zinc-700 dark:text-zinc-300">Nenhum link disponível</p>
-                            <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+                            <p class="ep-empty__title">Nenhum link disponível</p>
+                            <p class="ep-empty__text">
                                 Salve o produto na aba Geral para gerar o link. Ofertas e planos configurados aparecerão aqui.
                             </p>
                         </div>
                     </template>
-                    <ul v-else class="space-y-3">
+                    <ul v-else class="panel-card divide-y divide-[var(--ep-line)] overflow-hidden">
                         <li
                             v-for="(item, index) in allCheckoutLinks"
                             :key="item.id"
-                            class="group relative panel-card flex flex-col overflow-hidden transition hover:border-zinc-200 dark:hover:border-zinc-600 dark:hover:border-zinc-500/50"
+                            class="group relative flex flex-col transition-colors duration-150 hover:bg-[var(--ep-hover)]"
                         >
-                            <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                            <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span
-                                            class="inline-flex rounded-md px-2 py-0.5 text-xs font-medium"
-                                            :class="item.id === 'main' ? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)] dark:bg-[var(--color-primary)]/30' : 'bg-zinc-200/80 text-zinc-600 dark:bg-zinc-600/80 dark:text-zinc-400'"
+                                            class="ep-chip"
+                                            :class="item.id === 'main' ? 'ep-chip--accent' : ''"
                                         >
                                             {{ item.id === 'main' ? 'Principal' : item.id.startsWith('offer') ? 'Oferta' : 'Plano' }}
                                         </span>
-                                        <span class="text-sm font-medium text-zinc-900 dark:text-white">{{ item.id === 'main' ? 'Preço base' : item.label }}</span>
+                                        <span class="text-[13.5px] font-medium text-[var(--ep-text)]">{{ item.id === 'main' ? 'Preço base' : item.label }}</span>
                                     </div>
-                                    <p class="mt-1.5 truncate font-mono text-xs text-zinc-500 dark:text-zinc-400" :title="getCheckoutLinkUrl(item)">
+                                    <p class="mt-1.5 truncate font-mono text-[11.5px] text-[var(--ep-text-3)]" :title="getCheckoutLinkUrl(item)">
                                         {{ getCheckoutLinkUrl(item) }}
                                     </p>
                                 </div>
@@ -4076,18 +4078,18 @@ function submit() {
                                         :href="getCheckoutLinkUrl(item)"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white"
+                                        class="ep-btn-ghost h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px]"
                                     >
                                         Abrir
                                     </a>
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition"
-                                        :class="copiedSlug === item.id ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 dark:bg-[var(--color-primary)]/20 dark:hover:bg-[var(--color-primary)]/30'"
+                                        class="ep-btn-secondary h-8 gap-1.5 rounded-[10px] px-2.5 text-[12px]"
+                                        :class="copiedSlug === item.id ? '!border-[color-mix(in_oklab,var(--ep-pos)_35%,transparent)] !text-[var(--ep-pos)]' : ''"
                                         @click="copyLinkForItem(item)"
                                     >
-                                        <Check v-if="copiedSlug === item.id" class="h-3.5 w-3.5" />
-                                        <Copy v-else class="h-3.5 w-3.5" />
+                                        <Check v-if="copiedSlug === item.id" :stroke-width="1.75" class="h-3.5 w-3.5" />
+                                        <Copy v-else :stroke-width="1.75" class="h-3.5 w-3.5" />
                                         {{ copiedSlug === item.id ? 'Copiado!' : 'Copiar' }}
                                     </button>
                                 </div>
@@ -4105,44 +4107,44 @@ function submit() {
 
         <!-- Aba Reembolso (área de membros) -->
         <template v-if="currentTab === 'reembolso' && produto.type === 'area_membros'">
-            <div class="panel-card-lg">
-                <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Reembolso na área de membros</h2>
-                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <div class="panel-card-lg max-w-3xl">
+                <h2 class="ep-section-title">Reembolso na área de membros</h2>
+                <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                     Permite que o aluno solicite reembolso pelo menu da conta no header da área de membros.
-                    Aprovações e histórico ficam em <strong>Reembolsos</strong> no menu do painel.
+                    Aprovações e histórico ficam em <strong class="font-medium text-[var(--ep-text-2)]">Reembolsos</strong> no menu do painel.
                 </p>
-                <div class="mt-6 flex items-center justify-between gap-4 border-t border-zinc-100 pt-5 dark:border-zinc-700">
-                    <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Habilitar solicitação de reembolso</label>
+                <div class="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ep-line)] pt-5">
+                    <label class="text-[13px] font-medium text-[var(--ep-text)]">Habilitar solicitação de reembolso</label>
                     <Toggle v-model="refundForm.enabled" />
                 </div>
-                <div v-if="refundForm.enabled" class="mt-6 space-y-5 border-t border-zinc-100 pt-5 dark:border-zinc-700">
+                <div v-if="refundForm.enabled" class="mt-6 space-y-5 border-t border-[var(--ep-line)] pt-5">
                     <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Prazo (dias após liberação do acesso)</label>
+                        <label class="ep-label">Prazo (dias após liberação do acesso)</label>
                         <input
                             v-model.number="refundForm.days"
                             type="number"
                             min="1"
                             max="365"
-                            class="mt-1 w-full max-w-[120px] rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                            class="ep-input max-w-[120px] tabular-nums"
                         />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Modo de processamento</p>
+                        <p class="text-[13px] font-medium text-[var(--ep-text)]">Modo de processamento</p>
                         <div class="mt-2 space-y-2">
-                            <label class="flex cursor-pointer items-start gap-2">
-                                <input v-model="refundForm.mode" type="radio" value="auto" class="mt-1" />
+                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]">
+                                <input v-model="refundForm.mode" type="radio" value="auto" class="mt-0.5 shrink-0 accent-[var(--ep-accent)]" />
                                 <span>
-                                    <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Automático</span>
-                                    <span class="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[13px] font-medium text-[var(--ep-text)]">Automático</span>
+                                    <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                         Estorno imediato via API apenas para pagamentos PIX na CajuPay. Cartão e outros gateways entram em fila manual.
                                     </span>
                                 </span>
                             </label>
-                            <label class="flex cursor-pointer items-start gap-2">
-                                <input v-model="refundForm.mode" type="radio" value="manual" class="mt-1" />
+                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-3 transition-colors duration-150 hover:border-[var(--ep-line-strong)] has-[:checked]:border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] has-[:checked]:bg-[color-mix(in_oklab,var(--ep-accent)_8%,transparent)]">
+                                <input v-model="refundForm.mode" type="radio" value="manual" class="mt-0.5 shrink-0 accent-[var(--ep-accent)]" />
                                 <span>
-                                    <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Aprovação manual</span>
-                                    <span class="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">
+                                    <span class="text-[13px] font-medium text-[var(--ep-text)]">Aprovação manual</span>
+                                    <span class="mt-0.5 block text-[12px] leading-relaxed text-[var(--ep-text-3)]">
                                         Solicitações aparecem no menu Reembolsos do painel para você aprovar ou rejeitar.
                                     </span>
                                 </span>
@@ -4150,11 +4152,11 @@ function submit() {
                         </div>
                     </div>
                 </div>
-                <div class="mt-8 flex items-center gap-3 border-t border-zinc-100 pt-5 dark:border-zinc-700">
+                <div class="mt-6 flex items-center gap-3 border-t border-[var(--ep-line)] pt-5">
                     <Button type="button" :disabled="refundForm.processing" @click="saveRefundConfig">
                         {{ refundForm.processing ? 'Salvando…' : 'Salvar' }}
                     </Button>
-                    <p v-if="refundForm.hasErrors" class="text-sm text-red-600 dark:text-red-400">
+                    <p v-if="refundForm.hasErrors" class="text-[12.5px] text-[var(--ep-neg)]">
                         Verifique os campos e tente novamente.
                     </p>
                 </div>
@@ -4170,9 +4172,9 @@ function submit() {
         <template v-for="pt in pluginTabs" :key="pt.id">
             <template v-if="currentTab === pt.id">
                 <div class="panel-table">
-                    <div class="border-b border-zinc-200/80 px-6 py-4 dark:border-zinc-700/80">
-                        <h2 class="text-base font-semibold text-zinc-900 dark:text-white">{{ pt.label }}</h2>
-                        <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="border-b border-[var(--ep-line)] px-6 py-5">
+                        <h2 class="ep-section-title">{{ pt.label }}</h2>
+                        <p class="mt-1 text-[12.5px] leading-relaxed text-[var(--ep-text-3)]">
                             Configurações específicas deste produto via plugin.
                         </p>
                     </div>
@@ -4182,7 +4184,7 @@ function submit() {
                             :is="resolvePluginComponent(pt.pluginPanel)"
                             :produto="produto"
                         />
-                        <div v-else class="rounded-lg border border-dashed border-zinc-300 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+                        <div v-else class="panel-card-dashed p-4 text-[13px] text-[var(--ep-text-3)]">
                             Não foi possível carregar este painel do plugin.
                         </div>
                     </div>

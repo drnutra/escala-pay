@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import Button from '@/components/ui/Button.vue';
 import Toggle from '@/components/ui/Toggle.vue';
 import Checkbox from '@/components/ui/Checkbox.vue';
-import { Plus, Trash2 } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
 import {
     PIXEL_TABS,
     newMetaEntry,
@@ -73,34 +73,42 @@ const inputClass =
 </script>
 
 <template>
-    <div class="space-y-6" :class="{ 'pointer-events-none opacity-60': disabled }">
-        <div class="flex gap-3 overflow-x-auto pb-2 scroll-smooth" style="scrollbar-width: thin;">
+    <div class="space-y-5" :class="{ 'pointer-events-none opacity-60': disabled }">
+        <div class="-mx-1 flex gap-2.5 overflow-x-auto scroll-smooth px-1 pb-2" style="scrollbar-width: thin;">
             <button
                 v-for="tab in visiblePixelTabs"
                 :key="tab.id"
                 type="button"
                 :disabled="disabled"
                 :class="[
-                    'flex h-24 w-28 shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border-2 p-4 transition-all duration-200',
+                    'relative flex h-[92px] w-[112px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border p-3 transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98]',
                     selectedPixelTab === tab.id
-                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 dark:bg-[var(--color-primary)]/20'
-                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700',
+                        ? 'border-[color-mix(in_oklab,var(--ep-accent)_55%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_12%,transparent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_22px_-8px_var(--ep-glow)]'
+                        : 'border-[var(--ep-line)] bg-[var(--ep-card-2)] hover:border-[var(--ep-line-strong)] hover:bg-[var(--ep-hover)]',
                 ]"
                 @click="selectedPixelTab = tab.id"
             >
+                <span
+                    class="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-[var(--ep-pos)] transition-opacity duration-150"
+                    :class="model[tab.id]?.enabled ? 'opacity-100' : 'opacity-0'"
+                    aria-hidden="true"
+                />
                 <img
                     :src="tab.image"
                     :alt="tab.label"
                     class="h-8 w-8 object-contain"
                     @error="($e) => $e.target && ($e.target.style.display = 'none')"
                 />
-                <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">{{ tab.label }}</span>
+                <span
+                    class="max-w-full truncate text-[12px] font-medium"
+                    :class="selectedPixelTab === tab.id ? 'text-[var(--ep-text)]' : 'text-[var(--ep-text-3)]'"
+                >{{ tab.label }}</span>
             </button>
         </div>
 
-        <div v-if="selectedPixelTab === 'meta'" class="panel-card-md space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Meta Ads (Facebook)</h3>
+        <div v-if="selectedPixelTab === 'meta'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Meta Ads (Facebook)</h3>
                 <div class="flex items-center gap-3">
                     <Button
                         type="button"
@@ -109,7 +117,7 @@ const inputClass =
                         :disabled="disabled || !model.meta.enabled"
                         @click="model.meta.entries.push(newMetaEntry())"
                     >
-                        <Plus class="mr-1 h-4 w-4" /> Adicionar pixel
+                        <Plus class="h-3.5 w-3.5" stroke-width="2" /> Adicionar pixel
                     </Button>
                     <Toggle v-model="model.meta.enabled" :disabled="disabled" />
                 </div>
@@ -121,45 +129,46 @@ const inputClass =
                     :integrations="availableIntegrations?.meta || []"
                     :disabled="disabled"
                 />
-                <details v-if="!(model.meta.integration_ids?.length)" class="rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <details v-if="!(model.meta.integration_ids?.length)" class="group overflow-hidden rounded-2xl border border-[var(--ep-line)]">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)] [&::-webkit-details-marker]:hidden">
                         Configuração manual (avançado)
+                        <ChevronDown class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-200 group-open:rotate-180" stroke-width="1.75" aria-hidden="true" />
                     </summary>
-                    <div class="space-y-3 border-t border-zinc-200 p-4 dark:border-zinc-700">
-                <div v-for="(item, idx) in model.meta.entries" :key="item.id" class="panel-card-sm space-y-3 dark:bg-zinc-800">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] p-4">
+                <div v-for="(item, idx) in model.meta.entries" :key="item.id" class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Pixel {{ idx + 1 }}</span>
+                        <span class="ep-chip tabular-nums">Pixel {{ idx + 1 }}</span>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                             :disabled="disabled"
                             @click="model.meta.entries.splice(idx, 1)"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <Trash2 class="h-4 w-4" stroke-width="1.75" />
                         </button>
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Pixel ID</label>
-                        <input v-model="item.pixel_id" type="text" placeholder="Ex: 123456789" :class="inputClass" :disabled="disabled" />
+                        <label class="ep-label">Pixel ID</label>
+                        <input v-model="item.pixel_id" type="text" placeholder="Ex: 123456789" class="ep-input font-mono !text-[13px] disabled:opacity-60" :disabled="disabled" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Access Token (CAPI)</label>
+                        <label class="ep-label">Access Token (CAPI)</label>
                         <input
                             v-model="item.access_token"
                             type="password"
                             placeholder="Token para Conversions API"
-                            :class="inputClass"
+                            class="ep-input disabled:opacity-60"
                             autocomplete="off"
                             :disabled="disabled"
                         />
                     </div>
-                    <div class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] pt-4">
                         <Checkbox v-model="item.fire_purchase_on_pix" label="Disparar Purchase ao gerar PIX (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.fire_purchase_on_boleto" label="Disparar Purchase ao gerar boleto (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.disable_order_bump_events" label="Desativar eventos de order bumps?" :disabled="disabled" />
                     </div>
                 </div>
-                <p v-if="model.meta.entries.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p v-if="model.meta.entries.length === 0" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-4 py-6 text-center text-[12.5px] text-[var(--ep-text-4)]">
                     Nenhum pixel. Clique em «Adicionar pixel» ou desative a integração.
                 </p>
                     </div>
@@ -167,9 +176,9 @@ const inputClass =
             </template>
         </div>
 
-        <div v-if="selectedPixelTab === 'tiktok'" class="panel-card-md space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">TikTok Ads</h3>
+        <div v-if="selectedPixelTab === 'tiktok'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">TikTok Ads</h3>
                 <div class="flex items-center gap-3">
                     <Button
                         type="button"
@@ -178,7 +187,7 @@ const inputClass =
                         :disabled="disabled || !model.tiktok.enabled"
                         @click="model.tiktok.entries.push(newTiktokEntry())"
                     >
-                        <Plus class="mr-1 h-4 w-4" /> Adicionar pixel
+                        <Plus class="h-3.5 w-3.5" stroke-width="2" /> Adicionar pixel
                     </Button>
                     <Toggle v-model="model.tiktok.enabled" :disabled="disabled" />
                 </div>
@@ -190,45 +199,46 @@ const inputClass =
                     :integrations="availableIntegrations?.tiktok || []"
                     :disabled="disabled"
                 />
-                <details v-if="!(model.tiktok.integration_ids?.length)" class="rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <details v-if="!(model.tiktok.integration_ids?.length)" class="group overflow-hidden rounded-2xl border border-[var(--ep-line)]">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)] [&::-webkit-details-marker]:hidden">
                         Configuração manual (avançado)
+                        <ChevronDown class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-200 group-open:rotate-180" stroke-width="1.75" aria-hidden="true" />
                     </summary>
-                    <div class="space-y-3 border-t border-zinc-200 p-4 dark:border-zinc-700">
-                <div v-for="(item, idx) in model.tiktok.entries" :key="item.id" class="panel-card-sm space-y-3 dark:bg-zinc-800">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] p-4">
+                <div v-for="(item, idx) in model.tiktok.entries" :key="item.id" class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Pixel {{ idx + 1 }}</span>
+                        <span class="ep-chip tabular-nums">Pixel {{ idx + 1 }}</span>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                             :disabled="disabled"
                             @click="model.tiktok.entries.splice(idx, 1)"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <Trash2 class="h-4 w-4" stroke-width="1.75" />
                         </button>
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Pixel ID</label>
-                        <input v-model="item.pixel_id" type="text" placeholder="Ex: C1X2Y3Z4..." :class="inputClass" :disabled="disabled" />
+                        <label class="ep-label">Pixel ID</label>
+                        <input v-model="item.pixel_id" type="text" placeholder="Ex: C1X2Y3Z4..." class="ep-input font-mono !text-[13px] disabled:opacity-60" :disabled="disabled" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Access Token</label>
+                        <label class="ep-label">Access Token</label>
                         <input
                             v-model="item.access_token"
                             type="password"
                             placeholder="Token do TikTok Events API"
-                            :class="inputClass"
+                            class="ep-input disabled:opacity-60"
                             autocomplete="off"
                             :disabled="disabled"
                         />
                     </div>
-                    <div class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] pt-4">
                         <Checkbox v-model="item.fire_purchase_on_pix" label="Disparar Purchase ao gerar PIX (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.fire_purchase_on_boleto" label="Disparar Purchase ao gerar boleto (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.disable_order_bump_events" label="Desativar eventos de order bumps?" :disabled="disabled" />
                     </div>
                 </div>
-                <p v-if="model.tiktok.entries.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p v-if="model.tiktok.entries.length === 0" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-4 py-6 text-center text-[12.5px] text-[var(--ep-text-4)]">
                     Nenhum pixel. Clique em «Adicionar pixel» ou desative a integração.
                 </p>
                     </div>
@@ -236,9 +246,9 @@ const inputClass =
             </template>
         </div>
 
-        <div v-if="selectedPixelTab === 'google_ads'" class="panel-card-md space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Google Ads</h3>
+        <div v-if="selectedPixelTab === 'google_ads'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Google Ads</h3>
                 <div class="flex items-center gap-3">
                     <Button
                         type="button"
@@ -247,7 +257,7 @@ const inputClass =
                         :disabled="disabled || !model.google_ads.enabled"
                         @click="model.google_ads.entries.push(newGoogleAdsEntry())"
                     >
-                        <Plus class="mr-1 h-4 w-4" /> Adicionar conversão
+                        <Plus class="h-3.5 w-3.5" stroke-width="2" /> Adicionar conversão
                     </Button>
                     <Toggle v-model="model.google_ads.enabled" :disabled="disabled" />
                 </div>
@@ -259,38 +269,41 @@ const inputClass =
                     :integrations="availableIntegrations?.google_ads || []"
                     :disabled="disabled"
                 />
-                <details v-if="!(model.google_ads.integration_ids?.length)" class="rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <details v-if="!(model.google_ads.integration_ids?.length)" class="group overflow-hidden rounded-2xl border border-[var(--ep-line)]">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)] [&::-webkit-details-marker]:hidden">
                         Configuração manual (avançado)
+                        <ChevronDown class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-200 group-open:rotate-180" stroke-width="1.75" aria-hidden="true" />
                     </summary>
-                    <div class="space-y-3 border-t border-zinc-200 p-4 dark:border-zinc-700">
-                <div v-for="(item, idx) in model.google_ads.entries" :key="item.id" class="panel-card-sm space-y-3 dark:bg-zinc-800">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] p-4">
+                <div v-for="(item, idx) in model.google_ads.entries" :key="item.id" class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Conversão {{ idx + 1 }}</span>
+                        <span class="ep-chip tabular-nums">Conversão {{ idx + 1 }}</span>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                             :disabled="disabled"
                             @click="model.google_ads.entries.splice(idx, 1)"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <Trash2 class="h-4 w-4" stroke-width="1.75" />
                         </button>
                     </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Conversion ID</label>
-                        <input v-model="item.conversion_id" type="text" placeholder="Ex: AW-123456789" :class="inputClass" :disabled="disabled" />
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="ep-label">Conversion ID</label>
+                            <input v-model="item.conversion_id" type="text" placeholder="Ex: AW-123456789" class="ep-input font-mono !text-[13px] disabled:opacity-60" :disabled="disabled" />
+                        </div>
+                        <div>
+                            <label class="ep-label">Conversion Label</label>
+                            <input v-model="item.conversion_label" type="text" placeholder="Ex: AbCdEfGhIjKlMn" class="ep-input font-mono !text-[13px] disabled:opacity-60" :disabled="disabled" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Conversion Label</label>
-                        <input v-model="item.conversion_label" type="text" placeholder="Ex: AbCdEfGhIjKlMn" :class="inputClass" :disabled="disabled" />
-                    </div>
-                    <div class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] pt-4">
                         <Checkbox v-model="item.fire_purchase_on_pix" label="Disparar Purchase ao gerar PIX (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.fire_purchase_on_boleto" label="Disparar Purchase ao gerar boleto (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.disable_order_bump_events" label="Desativar eventos de order bumps?" :disabled="disabled" />
                     </div>
                 </div>
-                <p v-if="model.google_ads.entries.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p v-if="model.google_ads.entries.length === 0" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-4 py-6 text-center text-[12.5px] text-[var(--ep-text-4)]">
                     Nenhuma conversão. Clique em «Adicionar conversão» ou desative a integração.
                 </p>
                     </div>
@@ -298,9 +311,9 @@ const inputClass =
             </template>
         </div>
 
-        <div v-if="selectedPixelTab === 'google_analytics'" class="panel-card-md space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Google Analytics (GA4)</h3>
+        <div v-if="selectedPixelTab === 'google_analytics'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Google Analytics (GA4)</h3>
                 <div class="flex items-center gap-3">
                     <Button
                         type="button"
@@ -309,7 +322,7 @@ const inputClass =
                         :disabled="disabled || !model.google_analytics.enabled"
                         @click="model.google_analytics.entries.push(newGaEntry())"
                     >
-                        <Plus class="mr-1 h-4 w-4" /> Adicionar propriedade
+                        <Plus class="h-3.5 w-3.5" stroke-width="2" /> Adicionar propriedade
                     </Button>
                     <Toggle v-model="model.google_analytics.enabled" :disabled="disabled" />
                 </div>
@@ -321,38 +334,39 @@ const inputClass =
                     :integrations="availableIntegrations?.google_analytics || []"
                     :disabled="disabled"
                 />
-                <details v-if="!(model.google_analytics.integration_ids?.length)" class="rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <details v-if="!(model.google_analytics.integration_ids?.length)" class="group overflow-hidden rounded-2xl border border-[var(--ep-line)]">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)] [&::-webkit-details-marker]:hidden">
                         Configuração manual (avançado)
+                        <ChevronDown class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-200 group-open:rotate-180" stroke-width="1.75" aria-hidden="true" />
                     </summary>
-                    <div class="space-y-3 border-t border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] p-4">
                 <div
                     v-for="(item, idx) in model.google_analytics.entries"
                     :key="item.id"
-                    class="panel-card-sm space-y-3 dark:bg-zinc-800"
+                    class="space-y-4 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4"
                 >
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">GA4 {{ idx + 1 }}</span>
+                        <span class="ep-chip tabular-nums">GA4 {{ idx + 1 }}</span>
                         <button
                             type="button"
-                            class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                            class="ep-btn-ghost ep-btn-icon !h-8 !w-8 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                             :disabled="disabled"
                             @click="model.google_analytics.entries.splice(idx, 1)"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <Trash2 class="h-4 w-4" stroke-width="1.75" />
                         </button>
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Measurement ID</label>
-                        <input v-model="item.measurement_id" type="text" placeholder="Ex: G-XXXXXXXXXX" :class="inputClass" :disabled="disabled" />
+                        <label class="ep-label">Measurement ID</label>
+                        <input v-model="item.measurement_id" type="text" placeholder="Ex: G-XXXXXXXXXX" class="ep-input font-mono !text-[13px] disabled:opacity-60" :disabled="disabled" />
                     </div>
-                    <div class="space-y-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <div class="space-y-3 border-t border-[var(--ep-line)] pt-4">
                         <Checkbox v-model="item.fire_purchase_on_pix" label="Disparar Purchase ao gerar PIX (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.fire_purchase_on_boleto" label="Disparar Purchase ao gerar boleto (não na aprovação)?" :disabled="disabled" />
                         <Checkbox v-model="item.disable_order_bump_events" label="Desativar eventos de order bumps?" :disabled="disabled" />
                     </div>
                 </div>
-                <p v-if="model.google_analytics.entries.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+                <p v-if="model.google_analytics.entries.length === 0" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-4 py-6 text-center text-[12.5px] text-[var(--ep-text-4)]">
                     Nenhuma propriedade. Clique em «Adicionar propriedade» ou desative a integração.
                 </p>
                     </div>
@@ -360,27 +374,27 @@ const inputClass =
             </template>
         </div>
 
-        <div v-if="selectedPixelTab === 'gtm'" class="panel-card-md space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Google Tag Manager</h3>
+        <div v-if="selectedPixelTab === 'gtm'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Google Tag Manager</h3>
                 <Toggle v-model="model.gtm.enabled" :disabled="disabled" />
             </div>
             <template v-if="model.gtm?.enabled">
-                <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                    O container GTM carrega no checkout e recebe eventos no <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">dataLayer</code>:
-                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">page_view</code>,
-                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">begin_checkout</code>,
-                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">pix_generated</code>,
-                    <code class="rounded bg-zinc-100 px-1 dark:bg-zinc-800">purchase</code>.
+                <p class="rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] px-4 py-3 text-[12.5px] leading-[1.8] text-[var(--ep-text-3)] [&_code]:rounded-md [&_code]:bg-[var(--ep-active)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11.5px] [&_code]:text-[var(--ep-text)]">
+                    O container GTM carrega no checkout e recebe eventos no <code>dataLayer</code>:
+                    <code>page_view</code>,
+                    <code>begin_checkout</code>,
+                    <code>pix_generated</code>,
+                    <code>purchase</code>.
                     Configure tags no GTM para ouvir esses eventos.
                 </p>
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Container ID</label>
+                    <label class="ep-label">Container ID</label>
                     <input
                         v-model="model.gtm.container_id"
                         type="text"
                         placeholder="GTM-XXXXXXX"
-                        :class="inputClass"
+                        class="ep-input font-mono !text-[13px] uppercase disabled:opacity-60"
                         :disabled="disabled"
                         @blur="model.gtm.container_id = (model.gtm.container_id || '').trim().toUpperCase()"
                     />
@@ -388,9 +402,9 @@ const inputClass =
             </template>
         </div>
 
-        <div v-if="selectedPixelTab === 'custom_script'" class="panel-card-md space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Scripts personalizados</h3>
+        <div v-if="selectedPixelTab === 'custom_script'" class="panel-card space-y-5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-[14px] font-semibold tracking-[-0.01em] text-[var(--ep-text)]">Scripts personalizados</h3>
                 <Button
                     v-if="!usesScriptIntegrations()"
                     type="button"
@@ -399,57 +413,61 @@ const inputClass =
                     :disabled="disabled"
                     @click="model.custom_script.push({ id: randomClientId(), name: '', script: '' })"
                 >
-                    <Plus class="mr-1 h-4 w-4" /> Adicionar script manual
+                    <Plus class="h-3.5 w-3.5" stroke-width="2" /> Adicionar script manual
                 </Button>
             </div>
-            <div class="space-y-3 rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/30">
-                <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Integrações cadastradas</p>
-                <p v-if="scriptIntegrations().length === 0" class="text-sm text-zinc-500">
-                    <Link href="/integracoes" class="text-[var(--color-primary)] underline">Cadastrar em Integrações</Link>
+            <div class="space-y-3 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
+                <p class="ep-section-title">Integrações cadastradas</p>
+                <p v-if="scriptIntegrations().length === 0" class="text-[12.5px] text-[var(--ep-text-4)]">
+                    <Link href="/integracoes" class="font-medium text-[var(--ep-accent)] underline-offset-4 hover:underline">Cadastrar em Integrações</Link>
                 </p>
                 <div v-else class="space-y-2">
                     <label
                         v-for="item in scriptIntegrations()"
                         :key="item.id"
-                        class="flex cursor-pointer items-start gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-900"
+                        class="flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors duration-150"
+                        :class="isScriptIntegrationSelected(item.id)
+                            ? 'border-[color-mix(in_oklab,var(--ep-accent)_45%,transparent)] bg-[color-mix(in_oklab,var(--ep-accent)_10%,transparent)]'
+                            : 'border-[var(--ep-line)] bg-[var(--ep-input)] hover:border-[var(--ep-line-strong)]'"
                     >
                         <input
                             type="checkbox"
-                            class="mt-1 rounded border-zinc-300"
+                            class="h-4 w-4 shrink-0 cursor-pointer accent-[var(--ep-accent)]"
                             :checked="isScriptIntegrationSelected(item.id)"
                             :disabled="disabled"
                             @change="toggleScriptIntegration(item.id, $event.target.checked)"
                         />
-                        <span class="text-sm font-medium text-zinc-900 dark:text-white">{{ item.name }}</span>
+                        <span class="min-w-0 truncate text-[13px] font-medium text-[var(--ep-text)]">{{ item.name }}</span>
                     </label>
                 </div>
             </div>
-            <details v-if="!usesScriptIntegrations()" class="rounded-xl border border-zinc-200 dark:border-zinc-700">
-                <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <details v-if="!usesScriptIntegrations()" class="group overflow-hidden rounded-2xl border border-[var(--ep-line)]">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-[var(--ep-text-2)] transition-colors duration-150 hover:bg-[var(--ep-hover)] hover:text-[var(--ep-text)] [&::-webkit-details-marker]:hidden">
                     Scripts manuais (avançado)
+                    <ChevronDown class="h-4 w-4 text-[var(--ep-text-4)] transition-transform duration-200 group-open:rotate-180" stroke-width="1.75" aria-hidden="true" />
                 </summary>
-                <div class="space-y-3 border-t border-zinc-200 p-4 dark:border-zinc-700">
-            <div v-for="(item, idx) in model.custom_script" :key="item.id" class="panel-card-sm space-y-3 dark:bg-zinc-800">
+                <div class="space-y-3 border-t border-[var(--ep-line)] p-4">
+            <div v-for="(item, idx) in model.custom_script" :key="item.id" class="space-y-3 rounded-2xl border border-[var(--ep-line)] bg-[var(--ep-card-2)] p-4">
                 <div class="flex items-center gap-2">
-                    <input v-model="item.name" type="text" placeholder="Nome (opcional)" :class="inputClass + ' flex-1'" :disabled="disabled" />
+                    <input v-model="item.name" type="text" placeholder="Nome (opcional)" class="ep-input flex-1 disabled:opacity-60" :disabled="disabled" />
                     <button
                         type="button"
-                        class="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                        class="ep-btn-ghost ep-btn-icon shrink-0 !rounded-[10px] hover:!bg-[var(--ep-neg-bg)] hover:!text-[var(--ep-neg)]"
                         :disabled="disabled"
                         @click="model.custom_script.splice(idx, 1)"
                     >
-                        <Trash2 class="h-4 w-4" />
+                        <Trash2 class="h-4 w-4" stroke-width="1.75" />
                     </button>
                 </div>
                 <textarea
                     v-model="item.script"
                     rows="4"
-                    :class="inputClass + ' font-mono text-sm'"
+                    class="ep-input font-mono !text-[12.5px] disabled:opacity-60"
                     placeholder="Cole o código do pixel aqui (ex: &lt;script&gt;...&lt;/script&gt;)"
                     :disabled="disabled"
                 />
             </div>
-            <p v-if="model.custom_script.length === 0" class="text-sm text-zinc-500 dark:text-zinc-400">
+            <p v-if="model.custom_script.length === 0" class="rounded-xl border border-dashed border-[var(--ep-line-strong)] px-4 py-6 text-center text-[12.5px] text-[var(--ep-text-4)]">
                 Nenhum script adicionado.
             </p>
                 </div>

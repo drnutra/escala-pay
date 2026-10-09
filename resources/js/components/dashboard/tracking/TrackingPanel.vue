@@ -31,56 +31,53 @@ const emit = defineEmits([
 </script>
 
 <template>
-    <div class="min-w-0 max-w-full space-y-6 overflow-x-hidden">
-        <div class="relative overflow-hidden rounded-2xl border border-[var(--color-primary)]/15 bg-gradient-to-r from-[var(--color-primary)]/5 via-transparent to-transparent p-3 sm:p-5 dark:from-[var(--color-primary)]/10">
-            <div class="flex flex-col-reverse gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-x-4">
-                <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-                    <button
-                        type="button"
-                        aria-label="Voltar para Dashboard"
-                        class="flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-zinc-200/80 bg-zinc-100/90 px-3.5 text-sm font-medium text-zinc-700 transition-colors hover:border-[var(--color-primary)]/30 hover:text-[var(--color-primary)] sm:w-auto dark:border-zinc-700/80 dark:bg-zinc-800/50 dark:text-zinc-200"
-                        @click="emit('close')"
-                    >
-                        <ArrowLeft class="h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span class="whitespace-nowrap">Dashboard</span>
-                    </button>
-                    <div class="min-w-0 flex-1 sm:min-w-[200px]">
-                        <DashboardPeriodFilter
-                            :model-value="period"
-                            @update:model-value="emit('update:period', $event)"
-                        />
-                    </div>
-                </div>
-
-                <div class="w-full shrink-0 lg:ml-auto lg:w-auto lg:text-right">
-                    <div class="flex items-center gap-2 lg:justify-end">
-                        <span
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                            aria-hidden="true"
-                        >
-                            <Radar class="h-4 w-4" />
-                        </span>
-                        <h1 class="text-base font-bold leading-tight text-zinc-900 dark:text-white sm:text-lg">
+    <div class="min-w-0 max-w-full space-y-5 overflow-x-hidden">
+        <header class="flex flex-col gap-4">
+            <div class="flex min-w-0 flex-wrap items-center gap-3">
+                <button
+                    type="button"
+                    aria-label="Voltar para Dashboard"
+                    class="ep-btn-secondary shrink-0 px-3"
+                    @click="emit('close')"
+                >
+                    <ArrowLeft class="h-4 w-4 shrink-0" :stroke-width="1.75" aria-hidden="true" />
+                    <span class="whitespace-nowrap">Dashboard</span>
+                </button>
+                <div class="mx-1 hidden h-6 w-px bg-[var(--ep-line-strong)] sm:block" aria-hidden="true" />
+                <div class="flex min-w-0 flex-1 items-center gap-3">
+                    <span class="ep-kpi__icon shrink-0" aria-hidden="true">
+                        <Radar class="h-4 w-4" :stroke-width="1.75" />
+                    </span>
+                    <div class="min-w-0">
+                        <h1 class="ep-page-heading truncate leading-tight">
                             Tracking avançado
                         </h1>
+                        <p class="mt-0.5 truncate text-[12.5px] text-[var(--ep-text-3)]">
+                            Visão completa de vendas, checkout, geo e ROI
+                        </p>
                     </div>
-                    <p class="mt-1 text-xs leading-snug text-zinc-500 sm:text-sm">
-                        Visão completa de vendas, checkout, geo e ROI
-                    </p>
                 </div>
             </div>
+            <div class="min-w-0">
+                <DashboardPeriodFilter
+                    :model-value="period"
+                    @update:model-value="emit('update:period', $event)"
+                />
+            </div>
+        </header>
+
+        <div v-if="loading && !data" class="panel-card ep-empty min-h-[320px]">
+            <Loader2 class="h-6 w-6 animate-spin text-[var(--ep-accent)]" :stroke-width="1.75" aria-hidden="true" />
+            <p class="ep-empty__title mt-2">Carregando métricas...</p>
+            <p class="ep-empty__text">Reunindo vendas, checkout, países e origem do tráfego.</p>
         </div>
 
-        <div v-if="loading && !data" class="flex items-center justify-center py-24 text-zinc-500">
-            <Loader2 class="mr-2 h-6 w-6 animate-spin text-[var(--color-primary)]" />
-            Carregando métricas...
-        </div>
-
-        <div v-else-if="error" class="panel-card-md text-center">
-            <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+        <div v-else-if="error" class="panel-card ep-empty">
+            <span class="h-2 w-2 rounded-full bg-[var(--ep-neg)]" aria-hidden="true" />
+            <p class="ep-empty__title mt-1 text-[var(--ep-neg)]">{{ error }}</p>
             <button
                 type="button"
-                class="mt-3 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white"
+                class="ep-btn mt-3"
                 @click="emit('retry')"
             >
                 Tentar novamente
@@ -99,19 +96,31 @@ const emit = defineEmits([
             />
 
             <div class="grid items-stretch gap-4 lg:grid-cols-3">
-                <div class="panel-card-lg flex flex-col overflow-hidden lg:col-span-2">
-                    <div class="shrink-0 px-1">
-                        <h2 class="mb-0.5 text-sm font-semibold text-zinc-900 dark:text-white">Vendas por país</h2>
-                        <p class="text-xs text-zinc-500">Mapa mundial — países com vendas destacados</p>
+                <section class="panel-card flex min-w-0 flex-col overflow-hidden p-6 lg:col-span-2" aria-labelledby="trk-mapa">
+                    <div class="flex shrink-0 flex-wrap items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h2 id="trk-mapa" class="text-[13px] font-medium text-[var(--ep-text-2)]">Vendas por país</h2>
+                            <p class="mt-1 text-[12px] text-[var(--ep-text-4)]">Mapa mundial — países com vendas destacados</p>
+                        </div>
+                        <div class="flex items-center gap-3 text-[11.5px] text-[var(--ep-text-3)]">
+                            <span class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-[var(--ep-accent)]" aria-hidden="true" />
+                                Com atividade
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-[var(--ep-line-strong)]" aria-hidden="true" />
+                                Sem dados
+                            </span>
+                        </div>
                     </div>
-                    <div class="relative -mx-6 -mb-6 mt-3 h-[220px] sm:h-[240px]">
+                    <div class="relative -mx-6 -mb-6 mt-3 h-[240px] border-t border-[var(--ep-line)] bg-[radial-gradient(60%_80%_at_50%_55%,color-mix(in_oklab,var(--ep-accent)_10%,transparent),transparent_72%)] sm:h-[268px]">
                         <TrackingWorldMap
                             class="absolute inset-0"
                             :countries="data.sales_by_country?.length ? data.sales_by_country : data.visits_by_country"
                             :highlight-code="data.top_country?.country_code"
                         />
                     </div>
-                </div>
+                </section>
                 <TrackingCountryLeader
                     :top-country="data.top_country"
                     :values-visible="valuesVisible"
@@ -137,8 +146,8 @@ const emit = defineEmits([
                     :sales="data.recent_sales"
                     :values-visible="valuesVisible"
                 />
-                <div class="min-w-0 space-y-4 lg:col-span-2">
-                    <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="min-w-0 lg:col-span-2">
+                    <div class="grid h-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                         <TrackingUtmSources class="min-w-0" :sources="data.utm_sources" />
                         <TrackingRevenueChart
                             class="min-w-0"

@@ -327,7 +327,18 @@ onUnmounted(() => {
                 :stroke="strokeFor(location.id)"
                 :stroke-width="0.9 * strokeScale"
                 stroke-linejoin="round"
-                :class="pathClass(location.id)"
+                :class="[pathClass(location.id), countryData(location.id) ? 'hover:brightness-125' : '']"
+                :style="countryData(location.id)
+                    ? {
+                        fill: 'var(--ep-accent)',
+                        stroke: 'var(--ep-accent)',
+                        strokeOpacity: isLeader(location.id) ? 1 : 0.55,
+                        filter: isLeader(location.id) ? 'drop-shadow(0 0 6px var(--ep-glow)) drop-shadow(0 0 18px color-mix(in oklab, var(--ep-accent) 45%, transparent))' : undefined,
+                    }
+                    : {
+                        fill: 'color-mix(in oklab, var(--ep-text) 9%, transparent)',
+                        stroke: 'var(--ep-line-strong)',
+                    }"
                 @mouseenter="onPathEnter(location, $event)"
                 @mousemove="onPathMove"
                 @mouseleave="onPathLeave"
@@ -344,17 +355,17 @@ onUnmounted(() => {
         >
             <div
                 v-if="hovered && !isPanning"
-                class="pointer-events-none absolute z-20 min-w-[120px] -translate-x-1/2 -translate-y-full rounded-lg border border-zinc-700/80 bg-zinc-900/95 px-3 py-2 text-center shadow-lg backdrop-blur-sm"
+                class="ep-chart-tip pointer-events-none absolute z-20 min-w-[132px] -translate-x-1/2 -translate-y-full text-left"
                 :style="{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }"
             >
-                <p class="text-xs font-semibold text-white">{{ hovered.name }}</p>
-                <p class="mt-0.5 text-[11px] text-zinc-300">
+                <p class="ep-chart-tip__label">{{ hovered.name }}</p>
+                <p class="ep-chart-tip__value">
                     {{ hovered.count }}
                     {{ isSales ? (hovered.count === 1 ? 'venda' : 'vendas') : (hovered.count === 1 ? 'visita' : 'visitas') }}
                 </p>
-                <p class="text-[11px] font-medium" :style="{ color: primaryColor }">
-                    {{ hovered.percent }}%
-                    <span v-if="isSales && hovered.total > 0" class="text-zinc-400">
+                <p class="ep-chart-tip__prev">
+                    <span class="font-medium text-[var(--ep-accent)]">{{ hovered.percent }}%</span>
+                    <span v-if="isSales && hovered.total > 0">
                         · {{ formatBRL(hovered.total) }}
                     </span>
                 </p>
@@ -362,7 +373,7 @@ onUnmounted(() => {
         </Transition>
 
         <p
-            class="pointer-events-none absolute bottom-0 left-0 right-0 pb-0.5 text-center text-[10px] text-zinc-500/90"
+            class="pointer-events-none absolute bottom-2 left-0 right-0 text-center text-[10.5px] tabular-nums text-[var(--ep-text-4)]"
         >
             Arraste para explorar · passe o mouse no país
             <span v-if="activeCount"> · {{ activeCount }} país(es)</span>
