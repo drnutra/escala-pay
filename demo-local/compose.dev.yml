@@ -1,0 +1,11 @@
+# Modo edição ao vivo: monta o código da pasta do projeto dentro do container.
+# Com o Vite rodando no host (npm run dev), public/hot faz o painel carregar JS/CSS do Vite com HMR.
+# Uso: DEV=1 ./demo-local/demo.sh up -d app
+services:
+  app:
+    volumes:
+      - ./resources:/var/www/html/resources
+      - ./public:/var/www/html/public
+      - ./app:/var/www/html/app
+      - ./routes:/var/www/html/routes
+      - ./config:/var/www/html/config

@@ -1,0 +1,10 @@
+# Override da demo local: nome da imagem e APP_URL fixo em http://127.0.0.1:8090.
+services:
+  app:
+    image: getfy_demo_app:local
+    environment:
+      APP_URL: http://127.0.0.1:8090
+  queue:
+    image: getfy_demo_app:local
+    environment:
+      APP_URL: http://127.0.0.1:8090
